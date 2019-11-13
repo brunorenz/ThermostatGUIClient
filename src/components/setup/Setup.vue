@@ -1,18 +1,41 @@
 <template>
   <div class="animated fadeIn">
-    <b-row>
-      <b-col sm="6">
-        <b-card></b-card>
-      </b-col>
-      <b-col sm="6">
-        <b-card></b-card>
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-col sm="12">
-        <b-card></b-card>
-      </b-col>
-    </b-row>
+    <h2>Gestione Dispositivi</h2>
+    <p>Seleziona il dispositivo da configurare.</p>
+
+    <p>
+      E' possibile:
+      <br />1) Aggiornare il nome del dispositivo
+      <br />2) Impostare modalità di funzionamento del dispositivo
+      <br />3)
+      Impostare modalità di relevazione temperatura
+    </p>
+
+    <b-form-group
+      id="fieldset-horizontal"
+      label-cols-sm="4"
+      label-cols-lg="3"
+      description="Let us know your name."
+      label="Enter your name"
+      label-for="input-horizontal"
+    >
+      <b-form-input id="input-horizontal"></b-form-input>
+    </b-form-group>
+    <b-form-group label-cols-lg="12" :label-for="field.id" :label="field.label">
+      <b-form-checkbox :id="field.id" v-model="field.value" :placeholder="field.label"></b-form-checkbox>
+
+      <b-row>
+        <b-col sm="6"></b-col>
+        <b-col sm="6">
+          <b-card></b-card>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col sm="12">
+          <b-card></b-card>
+        </b-col>
+      </b-row>
+    </b-form-group>
   </div>
 </template>
 
@@ -21,14 +44,20 @@
 
 <script>
 import moment from "moment";
-import HttpMonitor from "@/services/httpMonitorRest";
+import httpServer from "@/services/httpMonitorRest";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
 
 export default {
   name: "Setup",
   components: {},
   data: function() {
-    return {};
+    return {
+      field: {
+        id: "1",
+        value: true,
+        label: "label"
+      }
+    };
   },
   computed: {},
   methods: {}
