@@ -1,0 +1,210 @@
+/* LABEL ======================================= */
+/*
+label {
+    color: #999;
+    font-size: 18px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 10px;
+    transition: 0.2s ease all;
+    -moz-transition: 0.2s ease all;
+    -webkit-transition: 0.2s ease all;
+}
+
+/* active state */
+/*
+input:focus ~ label, input:valid ~ label {
+    top: -20px;
+    font-size: 14px;
+    color: #198573;
+}
+
+/* BOTTOM BARS ================================= */
+.bar {
+  position: relative;
+  display: block;
+  width: 60%;
+}
+
+.bar:before,
+.bar:after {
+  content: "";
+  height: 2px;
+  width: 0;
+  bottom: 1px;
+  position: absolute;
+  background: #198573;
+  transition: 0.2s ease all;
+  -moz-transition: 0.2s ease all;
+  -webkit-transition: 0.2s ease all;
+}
+
+.bar:before {
+  left: 50%;
+}
+
+.bar:after {
+  right: 50%;
+}
+
+/* active state */
+input:focus ~ .bar:before,
+input:focus ~ .bar:after {
+  width: 50%;
+}
+
+/* HIGHLIGHTER ================================== */
+.highlight {
+  position: absolute;
+  height: 60%;
+  width: 20%;
+  top: 25%;
+  left: 0;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* active state */
+input:focus ~ .highlight {
+  -webkit-animation: inputHighlighter 0.3s ease;
+  -moz-animation: inputHighlighter 0.3s ease;
+  animation: inputHighlighter 0.3s ease;
+}
+
+/* ANIMATIONS ================ 
+@
+-webkit-keyframes inputHighlighter {from { background:#198573;
+	
+}
+
+to {
+	width: 0;
+	background: transparent;
+}
+
+}
+@
+-moz-keyframes inputHighlighter {from { background:#198573;
+	
+}
+
+to {
+	width: 0;
+	background: transparent;
+}
+
+}
+@
+keyframes inputHighlighter {from { background:#198573;
+	
+}
+
+to {
+	width: 0;
+	background: transparent;
+}
+
+}
+*/
+.ourTeam-box {
+  border-top: 6px solid #5dddd3;
+  background-color: #fff;
+}
+
+.section1 {
+  padding: 30px 0 0 0;
+}
+
+.section1 img {
+  border: 5px solid #5dddd3;
+  padding: 5px;
+  border-radius: 50%;
+  height: 170px;
+  width: 170px;
+}
+
+.section2 h1 {
+  font-size: 20px;
+  color: #777;
+  margin: 0;
+  border-bottom: 2px solid #5dddd3;
+  display: inline-block;
+  padding: 10px 0;
+}
+
+.section3 p {
+  padding: 10px 15px 0 15px;
+  font-size: 12px;
+  color: #000;
+}
+
+.section-info {
+  border-top: 6px solid #90dfaa;
+}
+
+.section-danger {
+  border-top: 6px solid #fd8469;
+}
+
+.section-info .section1 img {
+  border: 5px solid #90dfaa;
+  padding: 5px;
+}
+
+.section-danger .section1 img {
+  border: 5px solid #fd8469;
+  padding: 5px;
+}
+
+.section-info .section2 h1 {
+  border-bottom: 2px solid #90dfaa;
+}
+
+.section-danger .section2 h1 {
+  border-bottom: 2px solid #fd8469;
+}
+
+.chart {
+  width: 100%;
+  min-height: 300px;
+}
+
+/**
+BRUNO
+**/
+#tempRange {
+  display: block !important;
+  background-color: white;
+}
+
+#tempRangeManual {
+  display: block !important;
+  background-color: white;
+}
+
+#tempRange0 {
+  display: block !important;
+  background-color: white;
+}
+
+#tempRange1 {
+  display: block !important;
+  background-color: white;
+}
+
+#tempRange2 {
+  display: block !important;
+  background-color: white;
+}
+
+#tempRange3 {
+  display: block !important;
+  background-color: white;
+}
+
+#tempRange4 {
+  display: block !important;
+  background-color: white;
+}
