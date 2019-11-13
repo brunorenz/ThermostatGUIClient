@@ -44,7 +44,7 @@
 
 <script>
 import moment from "moment";
-import httpServer from "@/services/httpMonitorRest";
+import HttpServer from "@/services/httpMonitorRest";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
 
 export default {
@@ -59,7 +59,23 @@ export default {
       }
     };
   },
+  mounted: function() {
+    this.getConfiguration();
+  },
   computed: {},
-  methods: {}
+  methods: {
+    getConfiguration() {
+      const httpService = new HttpServer();
+      httpService.getConfiguration().then(response =>{
+        var data = response.data;
+      })
+      .catch(error => {
+          console.log(
+            "Error callig service 'getConfiguration' : " +
+              error
+          );
+        });
+    }
+  }
 };
 </script>

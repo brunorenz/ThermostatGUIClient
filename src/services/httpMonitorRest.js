@@ -1,9 +1,7 @@
 import axios from "axios";
 import { getConfiguration } from "@/services/config";
 
-const URL = "http://srvwas1.bpbari.it:8099/rest/";
-const URLL = "http://localhost:8099/rest/";
-const GET_STAT = "getHTTPStatistics";
+const GET_CONFIGURATION = "getConfiguration";
 const GET_HTTPPER = "getHTTPCurrentPerformaceStatistics";
 const GET_RBUSPER = "getRBUSCurrentPerformaceStatistics";
 const GET_RBUSSTAT = "getRBUSStatistics";
@@ -29,6 +27,14 @@ export default class HttpMonitor {
     console.log("Call " + outUrl);
     return outUrl;
   }
+
+getConfiguration()
+{
+  var queryParams = [];
+  return axios.get(this.getUrl(GET_CONFIGURATION, queryParams));
+}
+
+/*
   getStatistics(type, time, interval) {
     var queryParams = [];
     if (type) queryParams.push({ key: "type", value: type });
@@ -94,4 +100,5 @@ export default class HttpMonitor {
     queryParams.push({ key: "server", value: true });
     return axios.get(this.getUrl(GET_RBUSPER, queryParams));
   }
+  */
 }
