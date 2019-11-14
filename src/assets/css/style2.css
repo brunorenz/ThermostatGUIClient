@@ -208,3 +208,23 @@ BRUNO
   display: block !important;
   background-color: white;
 }
+
+.section4 {
+  padding: 10px 0 0 0;
+}
+
+.section4 img {
+  border: 0px;
+  padding: 0px;
+  height: 40px;
+  width: 40px;
+}
+
+.section5 {
+  height: 30px;
+  width: 30px;
+}
+
+.grayscale {
+  filter: grayscale(100%);
+}
