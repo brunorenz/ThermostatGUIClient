@@ -53,7 +53,7 @@
           <b-form-input
             type="text"
             id="location"
-            @change.native="checkUpdateField"
+            @input.native="checkUpdateField"
             v-model="elencoDispositivi[dispositivoSelezionato].location"
             required
             trim
@@ -176,7 +176,7 @@
         </b-row>
       </b-card>
       <div v-if="elencoDispositivi[dispositivoSelezionato].flagReleTemp">
-        <h3>Controllo Thermostato</h3>
+        <h3>Controllo Termostato</h3>
         <b-card>
           <b-row>
             <b-col sm="6">
@@ -186,10 +186,15 @@
                 label-class="font-weight-bold"
               >
                 <b-form-select
-                  id="selDisp"
+                  id="selStatus"
                   v-model="elencoDispositivi[dispositivoSelezionato].status"
-                  :options="{ '1': 'One', '2': 'Two', '3': 'Three' }"
-                  @change="showDettaglioDispositivo"
+                  :options="{
+                    '0': 'SPENTO',
+                    '1': 'ACCESO',
+                    '2': 'AUTOMATICO',
+                    '3': 'MANUALE'
+                  }"
+                  @change.native="checkUpdateField"
                 ></b-form-select>
               </b-form-group>
             </b-col>
@@ -199,24 +204,41 @@
                 label="Tipo Misurazione"
                 label-class="font-weight-bold"
               >
-                <b-form-input
-                  type="text"
-                  id="location"
+                <b-form-select
+                  id="selTempMeasure"
+                  v-model="
+                    elencoDispositivi[dispositivoSelezionato].thempMeasure
+                  "
+                  :options="{
+                    '1': 'LOCALE',
+                    '2': 'MEDIA',
+                    '3': 'CON PRIORITA\''
+                  }"
                   @change.native="checkUpdateField"
-                  v-model="elencoDispositivi[dispositivoSelezionato].location"
-                  required
-                  trim
-                ></b-form-input>
+                ></b-form-select>
               </b-form-group>
             </b-col>
           </b-row>
         </b-card>
       </div>
-
-      <div>
-        <button></button>
-        <button></button>
-      </div>
+      <b-row class="justify-content-md-center">
+        <b-col sm="3"> </b-col>
+        <b-col class="text-center">
+          <b-button variant="primary" v-on:click="getConfiguration"
+            >Ricarica</b-button
+          >
+        </b-col>
+        <b-col class="text-center">
+          <b-button
+            id="btnAggiorna"
+            variant="primary"
+            :disabled="disableAggiorna"
+            v-on:click="updateConfiguration"
+            >Aggiorna</b-button
+          >
+        </b-col>
+        <b-col sm="3"> </b-col>
+      </b-row>
     </div>
   </div>
 </template>
@@ -231,17 +253,13 @@ export default {
   components: {},
   data: function() {
     return {
-      field: {
-        id: "1",
-        value: true,
-        label: "label"
-      },
-
       showListDispositivi: false,
       showDispositivo: false,
       elencoDispositivi: [],
+      elencoDispositiviOrig: [],
       optionsElencoDispositivi: [],
-      dispositivoSelezionato: null
+      dispositivoSelezionato: null,
+      disableAggiorna: true
     };
   },
   mounted: function() {
@@ -249,8 +267,25 @@ export default {
   },
   computed: {},
   methods: {
-    checkUpdateField(element, id) {
-      console.log(element);
+    checkUpdateField(element) {
+      let id = element.target.id;
+
+      let changed = 0;
+      if (id === "selTempMeasure") {
+        changed =
+          this.elencoDispositivi[this.dispositivoSelezionato].thempMeasure !=
+          this.elencoDispositiviOrig[this.dispositivoSelezionato].thempMeasure;
+      } else if (id === "selStatus") {
+        changed =
+          this.elencoDispositivi[this.dispositivoSelezionato].status !=
+          this.elencoDispositiviOrig[this.dispositivoSelezionato].status;
+      } else if (id === "location") {
+        changed =
+          this.elencoDispositivi[this.dispositivoSelezionato].location !=
+          this.elencoDispositiviOrig[this.dispositivoSelezionato].location;
+      }
+      console.log("ID = " + id + " Changed = " + changed);
+      this.disableAggiorna = changed;
     },
     showDettaglioDispositivo(ix) {
       console.log("Selezionato " + ix);
@@ -260,6 +295,9 @@ export default {
         this.showDispositivo = true;
         this.dispositivoSelezionato = ix;
       } else this.showDispositivo = false;
+    },
+    updateConfiguration() {
+      const httpService = new HttpServer();
     },
     getConfiguration() {
       const httpService = new HttpServer();

@@ -2,9 +2,11 @@ import axios from "axios";
 import { getConfiguration } from "@/services/config";
 
 const GET_CONFIGURATION = "getConfiguration";
+const UPDATE_CONFIGURATION = "updateConfiguration";
 const GET_HTTPPER = "getHTTPCurrentPerformaceStatistics";
 const GET_RBUSPER = "getRBUSCurrentPerformaceStatistics";
 const GET_RBUSSTAT = "getRBUSStatistics";
+
 const DISP_APP = "distinctApplications";
 const local = false;
 
@@ -28,13 +30,14 @@ export default class HttpMonitor {
     return outUrl;
   }
 
-getConfiguration()
-{
-  var queryParams = [];
-  return axios.get(this.getUrl(GET_CONFIGURATION, queryParams));
-}
-
-/*
+  getConfiguration() {
+    var queryParams = [];
+    return axios.get(this.getUrl(GET_CONFIGURATION, queryParams));
+  }
+  updateConfiguration(conf) {
+    return axios.post(this.getUrl(UPDATE_CONFIGURATION), conf);
+  }
+  /*
   getStatistics(type, time, interval) {
     var queryParams = [];
     if (type) queryParams.push({ key: "type", value: type });
