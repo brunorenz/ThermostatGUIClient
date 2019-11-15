@@ -258,6 +258,7 @@ export default {
         var cfg = this.elencoDispositivi[ix];
         console.log("VisualiSelezionato " + cfg.macAddress);
         this.showDispositivo = true;
+        this.dispositivoSelezionato = ix;
       } else this.showDispositivo = false;
     },
     getConfiguration() {
@@ -283,13 +284,13 @@ export default {
               this.elencoDispositivi[ix].lastAccessD = moment(
                 data[ix].lastAccess
               ).format("DD/MM/YYYY HH:mm");
-              this.elencoDispositivi[ix].lastUpdateS = moment(
+              this.elencoDispositivi[ix].lastUpdateD = moment(
                 data[ix].lastUpdate
               ).format("DD/MM/YYYY HH:mm");
             }
             if (data.length === 1) {
               this.showListDispositivi = false;
-              showDettaglioDispositivo(0);
+              this.showDettaglioDispositivo(0);
             } else {
               this.optionsElencoDispositivi = ed;
               this.showListDispositivi = true;
