@@ -1,8 +1,11 @@
 import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
 
+const local = true;
 const serverUrlP = "/httpMonitor/rest/";
 const serverUrlR = "http://srvwas1.bpbari.it:8099/rest/";
-const serverUrlD = "http://192.168.0.120:8101/therm/rest/";
+const serverUrlD = local
+  ? "http://localhost:8100/therm/rest/"
+  : "http://192.168.0.120:8101/therm/rest/";
 
 var configuration = {
   serverUrl: process.env.NODE_ENV === "production" ? serverUrlP : serverUrlD,

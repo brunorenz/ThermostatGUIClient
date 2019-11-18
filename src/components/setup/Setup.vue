@@ -187,14 +187,16 @@
               >
                 <b-form-select
                   id="selStatus"
-                  v-model="elencoDispositivi[dispositivoSelezionato].status"
+                  v-model="
+                    elencoDispositivi[dispositivoSelezionato].statusThermostat
+                  "
                   :options="{
                     '0': 'SPENTO',
                     '1': 'ACCESO',
                     '2': 'AUTOMATICO',
                     '3': 'MANUALE'
                   }"
-                  @change.native="checkUpdateField"
+                  @change="checkUpdateField"
                 ></b-form-select>
               </b-form-group>
             </b-col>
@@ -207,14 +209,14 @@
                 <b-form-select
                   id="selTempMeasure"
                   v-model="
-                    elencoDispositivi[dispositivoSelezionato].thempMeasure
+                    elencoDispositivi[dispositivoSelezionato].temperatureMeasure
                   "
                   :options="{
                     '1': 'LOCALE',
                     '2': 'MEDIA',
                     '3': 'CON PRIORITA\''
                   }"
-                  @change.native="checkUpdateField"
+                  @change="checkUpdateField"
                 ></b-form-select>
               </b-form-group>
             </b-col>
@@ -267,25 +269,27 @@ export default {
   },
   computed: {},
   methods: {
-    checkUpdateField(element) {
-      let id = element.target.id;
+    checkUpdateField(value) {
+      let changed = false;
 
-      let changed = 0;
-      if (id === "selTempMeasure") {
+      changed =
+        this.elencoDispositivi[this.dispositivoSelezionato]
+          .temperatureMeasure !=
+        this.elencoDispositiviOrig[this.dispositivoSelezionato]
+          .temperatureMeasure;
+      if (!changed)
         changed =
-          this.elencoDispositivi[this.dispositivoSelezionato].thempMeasure !=
-          this.elencoDispositiviOrig[this.dispositivoSelezionato].thempMeasure;
-      } else if (id === "selStatus") {
-        changed =
-          this.elencoDispositivi[this.dispositivoSelezionato].status !=
-          this.elencoDispositiviOrig[this.dispositivoSelezionato].status;
-      } else if (id === "location") {
+          this.elencoDispositivi[this.dispositivoSelezionato]
+            .statusThermostat !=
+          this.elencoDispositiviOrig[this.dispositivoSelezionato]
+            .statusThermostat;
+      if (!changed)
         changed =
           this.elencoDispositivi[this.dispositivoSelezionato].location !=
           this.elencoDispositiviOrig[this.dispositivoSelezionato].location;
-      }
-      console.log("ID = " + id + " Changed = " + changed);
-      this.disableAggiorna = changed;
+
+      console.log("Changed = " + changed);
+      this.disableAggiorna = !changed; // === 1;
     },
     showDettaglioDispositivo(ix) {
       console.log("Selezionato " + ix);
@@ -296,8 +300,49 @@ export default {
         this.dispositivoSelezionato = ix;
       } else this.showDispositivo = false;
     },
+    showMsgConfermaEsecuzione(message) {
+      this.$bvModal
+        .msgBoxOk(message)
+        .then(value => {})
+        .catch(err => {
+          // An error occurred
+        });
+    },
     updateConfiguration() {
-      const httpService = new HttpServer();
+      this.$bvModal
+        .msgBoxConfirm("Confermi l'aggiornamento ?")
+        .then(value => {
+          if (value) {
+            const httpService = new HttpServer();
+            httpService
+              .updateConfiguration(
+                this.elencoDispositivi[this.dispositivoSelezionato]
+              )
+              .then(response => {
+                let dati = response.data;
+                if (dati.error.code === 0) {
+                  this.showMsgConfermaEsecuzione(
+                    "Aggiornamento effettuato con successo"
+                  );
+                  this.dispositivoSelezionato = null;
+                  this.optionsElencoDispositivi = [];
+                  this.getConfiguration();
+                } else {
+                  this.showMsgConfermaEsecuzione(
+                    "Errore in fase di aggiornamento : " + dati.error.message
+                  );
+                }
+              })
+              .catch(error => {
+                this.showMsgConfermaEsecuzione(
+                  "Errore in fase di aggiornamento : " + error
+                );
+              });
+          }
+        })
+        .catch(err => {
+          // An error occurred
+        });
     },
     getConfiguration() {
       const httpService = new HttpServer();
@@ -328,14 +373,17 @@ export default {
             }
             if (data.length === 1) {
               this.showListDispositivi = false;
+              this.showDispositivo = true;
               this.showDettaglioDispositivo(0);
             } else {
               this.optionsElencoDispositivi = ed;
               this.showListDispositivi = true;
+              this.showDispositivo = false;
             }
           } else {
             console.log("Nessun dato da visualizzare");
           }
+          this.disableAggiorna = true;
         })
         .catch(error => {
           console.log("Error callig service 'getConfiguration' : " + error);
