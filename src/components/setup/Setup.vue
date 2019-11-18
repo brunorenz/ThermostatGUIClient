@@ -74,6 +74,14 @@
           </b-col>
           <b-col sm="4">
             <label>{{
+              elencoDispositivi[dispositivoSelezionato].lastCheckD
+            }}</label>
+          </b-col>
+          <b-col sm="2">
+            <label class="font-weight-bold">Ultimo Aggiornamento</label>
+          </b-col>
+          <b-col sm="4">
+            <label>{{
               elencoDispositivi[dispositivoSelezionato].lastUpdateD
             }}</label>
           </b-col>
@@ -369,6 +377,9 @@ export default {
               ).format("DD/MM/YYYY HH:mm");
               this.elencoDispositivi[ix].lastUpdateD = moment(
                 data[ix].lastUpdate
+              ).format("DD/MM/YYYY HH:mm");
+              this.elencoDispositivi[ix].lastCheckD = moment(
+                data[ix].lastCheck
               ).format("DD/MM/YYYY HH:mm");
             }
             if (data.length === 1) {
