@@ -23,7 +23,9 @@
         <b-nav-item class="px-3" to="/dashboard">Dashboard</b-nav-item>
         <b-nav-item class="px-3" to="/gestione">Gestione</b-nav-item>
         <b-nav-item class="px-3" to="/statistiche">Statistiche</b-nav-item>
-        <b-nav-item class="px-3" to="/programmazione" exact>Programmazione</b-nav-item>
+        <b-nav-item class="px-3" to="/programmazione" exact
+          >Programmazione</b-nav-item
+        >
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto"></b-navbar-nav>
     </AppHeader>
@@ -50,7 +52,7 @@
       </div>
       <div class="ml-auto">
         <span class="mr-1">Powered by</span>
-        <a><b>brunorenz@githug</b></a>
+        <a><b>brunorenz@github</b></a>
       </div>
     </TheFooter>
   </div>
