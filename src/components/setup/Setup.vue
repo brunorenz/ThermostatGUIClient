@@ -349,11 +349,25 @@ export default {
     checkUpdateField(value) {
       let changed = false;
 
-      changed =
-        this.elencoDispositivi[this.dispositivoSelezionato]
-          .temperatureMeasure !=
-        this.elencoDispositiviOrig[this.dispositivoSelezionato]
-          .temperatureMeasure;
+      // gestione SHELLY
+      if (
+        this.elencoDispositivi[this.dispositivoSelezionato].tipoRele !=
+        this.elencoDispositiviOrig[this.dispositivoSelezionato].tipoRele
+      ) {
+        let tipo = this.elencoDispositivi[this.dispositivoSelezionato].tipoRele;
+        this.elencoDispositivi[this.dispositivoSelezionato].flagReleTemp =
+          tipo === "1" ? 1 : 0;
+        this.elencoDispositivi[this.dispositivoSelezionato].flagReleLight =
+          tipo === "2" ? 1 : 0;
+        changed = true;
+      }
+      if (!changed) {
+        changed =
+          this.elencoDispositivi[this.dispositivoSelezionato]
+            .temperatureMeasure !=
+          this.elencoDispositiviOrig[this.dispositivoSelezionato]
+            .temperatureMeasure;
+      }
       if (!changed)
         changed =
           this.elencoDispositivi[this.dispositivoSelezionato]
@@ -364,7 +378,6 @@ export default {
         changed =
           this.elencoDispositivi[this.dispositivoSelezionato].location !=
           this.elencoDispositiviOrig[this.dispositivoSelezionato].location;
-
       console.log("Changed = " + changed);
       this.disableAggiorna = !changed; // === 1;
     },
@@ -455,6 +468,10 @@ export default {
                   else this.elencoDispositivi[ix].tipoRele = "0";
                   break;
               }
+              // propago in copia
+              this.elencoDispositiviOrig[ix].tipoRele = this.elencoDispositivi[
+                ix
+              ].tipoRele;
               this.elencoDispositivi[ix].deviceTypeName = deviceName;
               this.elencoDispositivi[ix].lastAccessD = moment(
                 data[ix].lastAccess
