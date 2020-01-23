@@ -29,6 +29,16 @@
       <b-card>
         <b-row>
           <b-col sm="2">
+            <label class="font-weight-bold">Tipo</label>
+          </b-col>
+          <b-col sm="4">
+            <label>{{
+              elencoDispositivi[dispositivoSelezionato].deviceTypeName
+            }}</label>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col sm="2">
             <label class="font-weight-bold">MacAddress</label>
           </b-col>
           <b-col sm="4">
@@ -47,7 +57,7 @@
         </b-row>
         <b-form-group
           label-cols-sm="2"
-          label="Luogo di misurazione"
+          label="Stanza"
           label-class="font-weight-bold"
         >
           <b-form-input
@@ -77,6 +87,7 @@
               elencoDispositivi[dispositivoSelezionato].lastCheckD
             }}</label>
           </b-col>
+          <!--
           <b-col sm="2">
             <label class="font-weight-bold">Ultimo Aggiornamento</label>
           </b-col>
@@ -85,104 +96,160 @@
               elencoDispositivi[dispositivoSelezionato].lastUpdateD
             }}</label>
           </b-col>
+          -->
         </b-row>
+        <div
+          v-if="
+            elencoDispositivi[dispositivoSelezionato].deviceType === type.SHELLY
+          "
+        >
+          <b-row>
+            <b-col sm="2">
+              <label class="font-weight-bold">ID Dispositivo</label>
+            </b-col>
+            <b-col sm="4">
+              <label>{{
+                elencoDispositivi[dispositivoSelezionato].shellyMqttId
+              }}</label>
+            </b-col>
+          </b-row>
+        </div>
       </b-card>
-      <h3>Dati Sensori</h3>
-      <b-card>
-        <b-row>
-          <b-col sm="2">
-            <label class="font-weight-bold">Controlli</label>
-          </b-col>
-          <b-col sm="2">
-            <img
-              src="img/light.png"
-              class="section5"
-              v-b-tooltip.hover
-              title="Contollo accensione luce"
-              v-bind:class="{
-                grayscale:
-                  elencoDispositivi[dispositivoSelezionato].flagReleLight === 0
+      <div
+        v-if="
+          elencoDispositivi[dispositivoSelezionato].deviceType === type.SHELLY
+        "
+      >
+        <h3>Dati Controlli</h3>
+        <b-card>
+          <b-form-group
+            label-cols-sm="2"
+            label="Utilizzo"
+            label-class="font-weight-bold"
+          >
+            <b-form-select
+              id="selReleType"
+              v-model="elencoDispositivi[dispositivoSelezionato].tipoRele"
+              :options="{
+                '0': 'Non definito',
+                '1': 'Contollo accensione termosifone',
+                '2': 'Contollo accensione luce'
               }"
-            />
-          </b-col>
-          <b-col sm="2">
-            <img
-              src="img/water-heater.png"
-              class="section5"
-              v-b-tooltip.hover
-              title="Contollo accensione termosifone"
-              v-bind:class="{
-                grayscale:
-                  elencoDispositivi[dispositivoSelezionato].flagReleTemp === 0
-              }"
-            />
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col sm="2">
-            <label class="font-weight-bold">Sensori</label>
-          </b-col>
-          <b-col sm="2">
-            <img
-              src="img/sun-star.png"
-              class="section5"
-              v-b-tooltip.hover
-              title="Sensore luce"
-              v-bind:class="{
-                grayscale:
-                  elencoDispositivi[dispositivoSelezionato].flagLightSensor ===
-                  0
-              }"
-            />
-          </b-col>
-          <b-col sm="2">
-            <img
-              src="img/temperature.png"
-              class="section5"
-              v-b-tooltip.hover
-              title="Sensore temperatura"
-              v-bind:class="{
-                grayscale: false
-              }"
-            />
-          </b-col>
-          <b-col sm="2">
-            <img
-              src="img/atmospheric-pressure.png"
-              class="section5"
-              v-b-tooltip.hover
-              title="Sensore pressione atmosferica"
-              v-bind:class="{
-                grayscale: false
-              }"
-            />
-          </b-col>
-          <b-col sm="2">
-            <img
-              src="img/partly-cloudy-day.png"
-              class="section5"
-              v-b-tooltip.hover
-              title="Sensore umidità"
-              v-bind:class="{
-                grayscale: false
-              }"
-            />
-          </b-col>
-          <b-col sm="2">
-            <img
-              src="img/electrical-sensor.png"
-              class="section5"
-              v-b-tooltip.hover
-              title="Sensore prossimità"
-              v-bind:class="{
-                grayscale:
-                  elencoDispositivi[dispositivoSelezionato].flagMotionSensor ===
-                  0
-              }"
-            />
-          </b-col>
-        </b-row>
-      </b-card>
+              @change="checkUpdateField"
+            ></b-form-select>
+          </b-form-group>
+          <b-row>
+            <b-col sm="2">
+              <label class="font-weight-bold">Controlli</label>
+            </b-col>
+            <b-col sm="2">
+              <img
+                src="img/light.png"
+                class="section5"
+                v-b-tooltip.hover
+                title="Contollo accensione luce"
+                v-bind:class="{
+                  grayscale:
+                    elencoDispositivi[dispositivoSelezionato].flagReleLight ===
+                    0
+                }"
+              />
+            </b-col>
+            <b-col sm="2">
+              <img
+                src="img/water-heater.png"
+                class="section5"
+                v-b-tooltip.hover
+                title="Contollo accensione termosifone"
+                v-bind:class="{
+                  grayscale:
+                    elencoDispositivi[dispositivoSelezionato].flagReleTemp === 0
+                }"
+              />
+            </b-col>
+          </b-row>
+        </b-card>
+      </div>
+      <div
+        v-if="
+          elencoDispositivi[dispositivoSelezionato].deviceType === type.ARDUINO
+        "
+      >
+        <h3>Dati Sensori</h3>
+        <b-card>
+          <b-row>
+            <b-col sm="2">
+              <label class="font-weight-bold">Sensori</label>
+            </b-col>
+            <b-col sm="2">
+              <img
+                src="img/sun-star.png"
+                class="section5"
+                v-b-tooltip.hover
+                title="Sensore luce"
+                v-bind:class="{
+                  grayscale:
+                    elencoDispositivi[dispositivoSelezionato]
+                      .flagLightSensor === 0
+                }"
+              />
+            </b-col>
+            <b-col sm="2">
+              <img
+                src="img/temperature.png"
+                class="section5"
+                v-b-tooltip.hover
+                title="Sensore temperatura"
+                v-bind:class="{
+                  grayscale:
+                    elencoDispositivi[dispositivoSelezionato]
+                      .flagTemperatureSensor === 0
+                }"
+              />
+            </b-col>
+            <b-col sm="2">
+              <img
+                src="img/atmospheric-pressure.png"
+                class="section5"
+                v-b-tooltip.hover
+                title="Sensore pressione atmosferica"
+                v-bind:class="{
+                  grayscale:
+                    elencoDispositivi[dispositivoSelezionato]
+                      .flagPressureSensor === 0
+                }"
+              />
+            </b-col>
+            <b-col sm="2">
+              <img
+                src="img/partly-cloudy-day.png"
+                class="section5"
+                v-b-tooltip.hover
+                title="Sensore umidità"
+                v-bind:class="{
+                  grayscale:
+                    elencoDispositivi[dispositivoSelezionato]
+                      .flagHumiditySensor === 0
+                }"
+              />
+            </b-col>
+            <b-col sm="2">
+              <img
+                src="img/electrical-sensor.png"
+                class="section5"
+                v-b-tooltip.hover
+                title="Sensore prossimità"
+                v-bind:class="{
+                  grayscale:
+                    elencoDispositivi[dispositivoSelezionato]
+                      .flagMotionSensor === 0
+                }"
+              />
+            </b-col>
+          </b-row>
+        </b-card>
+      </div>
+
       <div v-if="elencoDispositivi[dispositivoSelezionato].flagReleTemp">
         <h3>Controllo Termostato</h3>
         <b-card>
@@ -257,6 +324,7 @@
 import moment from "moment";
 import HttpServer from "@/services/httpMonitorRest";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
+import { TypeDeviceType } from "@/services/config";
 
 export default {
   name: "Setup",
@@ -269,7 +337,8 @@ export default {
       elencoDispositiviOrig: [],
       optionsElencoDispositivi: [],
       dispositivoSelezionato: null,
-      disableAggiorna: true
+      disableAggiorna: true,
+      type: TypeDeviceType
     };
   },
   mounted: function() {
@@ -372,6 +441,21 @@ export default {
                 value: ix,
                 text: data[ix].macAddress + " -" + data[ix].location
               });
+              let deviceName = "NON DEFINITO";
+              switch (data[ix].deviceType) {
+                case 1:
+                  deviceName = "ARDUINO";
+                  break;
+                case 2:
+                  deviceName = "SHELLY";
+                  if (this.elencoDispositivi[ix].flagReleTemp === 1)
+                    this.elencoDispositivi[ix].tipoRele = "1";
+                  else if (this.elencoDispositivi[ix].flagReleLight === 1)
+                    this.elencoDispositivi[ix].tipoRele = "2";
+                  else this.elencoDispositivi[ix].tipoRele = "0";
+                  break;
+              }
+              this.elencoDispositivi[ix].deviceTypeName = deviceName;
               this.elencoDispositivi[ix].lastAccessD = moment(
                 data[ix].lastAccess
               ).format("DD/MM/YYYY HH:mm");

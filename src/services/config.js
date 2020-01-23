@@ -244,3 +244,10 @@ export function getDefaultBarOptions() {
   };
   return options;
 }
+
+// Definizioni da Server
+
+export var TypeStatus = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };
+export var TypeMeasure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };
+export var TypeProgramming = { THEMP: 1, LIGTH: 2 };
+export var TypeDeviceType = { ANY: 0, ARDUINO: 1, SHELLY: 2 };
