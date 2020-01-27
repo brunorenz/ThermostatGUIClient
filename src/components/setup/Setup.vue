@@ -268,8 +268,8 @@
                   :options="{
                     '0': 'SPENTO',
                     '1': 'ACCESO',
-                    '2': 'AUTOMATICO',
-                    '3': 'MANUALE'
+                    '2': 'MANUALE',
+                    '3': 'AUTOMATICO'
                   }"
                   @change="checkUpdateField"
                 ></b-form-select>

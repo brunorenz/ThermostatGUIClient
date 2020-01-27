@@ -30,7 +30,10 @@
             <br />
           </div>
           <div class="section3">
-            <p>Visualizza grafici statistici relativi all'escursione termica nei periodi di osservazione ed all'utilizzo delle risorse</p>
+            <p>
+              Visualizza grafici statistici relativi all'escursione termica nei
+              periodi di osservazione ed all'utilizzo delle risorse
+            </p>
           </div>
         </div>
       </div>
@@ -53,7 +56,6 @@
     </div>
   </div>
 </template>
-
 
 <script>
 import moment from "moment";
