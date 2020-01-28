@@ -1,7 +1,8 @@
 import axios from "axios";
-import { getConfiguration } from "@/services/config";
+import { getConfiguration, TypeProgramming } from "@/services/config";
 
 const GET_CONFIGURATION = "getConfiguration";
+const GET_PROGRAMMING = "getProgramming";
 const UPDATE_CONFIGURATION = "updateConfiguration";
 const GET_HTTPPER = "getHTTPCurrentPerformaceStatistics";
 const GET_RBUSPER = "getRBUSCurrentPerformaceStatistics";
@@ -34,6 +35,14 @@ export default class HttpMonitor {
     var queryParams = [];
     return axios.get(this.getUrl(GET_CONFIGURATION, queryParams));
   }
+
+  getProgramming(type) {
+    let qType = "temp";
+    if (type) qType = type === TypeProgramming.THEMP ? "temp" : "light";
+    var queryParams = [{ key: "type", value: qType }];
+    return axios.get(this.getUrl(GET_PROGRAMMING, queryParams));
+  }
+
   // application/x-www-form-urlencoded
   updateConfiguration(conf) {
     return axios.post(

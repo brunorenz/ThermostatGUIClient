@@ -9,7 +9,8 @@ const DefaultContainer = () => import("@/components/DefaultContainer");
 
 // Views
 const Dashboard = () => import("@/components/dashboard/Dashboard");
-const Setup = () => import("@/components/setup/Setup");
+const Setup = () => import("@/components/pages/Setup");
+const TempProgramming = () => import("@/components/pages/TempProgramming");
 //const RBUSServices = () => import("@/components/rbus/RBUSServices");
 //const HTTPServices = () => import("@/components/http/HTTPServices");
 
@@ -49,7 +50,8 @@ export default new Router({
           children: [
             {
               path: "termostato",
-              name: "Termostato"
+              name: "Termostato",
+              component: TempProgramming
             },
             {
               path: "luce",

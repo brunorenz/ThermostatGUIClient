@@ -392,7 +392,10 @@ export default {
     },
     showMsgConfermaEsecuzione(message) {
       this.$bvModal
-        .msgBoxOk(message)
+        .msgBoxOk(message, {
+          //          title: "Please Confirm",
+          //          okVariant: "danger"
+        })
         .then(value => {})
         .catch(err => {
           // An error occurred
@@ -452,7 +455,7 @@ export default {
             for (let ix = 0; ix < data.length; ix++) {
               ed.push({
                 value: ix,
-                text: data[ix].macAddress + " -" + data[ix].location
+                text: data[ix].location + "(" + data[ix].macAddress + ")"
               });
               let deviceName = "NON DEFINITO";
               switch (data[ix].deviceType) {
@@ -499,6 +502,7 @@ export default {
         })
         .catch(error => {
           console.log("Error callig service 'getConfiguration' : " + error);
+          this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
         });
     }
   }
