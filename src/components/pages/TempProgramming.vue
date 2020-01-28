@@ -241,7 +241,40 @@ export default {
           // An error occurred
         });
     },
-    addProgramming() {},
+    addProgramming() {      this.$bvModal
+        .msgBoxConfirm("Confermi l'aggiornamento ?")
+        .then(value => {
+          if (value) {
+            const httpService = new HttpServer();
+            httpService
+              .addProgramming(TypeProgramming.THEMP)
+              .then(response => {
+                let dati = response.data;
+                if (dati.error.code === 0) {
+                  this.showMsgConfermaEsecuzione(
+                    "Aggiornamento effettuato con successo"
+                  );
+                  // this.elencoProgrammi =  [];
+                  // this.dettaglioProgramma= null;
+                  // this.programmaSelezionato= null;
+                  this.getProgramming();
+                } else {
+                  this.showMsgConfermaEsecuzione(
+                    "Errore in fase di aggiornamento : " + dati.error.message
+                  );
+                }
+              })
+              .catch(error => {
+                this.showMsgConfermaEsecuzione(
+                  "Errore in fase di aggiornamento : " + error
+                );
+              });
+          }
+        })
+        .catch(error => {
+          console.log("Error callig service 'updateProgramming' : " + error);
+          this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
+        });},
     updateProgramming() {
       this.$bvModal
         .msgBoxConfirm("Confermi l'aggiornamento ?")
@@ -273,7 +306,7 @@ export default {
               });
           }
         })
-        .catch(err => {
+        .catch(error => {
           console.log("Error callig service 'updateProgramming' : " + error);
           this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
         });

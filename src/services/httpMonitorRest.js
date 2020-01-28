@@ -2,8 +2,11 @@ import axios from "axios";
 import { getConfiguration, TypeProgramming } from "@/services/config";
 
 const GET_CONFIGURATION = "getConfiguration";
-const GET_PROGRAMMING = "getProgramming";
 const UPDATE_CONFIGURATION = "updateConfiguration";
+
+const GET_PROGRAMMING = "getProgramming";
+const ADD_PROGRAMMING = "addProgramming";
+const REMOVE_PROGRAMMING = "removeProgramming";
 const GET_HTTPPER = "getHTTPCurrentPerformaceStatistics";
 const GET_RBUSPER = "getRBUSCurrentPerformaceStatistics";
 const GET_RBUSSTAT = "getRBUSStatistics";
@@ -43,6 +46,17 @@ export default class HttpMonitor {
     return axios.get(this.getUrl(GET_PROGRAMMING, queryParams));
   }
 
+  addProgramming(type) {
+    return axios.post(
+      this.getUrl(ADD_PROGRAMMING),
+      "data=" + JSON.stringify({"type" : type}),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
+        }
+      }
+    );
+  }
   // application/x-www-form-urlencoded
   updateConfiguration(conf) {
     return axios.post(
