@@ -10,8 +10,10 @@
     </p>
     <div v-if="showPage">
       <div>
-        <h3>Programmazione Base</h3>
         <b-card>
+          <div slot="header">
+            <h5>Programmazione Base</h5>
+          </div>
           <b-form-group
             label-cols-sm="3"
             label="Programmazione"
@@ -22,7 +24,7 @@
               id="selProg"
               v-model="programmaSelezionato"
               :options="optionsElencoProgrammi"
-              @change="showDettaglioDispositivo"
+              @change="showDettaglioProgrammazione"
             ></b-form-select>
           </b-form-group>
           <b-row>
@@ -35,18 +37,44 @@
           </b-row>
           <b-row>
             <b-col class="text-right">
-              <b-button variant="primary" v-on:click="addProgramming"
-                >Aggiungi</b-button
-              >
+              <b-button-group>
+                <b-button
+                  variant="primary"
+                  v-on:click="addProgramming"
+                  class="mr-2"
+                  style="width: 90px;"
+                  >Aggiungi</b-button
+                >
+                <b-button
+                  variant="primary"
+                  v-on:click="addProgramming"
+                  :disabled="disableElimina"
+                  class="mr-2"
+                  style="width: 90px;"
+                  >Elimina</b-button
+                >
+                <b-button
+                  variant="primary"
+                  v-on:click="addProgramming"
+                  :disabled="disableAttiva"
+                  class="mr-2"
+                  style="width: 90px;"
+                  >Attiva</b-button
+                >
+              </b-button-group>
             </b-col>
           </b-row>
         </b-card>
       </div>
       <div>
-        <h3>
-          Programma <b>{{ programName }}</b>
-        </h3>
+        <h3></h3>
         <b-card>
+          <div slot="header">
+            <h5>
+              Programma <b>{{ programName }}</b>
+            </h5>
+          </div>
+
           <b-form-group
             label-cols-sm="3"
             label="Nome"
@@ -117,61 +145,86 @@
               </b-row>
             </b-col>
           </b-row>
+
+          <div>
+            <h5>
+              Programmazione Giornaliera
+            </h5>
+          </div>
+
+          <b-tabs justified>
+            <b-tab title="Lunedi'" active>
+              <dayProgramming
+                :model="programmaGiornaliero[0]"
+                v-on:updateConfiguration="updateDayProgramming"
+              ></dayProgramming>
+            </b-tab>
+            <b-tab title="Martedi'">
+              <dayProgramming
+                :model="programmaGiornaliero[1]"
+                v-on:updateConfiguration="updateDayProgramming"
+              ></dayProgramming>
+            </b-tab>
+            <b-tab title="Mercoledi'">
+              <dayProgramming
+                :model="programmaGiornaliero[2]"
+                v-on:updateConfiguration="updateDayProgramming"
+              ></dayProgramming>
+            </b-tab>
+            <b-tab title="Giovedi'">
+              <dayProgramming
+                :model="programmaGiornaliero[3]"
+                v-on:updateConfiguration="updateDayProgramming"
+              ></dayProgramming>
+            </b-tab>
+            <b-tab title="Venerdi'">
+              <dayProgramming
+                :model="programmaGiornaliero[4]"
+                v-on:updateConfiguration="updateDayProgramming"
+              ></dayProgramming>
+            </b-tab>
+            <b-tab title="Sabato">
+              <dayProgramming
+                :model="programmaGiornaliero[5]"
+                v-on:updateConfiguration="updateDayProgramming"
+              ></dayProgramming>
+            </b-tab>
+            <b-tab title="Domenica">
+              <dayProgramming
+                :model="programmaGiornaliero[6]"
+                v-on:updateConfiguration="updateDayProgramming"
+              ></dayProgramming>
+            </b-tab>
+          </b-tabs>
           <b-row>
             <b-col class="text-right">
-              <b-button
-                variant="primary"
-                v-on:click="addProgramming"
-                :disabled="disableElimina"
-                >Elimina</b-button
-              >
-            </b-col>
-            <b-col class="text-right" sm="1">
-              <b-button
-                variant="primary"
-                v-on:click="addProgramming"
-                :disabled="disableAttiva"
-                >Attiva</b-button
-              >
-            </b-col>
-          </b-row>
-
-          <b-row>
-            //@input="checkUpdateField"
-            <b-col sm="4">
-              <datetime
-                v-model="dateOn"
-                type="time"
-                :minute-step="10"
-                :hour-step="1"
-                title="Imposta Ora Accensione"
-                :phrases="{ ok: 'Continua', cancel: 'Esci' }"
-              />
-            </b-col>
-            <b-col sm="4">
-              <datetime
-                v-model="dateOff"
-                type="time"
-                :minute-step="10"
-                :hour-step="1"
-                title="Imposta Ora Spegnimento"
-                :min-datetime="dateOn"
-                :phrases="{ ok: 'Continua', cancel: 'Esci' }"
-              />
+              <b-button-group>
+                <b-button
+                  variant="primary"
+                  v-on:click="copyProgramming"
+                  class="mr-2"
+                  style="width: 90px;"
+                  >Copia</b-button
+                >
+                <b-button
+                  variant="primary"
+                  class="mr-2"
+                  style="width: 90px;"
+                  v-on:click="getProgramming"
+                  :disabled="disableElimina"
+                  >Ricarica</b-button
+                >
+                <b-button
+                  variant="primary"
+                  class="mr-2"
+                  style="width: 90px;"
+                  v-on:click="updateProgramming"
+                  :disabled="disableAttiva"
+                  >Salva</b-button
+                >
+              </b-button-group>
             </b-col>
           </b-row>
-          <div slot="header">
-            Tabs
-          </div>
-          <b-tabs>
-            <b-tab title="Lunedi'" active> </b-tab>
-            <b-tab title="Martedi'"> </b-tab>
-            <b-tab title="Mercoledi'"> </b-tab>
-            <b-tab title="Giovedi'"> </b-tab>
-            <b-tab title="Venerdi'"> </b-tab>
-            <b-tab title="Sabato"> </b-tab>
-            <b-tab title="Domenica"> </b-tab>
-          </b-tabs>
         </b-card>
       </div>
     </div>
@@ -186,10 +239,14 @@ import { Datetime } from "vue-datetime";
 import "vue-datetime/dist/vue-datetime.css";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
-
+import DayProgramming from "@/components/common/DayProgramming";
 export default {
   name: "TemperatureProgramming",
-  components: { datetime: Datetime, slider: VueSlider },
+  components: {
+    datetime: Datetime,
+    slider: VueSlider,
+    dayProgramming: DayProgramming
+  },
   data: function() {
     return {
       programmazioneCompleta: null,
@@ -206,6 +263,7 @@ export default {
       value: 10,
       dateOn: "00:00",
       dateOff: "23:50",
+      programmaGiornaliero: {},
       //
       disableAggiorna: true,
       disableElimina: false,
@@ -221,14 +279,16 @@ export default {
       console.log("Changed = " + value);
       this.disableAggiorna = false;
     },
-    showDettaglioDispositivo(ix) {
+    showDettaglioProgrammazione(ix) {
       console.log("Selezionato " + ix);
-      if (ix !== null) {
-        var cfg = this.elencoDispositivi[ix];
-        console.log("VisualiSelezionato " + cfg.macAddress);
-        this.showDispositivo = true;
-        this.dispositivoSelezionato = ix;
-      } else this.showDispositivo = false;
+      let idProg = this.programmazioneCompleta.programming[ix].idProg;
+      this.updateProgrammingView(this.programmazioneCompleta, idProg);
+      // if (ix !== null) {
+      //   var cfg = this.elencoDispositivi[ix];
+      //   console.log("VisualiSelezionato " + cfg.macAddress);
+      //   this.showDispositivo = true;
+      //   this.dispositivoSelezionato = ix;
+      // } else this.showDispositivo = false;
     },
     showMsgConfermaEsecuzione(message) {
       this.$bvModal
@@ -241,7 +301,8 @@ export default {
           // An error occurred
         });
     },
-    addProgramming() {      this.$bvModal
+    addProgramming() {
+      this.$bvModal
         .msgBoxConfirm("Confermi l'aggiornamento ?")
         .then(value => {
           if (value) {
@@ -274,7 +335,14 @@ export default {
         .catch(error => {
           console.log("Error callig service 'updateProgramming' : " + error);
           this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
-        });},
+        });
+    },
+    updateDayProgramming() {
+      console.log("Update Day programming");
+    },
+    copyProgramming() {
+      console.log("Copy programming");
+    },
     updateProgramming() {
       this.$bvModal
         .msgBoxConfirm("Confermi l'aggiornamento ?")
@@ -311,9 +379,16 @@ export default {
           this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
         });
     },
-    updateProgrammingView(data, index) {
+    updateProgrammingView(data, idProg) {
       let ed = [];
-      var programming = data.programming;
+      let programming = data.programming;
+      let index = 0;
+      for (let ix = 0; ix < programming.length; ix++) {
+        if (programming[ix].idProg === idProg) {
+          index = ix;
+          break;
+        }
+      }
       this.programmaSelezionato = index; // data.activeProg;
       this.dettaglioProgramma = programming[index];
       this.programName = this.dettaglioProgramma.name;
@@ -326,12 +401,20 @@ export default {
           text: programming[ix].name
         });
       }
+      this.programmaGiornaliero = {
+        changed: false,
+        data: programming[index].dayProgramming
+      };
+      this.programmaGiornaliero = programming[index].dayProgramming;
       this.optionsElencoProgrammi = ed;
       this.disableAggiorna = true;
       this.showPage = true;
       this.disableAttiva = index === data.activeProg;
       this.disableElimina = index === data.activeProg;
     },
+    /**
+     * Leggi record programmazione
+     */
     getProgramming() {
       const httpService = new HttpServer();
       httpService
