@@ -1,12 +1,17 @@
 import axios from "axios";
-import { getConfiguration, TypeProgramming } from "@/services/config";
+import {
+  TypeAction,
+  getConfiguration,
+  TypeProgramming
+} from "@/services/config";
 
 const GET_CONFIGURATION = "getConfiguration";
 const UPDATE_CONFIGURATION = "updateConfiguration";
 
 const GET_PROGRAMMING = "getProgramming";
 const ADD_PROGRAMMING = "addProgramming";
-const REMOVE_PROGRAMMING = "removeProgramming";
+const DELETE_PROGRAMMING = "deleteProgramming";
+const UPDATE_PROGRAMMING = "updateProgramming";
 const GET_HTTPPER = "getHTTPCurrentPerformaceStatistics";
 const GET_RBUSPER = "getRBUSCurrentPerformaceStatistics";
 const GET_RBUSSTAT = "getRBUSStatistics";
@@ -46,10 +51,36 @@ export default class HttpMonitor {
     return axios.get(this.getUrl(GET_PROGRAMMING, queryParams));
   }
 
-  removeProgramming(type, id) {
+  manageProgramming(inputData) {
+    let url = "";
+    let usePost = true;
+    switch (inputData.action) {
+      case TypeAction.READ:
+        return getProgramming(inputData.type);
+        break;
+      case TypeAction.ADD:
+        url = this.getUrl(ADD_PROGRAMMING);
+        break;
+      case TypeAction.UPDATE:
+        url = this.getUrl(UPDATE_PROGRAMMING);
+        break;
+      case TypeAction.DELETE:
+        url = this.getUrl(DELETE_PROGRAMMING);
+        break;
+    }
+    if (usePost)
+      return axios.post(url, "data=" + JSON.stringify(inputData), {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
+        }
+      });
+    else return axios.get(url);
+  }
+  /*
+  removeProgramming(inputData) {
     return axios.post(
       this.getUrl(REMOVE_PROGRAMMING),
-      "data=" + JSON.stringify({ "type": type, "id": id }),
+      "data=" + JSON.stringify(inputData),
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
@@ -57,10 +88,11 @@ export default class HttpMonitor {
       }
     );
   }
+  */
   addProgramming(type) {
     return axios.post(
       this.getUrl(ADD_PROGRAMMING),
-      "data=" + JSON.stringify({ "type": type }),
+      "data=" + JSON.stringify({ type: type }),
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"

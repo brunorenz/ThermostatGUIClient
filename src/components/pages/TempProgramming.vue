@@ -5,8 +5,8 @@
 
     <p>
       Come funziona:
-      <br />1) Aggiorna la configurazione corrente
-      <br />2) Aggiungi un nuova programmazione
+      <br />1) Aggiorna la configurazione corrente <br />2) Aggiungi un nuova
+      programmazione
     </p>
     <div v-if="showPage">
       <div>
@@ -43,21 +43,24 @@
                   v-on:click="addProgramming"
                   class="mr-2"
                   style="width: 90px;"
-                >Aggiungi</b-button>
+                  >Aggiungi</b-button
+                >
                 <b-button
                   variant="primary"
-                  v-on:click="addProgramming"
+                  v-on:click="deleteProgramming"
                   :disabled="disableElimina"
                   class="mr-2"
                   style="width: 90px;"
-                >Elimina</b-button>
+                  >Elimina</b-button
+                >
                 <b-button
                   variant="primary"
-                  v-on:click="addProgramming"
+                  v-on:click="attivaProgramming"
                   :disabled="disableAttiva"
                   class="mr-2"
                   style="width: 90px;"
-                >Attiva</b-button>
+                  >Attiva</b-button
+                >
               </b-button-group>
             </b-col>
           </b-row>
@@ -73,7 +76,11 @@
             </h5>
           </div>
 
-          <b-form-group label-cols-sm="3" label="Nome" label-class="font-weight-bold">
+          <b-form-group
+            label-cols-sm="3"
+            label="Nome"
+            label-class="font-weight-bold"
+          >
             <b-form-input
               type="text"
               id="location"
@@ -100,9 +107,7 @@
               <b-row>
                 <b-col>
                   <label class="font-weight-bold">
-                    {{
-                    dettaglioProgramma.minTemp
-                    }}
+                    {{ dettaglioProgramma.minTemp }}
                   </label>
                 </b-col>
               </b-row>
@@ -127,16 +132,16 @@
               <b-row>
                 <b-col>
                   <label class="font-weight-bold">
-                    {{
-                    dettaglioProgramma.minTempManual
-                    }}
+                    {{ dettaglioProgramma.minTempManual }}
                   </label>
                 </b-col>
               </b-row>
 
               <b-row>
                 <b-col>
-                  <label class="font-weight-bold">Temperatura Minima In Manuale</label>
+                  <label class="font-weight-bold"
+                    >Temperatura Minima In Manuale</label
+                  >
                 </b-col>
               </b-row>
             </b-col>
@@ -198,21 +203,24 @@
                   v-on:click="copyProgramming"
                   class="mr-2"
                   style="width: 90px;"
-                >Copia</b-button>
+                  >Copia</b-button
+                >
                 <b-button
                   variant="primary"
                   class="mr-2"
                   style="width: 90px;"
                   v-on:click="getProgramming"
                   :disabled="disableElimina"
-                >Ricarica</b-button>
+                  >Ricarica</b-button
+                >
                 <b-button
                   variant="primary"
                   class="mr-2"
                   style="width: 90px;"
                   v-on:click="updateProgramming"
                   :disabled="disableAttiva"
-                >Salva</b-button>
+                  >Salva</b-button
+                >
               </b-button-group>
             </b-col>
           </b-row>
@@ -225,7 +233,7 @@
 import moment from "moment";
 import HttpServer from "@/services/httpMonitorRest";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
-import { TypeDeviceType, TypeProgramming } from "@/services/config";
+import { TypeAction, TypeDeviceType, TypeProgramming } from "@/services/config";
 import { Datetime } from "vue-datetime";
 import "vue-datetime/dist/vue-datetime.css";
 import VueSlider from "vue-slider-component";
@@ -290,40 +298,18 @@ export default {
      * Add programming record
      */
     addProgramming() {
-      this.$bvModal
-        .msgBoxConfirm("Confermi l'aggiornamento ?")
-        .then(value => {
-          if (value) {
-            const httpService = new HttpServer();
-            httpService
-              .addProgramming(TypeProgramming.THEMP)
-              .then(response => {
-                let dati = response.data;
-                if (dati.error.code === 0) {
-                  this.showMsgConfermaEsecuzione(
-                    "Aggiornamento effettuato con successo"
-                  );
-                  // this.elencoProgrammi =  [];
-                  // this.dettaglioProgramma= null;
-                  // this.programmaSelezionato= null;
-                  this.getProgramming();
-                } else {
-                  this.showMsgConfermaEsecuzione(
-                    "Errore in fase di aggiornamento : " + dati.error.message
-                  );
-                }
-              })
-              .catch(error => {
-                this.showMsgConfermaEsecuzione(
-                  "Errore in fase di aggiornamento : " + error
-                );
-              });
-          }
-        })
-        .catch(error => {
-          console.log("Error callig service 'updateProgramming' : " + error);
-          this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
-        });
+      this.manageProgramming(TypeAction.ADD);
+    },
+    /**
+     *
+     */
+    attivaProgramming() {
+      this.programmazioneCompleta.activeProg = this.programmaSelezionato;
+      this.manageProgramming(TypeAction.UPDATE);
+    },
+    updateProgramming() {
+      //this.programmazioneCompleta.activeProg = this.programmaSelezionato;
+      this.manageProgramming(TypeAction.UPDATE);
     },
     updateDayProgramming() {
       console.log("Update Day programming");
@@ -331,20 +317,27 @@ export default {
     copyProgramming() {
       console.log("Copy programming");
     },
-    manageProgramming(type) {
-      let cmd = httpService.addProgramming;
-      let msg = "l'inserimento";
-      let inputData = {type : TypeProgramming.THEMP};
-      switch (type) {
-        case "ADD":
+    deleteProgramming() {
+      console.log(
+        "Delete programming with id " + this.dettaglioProgramma.idProg
+      );
+      this.manageProgramming(TypeAction.DELETE);
+    },
+    manageProgramming(action) {
+      const httpService = new HttpServer();
+      let msg;
+      let inputData = { type: TypeProgramming.THEMP, action: action };
+      switch (action) {
+        case TypeAction.ADD:
+          msg = "l'inserimento di un nuovo programma";
           break;
-        case "UPDATE":
-          cmd = httpService.updateProgramming;
-          msg = "l'aggiornamento";
+        case TypeAction.UPDATE:
+          msg = "l'aggiornamento del programma selezionato";
+          inputData.programm = this.programmazioneCompleta;
           break;
-        case "DELETE":
-          cmd = httpService.removeProgramming;
-          msg = "la cancellazione";
+        case TypeAction.DELETE:
+          msg = "la cancellazione del programma selezionato";
+          inputData.id = this.dettaglioProgramma.idProg;
           break;
       }
       this.$bvModal
@@ -352,14 +345,15 @@ export default {
         .then(value => {
           if (value) {
             const httpService = new HttpServer();
-            cmd(inputData)
+            httpService
+              .manageProgramming(inputData)
               .then(response => {
                 let dati = response.data;
                 if (dati.error.code === 0) {
                   this.showMsgConfermaEsecuzione(
                     "Operazione effettuata con successo!"
                   );
-                  // rileggo dati 
+                  // rileggo dati
                   this.getProgramming();
                 } else {
                   this.showMsgConfermaEsecuzione(
@@ -381,7 +375,7 @@ export default {
     },
     /**
      * Update programming record
-     */
+
     updateProgramming() {
       this.$bvModal
         .msgBoxConfirm("Confermi l'aggiornamento ?")
@@ -418,6 +412,8 @@ export default {
           this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
         });
     },
+     */
+
     /**
      * Update view after any programming change
      */
