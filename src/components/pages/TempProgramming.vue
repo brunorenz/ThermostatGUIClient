@@ -156,42 +156,49 @@
               <dayProgramming
                 :model="programmaGiornaliero[0]"
                 v-on:updateConfiguration="updateDayProgramming"
+                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Martedi'">
               <dayProgramming
                 :model="programmaGiornaliero[1]"
                 v-on:updateConfiguration="updateDayProgramming"
+                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Mercoledi'">
               <dayProgramming
                 :model="programmaGiornaliero[2]"
                 v-on:updateConfiguration="updateDayProgramming"
+                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Giovedi'">
               <dayProgramming
                 :model="programmaGiornaliero[3]"
                 v-on:updateConfiguration="updateDayProgramming"
+                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Venerdi'">
               <dayProgramming
                 :model="programmaGiornaliero[4]"
                 v-on:updateConfiguration="updateDayProgramming"
+                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Sabato">
               <dayProgramming
                 :model="programmaGiornaliero[5]"
                 v-on:updateConfiguration="updateDayProgramming"
+                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Domenica">
               <dayProgramming
                 :model="programmaGiornaliero[6]"
                 v-on:updateConfiguration="updateDayProgramming"
+                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
           </b-tabs>
