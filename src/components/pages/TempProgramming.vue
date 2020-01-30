@@ -4,9 +4,9 @@
     <p>Seleziona il dispositivo da programmare.</p>
 
     <p>
-      Come funziona:<br />
-      1) Aggiorna la configurazione corrente<br />
-      2) Aggiungi un nuova programmazione
+      Come funziona:
+      <br />1) Aggiorna la configurazione corrente
+      <br />2) Aggiungi un nuova programmazione
     </p>
     <div v-if="showPage">
       <div>
@@ -43,24 +43,21 @@
                   v-on:click="addProgramming"
                   class="mr-2"
                   style="width: 90px;"
-                  >Aggiungi</b-button
-                >
+                >Aggiungi</b-button>
                 <b-button
                   variant="primary"
                   v-on:click="addProgramming"
                   :disabled="disableElimina"
                   class="mr-2"
                   style="width: 90px;"
-                  >Elimina</b-button
-                >
+                >Elimina</b-button>
                 <b-button
                   variant="primary"
                   v-on:click="addProgramming"
                   :disabled="disableAttiva"
                   class="mr-2"
                   style="width: 90px;"
-                  >Attiva</b-button
-                >
+                >Attiva</b-button>
               </b-button-group>
             </b-col>
           </b-row>
@@ -71,15 +68,12 @@
         <b-card>
           <div slot="header">
             <h5>
-              Programma <b>{{ programName }}</b>
+              Programma
+              <b>{{ programName }}</b>
             </h5>
           </div>
 
-          <b-form-group
-            label-cols-sm="3"
-            label="Nome"
-            label-class="font-weight-bold"
-          >
+          <b-form-group label-cols-sm="3" label="Nome" label-class="font-weight-bold">
             <b-form-input
               type="text"
               id="location"
@@ -105,9 +99,11 @@
               </b-row>
               <b-row>
                 <b-col>
-                  <label class="font-weight-bold">{{
+                  <label class="font-weight-bold">
+                    {{
                     dettaglioProgramma.minTemp
-                  }}</label>
+                    }}
+                  </label>
                 </b-col>
               </b-row>
               <b-row>
@@ -130,26 +126,24 @@
               </b-row>
               <b-row>
                 <b-col>
-                  <label class="font-weight-bold">{{
+                  <label class="font-weight-bold">
+                    {{
                     dettaglioProgramma.minTempManual
-                  }}</label>
+                    }}
+                  </label>
                 </b-col>
               </b-row>
 
               <b-row>
                 <b-col>
-                  <label class="font-weight-bold"
-                    >Temperatura Minima In Manuale</label
-                  >
+                  <label class="font-weight-bold">Temperatura Minima In Manuale</label>
                 </b-col>
               </b-row>
             </b-col>
           </b-row>
 
           <div>
-            <h5>
-              Programmazione Giornaliera
-            </h5>
+            <h5>Programmazione Giornaliera</h5>
           </div>
 
           <b-tabs justified>
@@ -204,24 +198,21 @@
                   v-on:click="copyProgramming"
                   class="mr-2"
                   style="width: 90px;"
-                  >Copia</b-button
-                >
+                >Copia</b-button>
                 <b-button
                   variant="primary"
                   class="mr-2"
                   style="width: 90px;"
                   v-on:click="getProgramming"
                   :disabled="disableElimina"
-                  >Ricarica</b-button
-                >
+                >Ricarica</b-button>
                 <b-button
                   variant="primary"
                   class="mr-2"
                   style="width: 90px;"
                   v-on:click="updateProgramming"
                   :disabled="disableAttiva"
-                  >Salva</b-button
-                >
+                >Salva</b-button>
               </b-button-group>
             </b-col>
           </b-row>
@@ -260,9 +251,9 @@ export default {
       maxTemp: 25,
       minTemp: 10,
       intTemp: 0.5,
-      value: 10,
-      dateOn: "00:00",
-      dateOff: "23:50",
+      //value: 10,
+      //dateOn: "00:00",
+      //dateOff: "23:50",
       programmaGiornaliero: {},
       //
       disableAggiorna: true,
@@ -283,12 +274,6 @@ export default {
       console.log("Selezionato " + ix);
       let idProg = this.programmazioneCompleta.programming[ix].idProg;
       this.updateProgrammingView(this.programmazioneCompleta, idProg);
-      // if (ix !== null) {
-      //   var cfg = this.elencoDispositivi[ix];
-      //   console.log("VisualiSelezionato " + cfg.macAddress);
-      //   this.showDispositivo = true;
-      //   this.dispositivoSelezionato = ix;
-      // } else this.showDispositivo = false;
     },
     showMsgConfermaEsecuzione(message) {
       this.$bvModal
@@ -301,6 +286,9 @@ export default {
           // An error occurred
         });
     },
+    /**
+     * Add programming record
+     */
     addProgramming() {
       this.$bvModal
         .msgBoxConfirm("Confermi l'aggiornamento ?")
@@ -343,6 +331,57 @@ export default {
     copyProgramming() {
       console.log("Copy programming");
     },
+    manageProgramming(type) {
+      let cmd = httpService.addProgramming;
+      let msg = "l'inserimento";
+      let inputData = {type : TypeProgramming.THEMP};
+      switch (type) {
+        case "ADD":
+          break;
+        case "UPDATE":
+          cmd = httpService.updateProgramming;
+          msg = "l'aggiornamento";
+          break;
+        case "DELETE":
+          cmd = httpService.removeProgramming;
+          msg = "la cancellazione";
+          break;
+      }
+      this.$bvModal
+        .msgBoxConfirm("Confermi " + msg + " ?")
+        .then(value => {
+          if (value) {
+            const httpService = new HttpServer();
+            cmd(inputData)
+              .then(response => {
+                let dati = response.data;
+                if (dati.error.code === 0) {
+                  this.showMsgConfermaEsecuzione(
+                    "Operazione effettuata con successo!"
+                  );
+                  // rileggo dati 
+                  this.getProgramming();
+                } else {
+                  this.showMsgConfermaEsecuzione(
+                    "Operazione terminata in errore  : " + dati.error.message
+                  );
+                }
+              })
+              .catch(error => {
+                this.showMsgConfermaEsecuzione(
+                  "Operazione terminata in errore  : " + error
+                );
+              });
+          }
+        })
+        .catch(error => {
+          console.log("Error generico : " + error);
+          this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
+        });
+    },
+    /**
+     * Update programming record
+     */
     updateProgramming() {
       this.$bvModal
         .msgBoxConfirm("Confermi l'aggiornamento ?")
@@ -379,6 +418,9 @@ export default {
           this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
         });
     },
+    /**
+     * Update view after any programming change
+     */
     updateProgrammingView(data, idProg) {
       let ed = [];
       let programming = data.programming;
@@ -428,8 +470,6 @@ export default {
             console.log("Nessun dato da visualizzare");
             this.showMsgConfermaEsecuzione("Nessun data da visualizzare!");
           }
-          //this.disableAggiorna = true;
-          //this.showPage = true;
         })
         .catch(error => {
           console.log("Error callig service 'getProgramming' : " + error);

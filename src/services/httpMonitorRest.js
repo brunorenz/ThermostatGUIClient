@@ -46,10 +46,21 @@ export default class HttpMonitor {
     return axios.get(this.getUrl(GET_PROGRAMMING, queryParams));
   }
 
+  removeProgramming(type, id) {
+    return axios.post(
+      this.getUrl(REMOVE_PROGRAMMING),
+      "data=" + JSON.stringify({ "type": type, "id": id }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
+        }
+      }
+    );
+  }
   addProgramming(type) {
     return axios.post(
       this.getUrl(ADD_PROGRAMMING),
-      "data=" + JSON.stringify({"type" : type}),
+      "data=" + JSON.stringify({ "type": type }),
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
