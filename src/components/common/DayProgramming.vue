@@ -1,7 +1,22 @@
 <template>
   <div>
     <b-row v-for="entry in tmpData.prog" :key="entry.id">
-      <b-col sm="3"> </b-col>
+      <b-col sm="2">
+        <b-row class="text-center">
+          <b-button class="mr-2" variant="primary"
+            ><b-icon icon="plus"></b-icon
+          ></b-button>
+          <b-button variant="primary"><b-icon icon="trash"></b-icon></b-button>
+        </b-row>
+        <b-row class="text-center">
+          <b-button class="mr-2" variant="primary"
+            ><b-icon icon="arrow-up"></b-icon
+          ></b-button>
+          <b-button variant="primary"
+            ><b-icon icon="arrow-down"></b-icon
+          ></b-button>
+        </b-row>
+      </b-col>
       <b-col sm="3">
         <b-row class="text-center">
           <b-col>
@@ -75,6 +90,7 @@ import { Datetime } from "vue-datetime";
 import "vue-datetime/dist/vue-datetime.css";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
+//import { BIcon } from "bootstrap-vue";
 
 export default {
   name: "DayProgramming",
@@ -134,6 +150,7 @@ export default {
         let rec = modelOut.prog[ix];
         rec.oraOn = this.getDataFromNum(rec.timeStart);
         rec.oraOff = this.getDataFromNum(rec.timeEnd);
+        rec.ix = ix;
       }
       this.tmpData = modelOut;
       //this.tmpData.disable = false;
