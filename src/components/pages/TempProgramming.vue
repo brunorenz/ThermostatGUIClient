@@ -72,7 +72,7 @@
           <div slot="header">
             <h5>
               Programma
-              <b>{{ programName }}</b>
+              <b v-bind:style="defProgStyle">{{ programName }}</b>
             </h5>
           </div>
 
@@ -151,7 +151,7 @@
             <h5>Programmazione Giornaliera</h5>
           </div>
 
-          <b-tabs justified>
+          <b-tabs justified v-model="tabIndex">
             <b-tab title="Lunedi'" active>
               <dayProgramming
                 :model="programmaGiornaliero[0]"
@@ -217,7 +217,7 @@
                   class="mr-2"
                   style="width: 90px;"
                   v-on:click="getProgramming"
-                  :disabled="disableElimina"
+                  :disabled="disableAggiorna"
                   >Ricarica</b-button
                 >
                 <b-button
@@ -225,7 +225,7 @@
                   class="mr-2"
                   style="width: 90px;"
                   v-on:click="updateProgramming"
-                  :disabled="disableAttiva"
+                  :disabled="disableAggiorna"
                   >Salva</b-button
                 >
               </b-button-group>
@@ -262,6 +262,8 @@ export default {
       optionsElencoProgrammi: [],
       showPage: false,
       programName: "",
+      tabIndex: 0,
+      defProgStyle: "",
       // valori default
       maxTemp: 25,
       minTemp: 10,
@@ -311,11 +313,13 @@ export default {
      *
      */
     attivaProgramming() {
-      this.programmazioneCompleta.activeProg = this.programmaSelezionato;
+      this.programmazioneCompleta.activeProg = this.getProgramIndex(
+        this.programmazioneCompleta,
+        this.programmaSelezionato
+      );
       this.manageProgramming(TypeAction.UPDATE);
     },
     updateProgramming() {
-      //this.programmazioneCompleta.activeProg = this.programmaSelezionato;
       this.manageProgramming(TypeAction.UPDATE);
     },
     updateDayProgramming() {
@@ -420,13 +424,12 @@ export default {
         });
     },
      */
-
-    /**
-     * Update view after any programming change
-     */
-    updateProgrammingView(data, idProg) {
-      let ed = [];
-      let programming = data.programming;
+    getProgramIndex(progRecord, index) {
+      return progRecord.programming[index].idProg;
+    },
+    getIndexProgram(progRecord, idProg) {
+      if (typeof idProg === "undefined") idProg = progRecord.activeProg;
+      let programming = progRecord.programming;
       let index = 0;
       for (let ix = 0; ix < programming.length; ix++) {
         if (programming[ix].idProg === idProg) {
@@ -434,28 +437,48 @@ export default {
           break;
         }
       }
-      this.programmaSelezionato = index; // data.activeProg;
+      return index;
+    },
+    /**
+     * Update view after any programming change
+     */
+    updateProgrammingView(data, idProg) {
+      let ed = [];
+      let programming = data.programming;
+      // let index = 0;
+      // for (let ix = 0; ix < programming.length; ix++) {
+      //   if (programming[ix].idProg === idProg) {
+      //     index = ix;
+      //     break;
+      //   }
+      // }
+      let index = this.getIndexProgram(data, idProg);
+      let indexDefault = this.getIndexProgram(data);
+      this.programmaSelezionato = index;
       this.dettaglioProgramma = programming[index];
       this.programName = this.dettaglioProgramma.name;
       this.dettaglioProgramma.lastUpdateD = moment(data.lastUpdate).format(
         "DD/MM/YYYY HH:mm"
       );
       for (let ix = 0; ix < programming.length; ix++) {
-        ed.push({
-          value: ix,
-          text: programming[ix].name
-        });
+        let opt = { value: ix };
+        if (ix === indexDefault) opt.text = programming[ix].name + " (ATTIVO)";
+        else opt.text = programming[ix].name;
+        ed.push(opt);
       }
       this.programmaGiornaliero = {
         changed: false,
         data: programming[index].dayProgramming
       };
+      let programmaAttivo = index === indexDefault;
       this.programmaGiornaliero = programming[index].dayProgramming;
       this.optionsElencoProgrammi = ed;
       this.disableAggiorna = true;
       this.showPage = true;
-      this.disableAttiva = index === data.activeProg;
-      this.disableElimina = index === data.activeProg;
+      this.disableAttiva = programmaAttivo;
+      this.disableElimina = programmaAttivo;
+      this.tabIndex = 0;
+      this.defProgStyle = programmaAttivo ? "color: green;" : "";
     },
     /**
      * Leggi record programmazione
