@@ -11,12 +11,9 @@ const DefaultContainer = () => import("@/components/DefaultContainer");
 const Dashboard = () => import("@/components/dashboard/Dashboard");
 const Setup = () => import("@/components/pages/Setup");
 const TempProgramming = () => import("@/components/pages/TempProgramming");
-//const RBUSServices = () => import("@/components/rbus/RBUSServices");
-//const HTTPServices = () => import("@/components/http/HTTPServices");
+const Login = () => import("@/components/pages/Login");
 
-//const Setup = () => import("@/components/Setup");
-
-export default new Router({
+let router = new Router({
   routes: [
     {
       path: "/",
@@ -25,19 +22,36 @@ export default new Router({
       component: DefaultContainer,
       children: [
         {
+          path: "login",
+          name: "Login",
+          component: Login,
+          meta: {
+            guest: true
+          }
+        },
+        {
           path: "dashboard",
           name: "Dashboard",
-          component: Dashboard
+          component: Dashboard,
+          meta: {
+            guest: true
+          }
         },
         {
           path: "gestione",
           name: "Gestione Dispositivi",
-          component: Setup
+          component: Setup,
+          meta: {
+            auth: true
+          }
         },
         {
           path: "statistiche",
-          name: "Statistiche"
+          name: "Statistiche",
           //component: Statistics
+          meta: {
+            guest: true
+          }
         },
         {
           path: "programmazione",
@@ -51,11 +65,17 @@ export default new Router({
             {
               path: "termostato",
               name: "Termostato",
-              component: TempProgramming
+              component: TempProgramming,
+              meta: {
+                auth: true
+              }
             },
             {
               path: "luce",
-              name: "Luce"
+              name: "Luce",
+              meta: {
+                auth: true
+              }
             }
           ]
         }
@@ -63,3 +83,30 @@ export default new Router({
     }
   ]
 });
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.auth)) {
+    if (window.sessionStorage.getItem("jwt") === null) {
+      next({
+        path: "/login",
+        params: { nextUrl: to.fullPath }
+      });
+    } else {
+      let user = JSON.parse(window.sessionStorage.getItem("user"));
+      // if (to.matched.some(record => record.meta.is_admin)) {
+      //   if (user.is_admin == 1) {
+      //     next();
+      //   } else {
+      //     next({ name: "userboard" });
+      //   }
+      // } else {
+      next();
+      //}
+    }
+  } else if (to.matched.some(record => record.meta.guest)) {
+    next();
+  } else {
+    next();
+  }
+});
+export default router;

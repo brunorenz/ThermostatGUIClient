@@ -2,7 +2,8 @@ import axios from "axios";
 import {
   TypeAction,
   getConfiguration,
-  TypeProgramming
+  TypeProgramming,
+  SecurityConfiguration
 } from "@/services/config";
 
 const GET_CONFIGURATION = "getConfiguration";
@@ -12,11 +13,6 @@ const GET_PROGRAMMING = "getProgramming";
 const ADD_PROGRAMMING = "addProgramming";
 const DELETE_PROGRAMMING = "deleteProgramming";
 const UPDATE_PROGRAMMING = "updateProgramming";
-const GET_HTTPPER = "getHTTPCurrentPerformaceStatistics";
-const GET_RBUSPER = "getRBUSCurrentPerformaceStatistics";
-const GET_RBUSSTAT = "getRBUSStatistics";
-
-const DISP_APP = "distinctApplications";
 const local = false;
 
 export default class HttpMonitor {
@@ -24,6 +20,24 @@ export default class HttpMonitor {
     this.configuration = getConfiguration();
   }
 
+  getPostSecurityHeader() {
+    let headers = {
+      "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
+    };
+    return this.getSecurityHeader(headers);
+  }
+  getSecurityHeader(headers) {
+    if (typeof headers === "undefined") headers = {};
+    if (SecurityConfiguration.basicAuthRequired) {
+      headers.Authorization = SecurityConfiguration.basicAuth;
+    }
+    if (SecurityConfiguration.jwtRequired) {
+      let token = localStorage.getItem("jwt");
+      if (token === null) throw new Error("No security record found!");
+      else headers.JWTToken = token;
+    }
+    return headers;
+  }
   getUrl(functionUrl, queryParams) {
     var outUrl = this.configuration.serverUrl + functionUrl;
     if (queryParams && queryParams.length > 0) {
@@ -41,14 +55,18 @@ export default class HttpMonitor {
 
   getConfiguration() {
     var queryParams = [];
-    return axios.get(this.getUrl(GET_CONFIGURATION, queryParams));
+    return axios.get(this.getUrl(GET_CONFIGURATION, queryParams), {
+      headers: this.getSecurityHeader()
+    });
   }
 
   getProgramming(type) {
     let qType = "temp";
     if (type) qType = type === TypeProgramming.THEMP ? "temp" : "light";
     var queryParams = [{ key: "type", value: qType }];
-    return axios.get(this.getUrl(GET_PROGRAMMING, queryParams));
+    return axios.get(this.getUrl(GET_PROGRAMMING, queryParams), {
+      headers: this.getSecurityHeader()
+    });
   }
 
   manageProgramming(inputData) {
@@ -68,13 +86,15 @@ export default class HttpMonitor {
         url = this.getUrl(DELETE_PROGRAMMING);
         break;
     }
+
     if (usePost)
       return axios.post(url, "data=" + JSON.stringify(inputData), {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
-        }
+        headers: this.getPostSecurityHeader()
       });
-    else return axios.get(url);
+    else
+      return axios.get(url, {
+        headers: this.getSecurityHeader()
+      });
   }
   /*
   removeProgramming(inputData) {
@@ -94,9 +114,7 @@ export default class HttpMonitor {
       this.getUrl(ADD_PROGRAMMING),
       "data=" + JSON.stringify({ type: type }),
       {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
-        }
+        headers: getPostSecurityHeader()
       }
     );
   }
@@ -106,9 +124,7 @@ export default class HttpMonitor {
       this.getUrl(UPDATE_CONFIGURATION),
       "data=" + JSON.stringify(conf),
       {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
-        }
+        headers: getPostSecurityHeader()
       }
     );
   }

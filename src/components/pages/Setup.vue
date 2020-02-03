@@ -439,71 +439,77 @@ export default {
     },
     getConfiguration() {
       const httpService = new HttpServer();
-      httpService
-        .getConfiguration()
-        .then(response => {
-          let dati = response.data;
-          if (dati.error.code === 0) {
-            this.elencoDispositiviOrig = dati.data;
-            this.elencoDispositivi = JSON.parse(JSON.stringify(dati.data));
-            var data = dati.data;
-            let ed = [];
-            ed.push({
-              value: null,
-              text: "Seleziona un dispositivo"
-            });
-            for (let ix = 0; ix < data.length; ix++) {
+      try {
+        httpService
+          .getConfiguration()
+          .then(response => {
+            let dati = response.data;
+            if (dati.error.code === 0) {
+              this.elencoDispositiviOrig = dati.data;
+              this.elencoDispositivi = JSON.parse(JSON.stringify(dati.data));
+              var data = dati.data;
+              let ed = [];
               ed.push({
-                value: ix,
-                text: data[ix].location + "(" + data[ix].macAddress + ")"
+                value: null,
+                text: "Seleziona un dispositivo"
               });
-              let deviceName = "NON DEFINITO";
-              switch (data[ix].deviceType) {
-                case 1:
-                  deviceName = "ARDUINO";
-                  break;
-                case 2:
-                  deviceName = "SHELLY";
-                  if (this.elencoDispositivi[ix].flagReleTemp === 1)
-                    this.elencoDispositivi[ix].tipoRele = "1";
-                  else if (this.elencoDispositivi[ix].flagReleLight === 1)
-                    this.elencoDispositivi[ix].tipoRele = "2";
-                  else this.elencoDispositivi[ix].tipoRele = "0";
-                  break;
+              for (let ix = 0; ix < data.length; ix++) {
+                ed.push({
+                  value: ix,
+                  text: data[ix].location + "(" + data[ix].macAddress + ")"
+                });
+                let deviceName = "NON DEFINITO";
+                switch (data[ix].deviceType) {
+                  case 1:
+                    deviceName = "ARDUINO";
+                    break;
+                  case 2:
+                    deviceName = "SHELLY";
+                    if (this.elencoDispositivi[ix].flagReleTemp === 1)
+                      this.elencoDispositivi[ix].tipoRele = "1";
+                    else if (this.elencoDispositivi[ix].flagReleLight === 1)
+                      this.elencoDispositivi[ix].tipoRele = "2";
+                    else this.elencoDispositivi[ix].tipoRele = "0";
+                    break;
+                }
+                // propago in copia
+                this.elencoDispositiviOrig[
+                  ix
+                ].tipoRele = this.elencoDispositivi[ix].tipoRele;
+                this.elencoDispositivi[ix].deviceTypeName = deviceName;
+                this.elencoDispositivi[ix].lastAccessD = moment(
+                  data[ix].lastAccess
+                ).format("DD/MM/YYYY HH:mm");
+                this.elencoDispositivi[ix].lastUpdateD = moment(
+                  data[ix].lastUpdate
+                ).format("DD/MM/YYYY HH:mm");
+                this.elencoDispositivi[ix].lastCheckD = moment(
+                  data[ix].lastCheck
+                ).format("DD/MM/YYYY HH:mm");
               }
-              // propago in copia
-              this.elencoDispositiviOrig[ix].tipoRele = this.elencoDispositivi[
-                ix
-              ].tipoRele;
-              this.elencoDispositivi[ix].deviceTypeName = deviceName;
-              this.elencoDispositivi[ix].lastAccessD = moment(
-                data[ix].lastAccess
-              ).format("DD/MM/YYYY HH:mm");
-              this.elencoDispositivi[ix].lastUpdateD = moment(
-                data[ix].lastUpdate
-              ).format("DD/MM/YYYY HH:mm");
-              this.elencoDispositivi[ix].lastCheckD = moment(
-                data[ix].lastCheck
-              ).format("DD/MM/YYYY HH:mm");
-            }
-            if (data.length === 1) {
-              this.showListDispositivi = false;
-              this.showDispositivo = true;
-              this.showDettaglioDispositivo(0);
+              if (data.length === 1) {
+                this.showListDispositivi = false;
+                this.showDispositivo = true;
+                this.showDettaglioDispositivo(0);
+              } else {
+                this.optionsElencoDispositivi = ed;
+                this.showListDispositivi = true;
+                this.showDispositivo = false;
+              }
             } else {
-              this.optionsElencoDispositivi = ed;
-              this.showListDispositivi = true;
-              this.showDispositivo = false;
+              console.log("Nessun dato da visualizzare");
             }
-          } else {
-            console.log("Nessun dato da visualizzare");
-          }
-          this.disableAggiorna = true;
-        })
-        .catch(error => {
-          console.log("Error callig service 'getConfiguration' : " + error);
-          this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
-        });
+            this.disableAggiorna = true;
+          })
+          .catch(error => {
+            console.log("Error callig service 'getConfiguration' : " + error);
+            this.showMsgConfermaEsecuzione(
+              "Servizio non disponibile : " + error
+            );
+          });
+      } catch (error) {
+        this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
+      }
     }
   }
 };

@@ -252,3 +252,10 @@ export var TypeMeasure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };
 export var TypeProgramming = { THEMP: 1, LIGTH: 2 };
 export var TypeDeviceType = { ANY: 0, ARDUINO: 1, SHELLY: 2 };
 export var TypeAction = { ADD: 0, UPDATE: 1, DELETE: 2, READ: 3 };
+
+// Sicurezza
+export var SecurityConfiguration = {
+  basicAuth: "Basic YWRtaW46YWgwNjB2eUEu",
+  basicAuthRequired: true,
+  jwtRequired: true
+};
