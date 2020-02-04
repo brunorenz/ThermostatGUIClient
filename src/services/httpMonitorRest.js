@@ -6,6 +6,8 @@ import {
   SecurityConfiguration
 } from "@/services/config";
 
+import router from "@/router/index";
+
 const GET_CONFIGURATION = "getConfiguration";
 const UPDATE_CONFIGURATION = "updateConfiguration";
 
@@ -13,28 +15,63 @@ const GET_PROGRAMMING = "getProgramming";
 const ADD_PROGRAMMING = "addProgramming";
 const DELETE_PROGRAMMING = "deleteProgramming";
 const UPDATE_PROGRAMMING = "updateProgramming";
+const LOGIN = "login";
+
 const local = false;
+
+// Add a response interceptor
+axios.interceptors.response.use(
+  function(response) {
+    if (typeof response.data.error != "undefined") {
+      console.log(
+        "Return code : " +
+          response.data.error.code +
+          " , Message : " +
+          response.data.error.message
+      );
+      if (response.data.error.code === 999) router.push("/login");
+    }
+    return response;
+  },
+  function(error) {
+    // Any status codes that falls outside the range of 2xx cause this function to trigger
+    // Do something with response error
+    if (
+      typeof error.response.status != "undifined" &&
+      error.response.status === 403
+    ) {
+      window.sessionStorage.removeItem("jwttoken");
+      window.sessionStorage.removeItem("jwt");
+      router.push("/login");
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default class HttpMonitor {
   constructor() {
     this.configuration = getConfiguration();
   }
 
-  getPostSecurityHeader() {
+  getPostSecurityHeader(auth) {
     let headers = {
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
     };
-    return this.getSecurityHeader(headers);
+    return this.getSecurityHeader(headers, auth);
   }
-  getSecurityHeader(headers) {
+  getSecurityHeader(headers, auth) {
     if (typeof headers === "undefined") headers = {};
     if (SecurityConfiguration.basicAuthRequired) {
       headers.Authorization = SecurityConfiguration.basicAuth;
     }
-    if (SecurityConfiguration.jwtRequired) {
-      let token = localStorage.getItem("jwt");
-      if (token === null) throw new Error("No security record found!");
-      else headers.JWTToken = token;
+    if (typeof auth === "undefined") auth = true;
+    if (SecurityConfiguration.jwtRequired && auth) {
+      let token = window.sessionStorage.getItem("jwttoken");
+      if (token === null) {
+        //let a = router;
+        router.push("/login");
+        throw new Error("No security record found!");
+      } else headers.JWTToken = token;
     }
     return headers;
   }
@@ -51,6 +88,17 @@ export default class HttpMonitor {
     }
     console.log("Call " + outUrl);
     return outUrl;
+  }
+
+  login(email, password) {
+    let inputData = {
+      email: email,
+      password: password
+    };
+    let url = this.getUrl(LOGIN);
+    return axios.post(url, "data=" + JSON.stringify(inputData), {
+      headers: this.getPostSecurityHeader(false)
+    });
   }
 
   getConfiguration() {

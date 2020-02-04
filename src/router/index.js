@@ -89,7 +89,7 @@ router.beforeEach((to, from, next) => {
     if (window.sessionStorage.getItem("jwt") === null) {
       next({
         path: "/login",
-        params: { nextUrl: to.fullPath }
+        query: { redirect: to.fullPath }
       });
     } else {
       let user = JSON.parse(window.sessionStorage.getItem("user"));

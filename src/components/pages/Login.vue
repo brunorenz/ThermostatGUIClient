@@ -20,8 +20,9 @@
     </form>
   </div>
 </template>
-
 <script>
+import HttpServer from "@/services/httpMonitorRest";
+import router from "@/router/index";
 export default {
   data() {
     return {
@@ -30,30 +31,53 @@ export default {
     };
   },
   methods: {
+    showMsgConfermaEsecuzione(message) {
+      this.$bvModal
+        .msgBoxOk(message, {
+          //          title: "Please Confirm",
+          //          okVariant: "danger"
+        })
+        .then(value => {})
+        .catch(err => {
+          // An error occurred
+        });
+    },
+
     handleSubmit(e) {
       e.preventDefault();
-      window.sessionStorage.setItem("jwt", "PIPPO");
-      debugger;
-      if (this.$route.params.nextUrl != null) {
-        this.$router.push(this.$route.params.nextUrl);
+
+      const httpService = new HttpServer();
+      try {
+        httpService
+          .login(this.email, this.password)
+          .then(response => {
+            let dati = response.data;
+            if (dati.error.code === 0) {
+              window.sessionStorage.setItem("jwt", JSON.stringify(dati.data));
+              window.sessionStorage.setItem("jwttoken", dati.data.token);
+              let r = router.history.current;
+              let redirect = "/";
+              if (typeof r.query.redirect != "undefined")
+                redirect = r.query.redirect;
+              router.push(redirect);
+            } else {
+              //   console.log(
+              //     "Errore in fase di autenticazione! " + dati.error.message
+              //   );
+              this.showMsgConfermaEsecuzione(
+                "Errore in fase di logon : " + dati.error.message
+              );
+            }
+          })
+          .catch(error => {
+            //            console.log("Error callig service 'getConfiguration' : " + error);
+            this.showMsgConfermaEsecuzione(
+              "Servizio non disponibile : " + error
+            );
+          });
+      } catch (error) {
+        this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
       }
-      //   if (this.password.length > 0) {
-      //     this.$http
-      //       .post("http://localhost:3000/login", {
-      //         email: this.email,
-      //         password: this.password
-      //       })
-      //       .then(response => {
-      //         localStorage.setItem("user", JSON.stringify(response.data.user));
-      //         localStorage.setItem("jwt", response.data.token);
-      //         if (this.$route.params.nextUrl != null) {
-      //           this.$router.push(this.$route.params.nextUrl);
-      //         }
-      //       })
-      //       .catch(function(error) {
-      //         console.error(error.response);
-      //       });
-      //   }
     }
   }
 };
