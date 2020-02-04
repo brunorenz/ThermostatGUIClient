@@ -21,23 +21,22 @@ const local = false;
 
 // Add a response interceptor
 axios.interceptors.response.use(
-  function(response) {
+  function (response) {
     if (typeof response.data.error != "undefined") {
       console.log(
         "Return code : " +
-          response.data.error.code +
-          " , Message : " +
-          response.data.error.message
+        response.data.error.code +
+        " , Message : " +
+        response.data.error.message
       );
-      if (response.data.error.code === 999) router.push("/login");
     }
     return response;
   },
-  function(error) {
+  function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     if (
-      typeof error.response.status != "undifined" &&
+      typeof error.response.status != "undefined" &&
       error.response.status === 403
     ) {
       window.sessionStorage.removeItem("jwttoken");
@@ -167,13 +166,10 @@ export default class HttpMonitor {
     );
   }
   // application/x-www-form-urlencoded
-  updateConfiguration(conf) {
-    return axios.post(
-      this.getUrl(UPDATE_CONFIGURATION),
-      "data=" + JSON.stringify(conf),
-      {
-        headers: getPostSecurityHeader()
-      }
-    );
+  updateConfiguration(inputData) {
+    let url = this.getUrl(UPDATE_CONFIGURATION);
+    return axios.post(url, "data=" + JSON.stringify(inputData), {
+      headers: this.getPostSecurityHeader()
+    });
   }
 }
