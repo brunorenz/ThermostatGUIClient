@@ -2,45 +2,52 @@
   <div class="animated fadeIn">
     <b-card>
       <b-row>
-        <b-col sm="7">
-          <h4 id="traffic" class="card-title mb-1">
-            Richieste HTTP Server WEB
-          </h4>
-          <h6 class="card-subtitle mb-0 text-muted">
-            Ultimi {{ this.tmpModalData.depth }} secondi
-          </h6>
+        <b-col sm="9">
+          <h4 id="traffic" class="card-title mb-1">Sensori</h4>
         </b-col>
-        <b-col sm="5" class="d-none d-md-block">
-          <ModalConfiguration
-            :model="model"
-            v-on:updateConfiguration="updateConfiguration"
-          ></ModalConfiguration>
+        <b-col sm="3" class="d-none d-md-block">
+          <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
         </b-col>
       </b-row>
-      <b-row class="text-center">
-        <b-col
-          class="mb-sm-2 mb-0"
-          v-for="datiServer in datiServers"
-          :key="datiServer.name"
-        >
-          <div>{{ datiServer.label }}</div>
-          <strong
-            >{{ datiServer.tot }} Request ({{ datiServer.perServer }}%)</strong
-          >
-          <b-progress
-            height="{}"
-            class="progress-xs mt-2"
-            :precision="1"
-            variant="success"
-            :value="datiServer.ok"
-          ></b-progress>
-          <b-progress
-            height="{}"
-            class="progress-xs mt-2"
-            :precision="1"
-            variant="danger"
-            :value="datiServer.ko"
-          ></b-progress>
+      <b-row class="text-center" v-for="datiServer in datiServers" :key="datiServer.macAddress">
+        <b-col>
+          <b-row>
+            <b-col>
+              {{ datiServer.location }}
+              -
+              {{ datiServer.lastAccessD }}
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col class="mb-sm-2 mb-0">
+              <strong>
+                Temperatura
+                <br />
+                {{ datiServer.temperature }}°
+              </strong>
+              <b-progress
+                height="{}"
+                class="progress-xs mt-2"
+                :precision="1"
+                variant="success"
+                :value="datiServer.temperature"
+              ></b-progress>
+            </b-col>
+            <b-col class="mb-sm-2 mb-0">
+              <strong>
+                Luce
+                <br />
+                {{ datiServer.light }}%
+              </strong>
+              <b-progress
+                height="{}"
+                class="progress-xs mt-2"
+                :precision="1"
+                variant="success"
+                :value="datiServer.light"
+              ></b-progress>
+            </b-col>
+          </b-row>
         </b-col>
       </b-row>
     </b-card>
@@ -50,6 +57,7 @@
 <script>
 import moment from "moment";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
+import HttpServer from "@/services/httpMonitorRest";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import {
   getConfiguration,
@@ -63,7 +71,6 @@ export default {
   },
   data: function() {
     return {
-      configuration: {},
       timerId: null,
       datiServers: [],
       tmpModalData: { disable: false, windowsOpen: true },
@@ -127,7 +134,7 @@ export default {
     resetConfiguration() {
       console.log("reset configuration");
       this.tmpModalData.depth = this.configuration.httpPerformace.depth;
-      this.tmpModalData.timeout = this.configuration.httpPerformace.timeout;
+      this.tmpModalData.timeout = 30000; //this.configuration.httpPerformace.timeout;
       this.model.fields = [
         {
           label: "Profondità in secondi",
@@ -170,72 +177,46 @@ export default {
     flag(value) {
       return "flag-icon flag-icon-" + value;
     },
+    showMsgConfermaEsecuzione(message) {
+      this.$bvModal
+        .msgBoxOk(message, {
+          //          title: "Please Confirm",
+          //          okVariant: "danger"
+        })
+        .then(value => {})
+        .catch(err => {
+          // An error occurred
+        });
+    },
     getSensorData() {
       const httpService = new HttpServer();
       try {
         httpService
-          .getConfiguration()
+          .getSensorData()
           .then(response => {
+            let sd = [];
             let dati = response.data;
             if (dati.error.code === 0) {
-              this.elencoDispositiviOrig = dati.data;
-              this.elencoDispositivi = JSON.parse(JSON.stringify(dati.data));
               var data = dati.data;
-              let ed = [];
-              ed.push({
-                value: null,
-                text: "Seleziona un dispositivo"
-              });
               for (let ix = 0; ix < data.length; ix++) {
-                ed.push({
-                  value: ix,
-                  text: data[ix].location + "(" + data[ix].macAddress + ")"
-                });
-                let deviceName = "NON DEFINITO";
-                switch (data[ix].deviceType) {
-                  case 1:
-                    deviceName = "ARDUINO";
-                    break;
-                  case 2:
-                    deviceName = "SHELLY";
-                    if (this.elencoDispositivi[ix].flagReleTemp === 1)
-                      this.elencoDispositivi[ix].tipoRele = "1";
-                    else if (this.elencoDispositivi[ix].flagReleLight === 1)
-                      this.elencoDispositivi[ix].tipoRele = "2";
-                    else this.elencoDispositivi[ix].tipoRele = "0";
-                    break;
-                }
-                // propago in copia
-                this.elencoDispositiviOrig[
-                  ix
-                ].tipoRele = this.elencoDispositivi[ix].tipoRele;
-                this.elencoDispositivi[ix].deviceTypeName = deviceName;
-                this.elencoDispositivi[ix].lastAccessD = moment(
-                  data[ix].lastAccess
-                ).format("DD/MM/YYYY HH:mm");
-                this.elencoDispositivi[ix].lastUpdateD = moment(
-                  data[ix].lastUpdate
-                ).format("DD/MM/YYYY HH:mm");
-                this.elencoDispositivi[ix].lastCheckD = moment(
-                  data[ix].lastCheck
-                ).format("DD/MM/YYYY HH:mm");
-              }
-              if (data.length === 1) {
-                this.showListDispositivi = false;
-                this.showDispositivo = true;
-                this.showDettaglioDispositivo(0);
-              } else {
-                this.optionsElencoDispositivi = ed;
-                this.showListDispositivi = true;
-                this.showDispositivo = false;
+                let d = data[ix];
+                d.temperature = Math.floor(d.temperature * 100) / 100;
+                d.light = Math.floor(d.light * 100) / 100;
+
+                //
+                sd.push(d);
+                d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
               }
             } else {
               console.log("Nessun dato da visualizzare");
             }
-            this.disableAggiorna = true;
+            this.datiServers = sd;
+            this.timerId = setTimeout(
+                this.getSensorData,
+                this.tmpModalData.timeout
+              );
           })
           .catch(error => {
-            console.log("Error callig service 'getConfiguration' : " + error);
             this.showMsgConfermaEsecuzione(
               "Servizio non disponibile : " + error
             );

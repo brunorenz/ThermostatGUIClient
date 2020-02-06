@@ -53,16 +53,24 @@
           </div>
         </div>
       </div>
+      <div>
+        <b-card>
+            <SensorMonitor></SensorMonitor>
+        </b-card>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import moment from "moment";
+import SensorMonitor from "@/components/pages/SensorMonitor";
 
 export default {
   name: "dashboard",
-  components: {},
+  components: {
+    SensorMonitor
+  },
   data: function() {
     return {};
   }

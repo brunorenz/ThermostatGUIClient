@@ -11,6 +11,7 @@ import router from "@/router/index";
 const GET_CONFIGURATION = "getConfiguration";
 const UPDATE_CONFIGURATION = "updateConfiguration";
 
+const GET_SENSORDATA = "getSensorData";
 const GET_PROGRAMMING = "getProgramming";
 const ADD_PROGRAMMING = "addProgramming";
 const DELETE_PROGRAMMING = "deleteProgramming";
@@ -116,6 +117,12 @@ export default class HttpMonitor {
     });
   }
 
+  getSensorData() {
+    return axios.get(this.getUrl(GET_SENSORDATA), {
+      headers: this.getSecurityHeader()
+    });
+  }
+  
   manageProgramming(inputData) {
     let url = "";
     let usePost = true;
