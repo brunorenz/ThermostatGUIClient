@@ -6,10 +6,71 @@
           <h4 id="traffic" class="card-title mb-1">Sensori</h4>
         </b-col>
         <b-col sm="3" class="d-none d-md-block">
-          <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+          <ModalConfiguration
+            :model="model"
+            v-on:updateConfiguration="updateConfiguration"
+          ></ModalConfiguration>
         </b-col>
       </b-row>
-      <b-row class="text-center" v-for="datiServer in datiServers" :key="datiServer.macAddress">
+      <b-row
+        class="text-center"
+        v-for="datiServer in datiServers"
+        :key="datiServer.macAddress"
+      >
+        <b-col>
+          <b-row>
+            <b-col>
+              <strong>{{ datiServer.location }}</strong>
+              -
+              {{ datiServer.lastAccessD }}
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col class="mb-sm-2 mb-0">
+              <div>
+                <strong>
+                  Temperatura
+
+                  {{ datiServer.temperature }}°
+                </strong>
+              </div>
+              <VueSvgGauge
+                :start-angle="-60"
+                :end-angle="60"
+                :value="datiServer.temperature"
+                :separator-step="0"
+                :min="0"
+                :max="40"
+                :gauge-color="[
+                  { offset: 0, color: '#0000FF' },
+                  { offset: 40, color: '#FF0000' }
+                ]"
+                :scale-interval="1"
+              />
+            </b-col>
+            <b-col class="mb-sm-2 mb-0">
+              <div>
+                <strong>
+                  Luce
+                  {{ datiServer.light }}%
+                </strong>
+              </div>
+              <VueSvgGauge
+                :start-angle="-60"
+                :end-angle="60"
+                :value="datiServer.light"
+                :separator-step="0"
+                :min="0"
+                :max="100"
+                :gauge-color="[
+                  { offset: 0, color: '#FFFFFF' },
+                  { offset: 100, color: '#FFFF00' }
+                ]"
+                :scale-interval="2"
+              />
+            </b-col>
+          </b-row>
+        </b-col>
         <b-col>
           <b-row>
             <b-col>
@@ -55,6 +116,7 @@
 </template>
 
 <script>
+import { VueSvgGauge } from "vue-svg-gauge";
 import moment from "moment";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
 import HttpServer from "@/services/httpMonitorRest";
@@ -67,7 +129,8 @@ import {
 export default {
   name: "SensorMonitor",
   components: {
-    ModalConfiguration
+    ModalConfiguration,
+    VueSvgGauge
   },
   data: function() {
     return {
@@ -212,9 +275,9 @@ export default {
             }
             this.datiServers = sd;
             this.timerId = setTimeout(
-                this.getSensorData,
-                this.tmpModalData.timeout
-              );
+              this.getSensorData,
+              this.tmpModalData.timeout
+            );
           })
           .catch(error => {
             this.showMsgConfermaEsecuzione(

@@ -17,7 +17,8 @@
     "flag-icon-css": "^3.3.0",
     "jquery": "^3.4.1",
     "font-awesome": "^4.7.0",
-    "axios": "^0.19.2"
+    "axios": "^0.19.2",
+    "vue-svg-gauge": "1.2.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.4",
