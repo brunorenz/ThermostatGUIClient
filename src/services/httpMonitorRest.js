@@ -12,6 +12,7 @@ const GET_CONFIGURATION = "getConfiguration";
 const UPDATE_CONFIGURATION = "updateConfiguration";
 
 const GET_SENSORDATA = "getSensorData";
+const GET_RELEDATA = "getReleData";
 const GET_PROGRAMMING = "getProgramming";
 const ADD_PROGRAMMING = "addProgramming";
 const DELETE_PROGRAMMING = "deleteProgramming";
@@ -22,18 +23,18 @@ const local = false;
 
 // Add a response interceptor
 axios.interceptors.response.use(
-  function (response) {
+  function(response) {
     if (typeof response.data.error != "undefined") {
       console.log(
         "Return code : " +
-        response.data.error.code +
-        " , Message : " +
-        response.data.error.message
+          response.data.error.code +
+          " , Message : " +
+          response.data.error.message
       );
     }
     return response;
   },
-  function (error) {
+  function(error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     if (
@@ -122,7 +123,13 @@ export default class HttpMonitor {
       headers: this.getSecurityHeader()
     });
   }
-  
+
+  getReleData() {
+    return axios.get(this.getUrl(GET_RELEDATA), {
+      headers: this.getSecurityHeader()
+    });
+  }
+
   manageProgramming(inputData) {
     let url = "";
     let usePost = true;

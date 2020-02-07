@@ -55,7 +55,12 @@
       </div>
       <div>
         <b-card>
-            <SensorMonitor></SensorMonitor>
+          <SensorMonitor></SensorMonitor>
+        </b-card>
+      </div>
+      <div>
+        <b-card>
+          <ReleMonitor></ReleMonitor>
         </b-card>
       </div>
     </div>
@@ -65,11 +70,13 @@
 <script>
 import moment from "moment";
 import SensorMonitor from "@/components/pages/SensorMonitor";
+import ReleMonitor from "@/components/pages/ReleMonitor";
 
 export default {
   name: "dashboard",
   components: {
-    SensorMonitor
+    SensorMonitor,
+    ReleMonitor
   },
   data: function() {
     return {};
