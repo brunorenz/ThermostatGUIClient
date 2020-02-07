@@ -187,7 +187,7 @@ export default {
                 let d = data[ix];
                 // OFF: 0, ON: 1, MANUAL: 2, AUTO: 3
                 if (d.flagReleTemp === 1) {
-                  switch (d.temperatureMeasure) {
+                  switch (d.statusThermostat) {
                     case TypeStatus.OFF:
                       d.progType = "SPENTO";
                       break;

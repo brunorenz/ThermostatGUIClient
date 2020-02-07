@@ -1,6 +1,16 @@
 <template>
   <div class="animated fadeIn">
     <h2>Thermostats Management Console</h2>
+    <div>
+      <b-card>
+        <SensorMonitor></SensorMonitor>
+      </b-card>
+    </div>
+    <div>
+      <b-card>
+        <ReleMonitor></ReleMonitor>
+      </b-card>
+    </div>
     <div class="row">
       <div class="col-md-4 col-sm-4 col-xs-12">
         <div class="ourTeam-box text-center">
@@ -52,16 +62,6 @@
             <p>Configura i dispositivi rilevati</p>
           </div>
         </div>
-      </div>
-      <div>
-        <b-card>
-          <SensorMonitor></SensorMonitor>
-        </b-card>
-      </div>
-      <div>
-        <b-card>
-          <ReleMonitor></ReleMonitor>
-        </b-card>
       </div>
     </div>
   </div>
