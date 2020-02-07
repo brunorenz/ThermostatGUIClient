@@ -20,9 +20,11 @@
         <b-col>
           <b-row>
             <b-col>
+              <strong>
               {{ datiServer.location }}
               -
               {{ datiServer.lastAccessD }}
+              </strong>
             </b-col>
           </b-row>
           <b-row>
@@ -33,7 +35,7 @@
               <img src="img/icons8-pastel-64-on.png" />
             </b-col>
             <b-col class="mb-sm-2 mb-0">
-              Programmazione <br /><strong>{{ datiServer.progType }}</strong>
+              Stato <br /><strong>{{ datiServer.progType }}</strong>
             </b-col>
           </b-row>
         </b-col>

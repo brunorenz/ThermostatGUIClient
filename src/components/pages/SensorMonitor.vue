@@ -1,117 +1,68 @@
 <template>
   <div class="animated fadeIn">
-    <b-card>
-      <b-row>
-        <b-col sm="9">
-          <h4 id="traffic" class="card-title mb-1">Sensori</h4>
-        </b-col>
-        <b-col sm="3" class="d-none d-md-block">
-          <ModalConfiguration
-            :model="model"
-            v-on:updateConfiguration="updateConfiguration"
-          ></ModalConfiguration>
-        </b-col>
-      </b-row>
-      <b-row
-        class="text-center"
-        v-for="datiServer in datiServers"
-        :key="datiServer.macAddress"
-      >
-        <b-col>
-          <b-row>
-            <b-col>
-              <strong>{{ datiServer.location }}</strong>
-              -
-              {{ datiServer.lastAccessD }}
-            </b-col>
-          </b-row>
-          <b-row>
-            <b-col class="mb-sm-2 mb-0">
-              <div>
-                <strong>
-                  Temperatura
-
-                  {{ datiServer.temperature }}°
-                </strong>
-              </div>
-              <VueSvgGauge
-                :start-angle="-60"
-                :end-angle="60"
-                :value="datiServer.temperature"
-                :separator-step="0"
-                :min="0"
-                :max="40"
-                :gauge-color="[
+    <b-row>
+      <b-col sm="9">
+        <h4 class="card-title mb-1">Sensori</h4>
+      </b-col>
+      <b-col sm="3" class="d-none d-md-block">
+        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+      </b-col>
+    </b-row>
+    <b-row class="text-center" v-for="datiServer in datiServers" :key="datiServer.macAddress">
+      <b-col>
+        <b-row>
+          <b-col>
+            <strong>{{ datiServer.location }}
+            -
+            {{ datiServer.lastAccessD }}</strong>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col class="mb-sm-2 mb-0">
+            <div>
+              <strong>
+                Temperatura
+                {{ datiServer.temperature }}°
+              </strong>
+            </div>
+            <VueSvgGauge
+              :start-angle="-60"
+              :end-angle="60"
+              :value="datiServer.temperature"
+              :separator-step="0"
+              :min="0"
+              :max="40"
+              :gauge-color="[
                   { offset: 0, color: '#0000FF' },
                   { offset: 40, color: '#FF0000' }
                 ]"
-                :scale-interval="1"
-              />
-            </b-col>
-            <b-col class="mb-sm-2 mb-0">
-              <div>
-                <strong>
-                  Luce
-                  {{ datiServer.light }}%
-                </strong>
-              </div>
-              <VueSvgGauge
-                :start-angle="-60"
-                :end-angle="60"
-                :value="datiServer.light"
-                :separator-step="0"
-                :min="0"
-                :max="100"
-                :gauge-color="[
+              :scale-interval="1"
+            />
+          </b-col>
+          <b-col class="mb-sm-2 mb-0">
+            <div>
+              <strong>
+                Luce
+                {{ datiServer.light }}%
+              </strong>
+            </div>
+            <VueSvgGauge
+              :start-angle="-60"
+              :end-angle="60"
+              :value="datiServer.light"
+              :separator-step="0"
+              :min="0"
+              :max="100"
+              :gauge-color="[
                   { offset: 0, color: '#FFFFFF' },
                   { offset: 100, color: '#FFFF00' }
                 ]"
-                :scale-interval="2"
-              />
-            </b-col>
-          </b-row>
-        </b-col>
-        <b-col>
-          <b-row>
-            <b-col>
-              {{ datiServer.location }}
-              -
-              {{ datiServer.lastAccessD }}
-            </b-col>
-          </b-row>
-          <b-row>
-            <b-col class="mb-sm-2 mb-0">
-              <strong>
-                Temperatura
-                <br />
-                {{ datiServer.temperature }}°
-              </strong>
-              <b-progress
-                height="{}"
-                class="progress-xs mt-2"
-                :precision="1"
-                variant="success"
-                :value="datiServer.temperature"
-              ></b-progress>
-            </b-col>
-            <b-col class="mb-sm-2 mb-0">
-              <strong>
-                Luce
-                <br />
-                {{ datiServer.light }}%
-              </strong>
-              <b-progress
-                height="{}"
-                class="progress-xs mt-2"
-                :precision="1"
-                variant="success"
-                :value="datiServer.light"
-              ></b-progress>
-            </b-col>
-          </b-row>
-        </b-col>
-      </b-row>
-    </b-card>
+              :scale-interval="2"
+            />
+          </b-col>
+        </b-row>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
