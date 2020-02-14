@@ -301,12 +301,13 @@
       <b-row class="justify-content-md-center">
         <b-col sm="3"> </b-col>
         <b-col class="text-center">
-          <b-button variant="primary" v-on:click="getConfiguration"
+          <b-button class="px-4" variant="primary" v-on:click="getConfiguration"
             >Ricarica</b-button
           >
         </b-col>
         <b-col class="text-center">
           <b-button
+            class="px-4"
             id="btnAggiorna"
             variant="primary"
             :disabled="disableAggiorna"

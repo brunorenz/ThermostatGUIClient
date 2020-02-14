@@ -15,6 +15,8 @@ const GET_SENSORDATA = "getSensorData";
 const GET_RELEDATA = "getReleData";
 const GET_PROGRAMMING = "getProgramming";
 const ADD_PROGRAMMING = "addProgramming";
+const GET_R_STATISTICS = "getReleStatistics";
+const GET_S_STATISTICS = "getSensorStatistics";
 const DELETE_PROGRAMMING = "deleteProgramming";
 const UPDATE_PROGRAMMING = "updateProgramming";
 const LOGIN = "login";
@@ -58,6 +60,7 @@ export default class HttpMonitor {
     let headers = {
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
     };
+    if (typeof auth === "undefined") auth = true;
     return this.getSecurityHeader(headers, auth);
   }
   getSecurityHeader(headers, auth) {
@@ -65,7 +68,7 @@ export default class HttpMonitor {
     if (SecurityConfiguration.basicAuthRequired) {
       headers.Authorization = SecurityConfiguration.basicAuth;
     }
-    if (typeof auth === "undefined") auth = true;
+    if (typeof auth === "undefined") auth = false;
     if (SecurityConfiguration.jwtRequired && auth) {
       let token = window.sessionStorage.getItem("jwttoken");
       if (token === null) {
@@ -107,6 +110,22 @@ export default class HttpMonitor {
     return axios.get(this.getUrl(GET_CONFIGURATION, queryParams), {
       headers: this.getSecurityHeader()
     });
+  }
+
+  getStatistics(sType, type, interval) {
+    var queryParams = [
+      { key: "type", value: type },
+      { key: "interval", value: interval }
+    ];
+    return axios.get(
+      this.getUrl(
+        sType === "RELE" ? GET_R_STATISTICS : GET_S_STATISTICS,
+        queryParams
+      ),
+      {
+        headers: this.getSecurityHeader()
+      }
+    );
   }
 
   getProgramming(type) {

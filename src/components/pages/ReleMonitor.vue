@@ -21,9 +21,9 @@
           <b-row>
             <b-col>
               <strong>
-              {{ datiServer.location }}
-              -
-              {{ datiServer.lastAccessD }}
+                {{ datiServer.location }}
+                -
+                {{ datiServer.lastAccessD }}
               </strong>
             </b-col>
           </b-row>
@@ -95,9 +95,6 @@ export default {
           var entry = model[ix];
           switch (entry.id) {
             case "ID0":
-              this.tmpModalData.depth = entry.value;
-              break;
-            case "ID1":
               this.tmpModalData.timeout = entry.value;
               break;
           }
@@ -111,8 +108,7 @@ export default {
     },
     refreshConfiguration() {
       console.log("refresh configuration");
-      this.model.fields[0].value = this.tmpModalData.depth;
-      this.model.fields[1].value = this.tmpModalData.timeout;
+      this.model.fields[0].value = this.tmpModalData.timeout;
       for (var ix = 0; ix < this.model.fields.length; ix++) {
         this.model.fields[ix].id = "ID" + ix;
         this.model.fields[ix].state = true;
@@ -120,19 +116,12 @@ export default {
     },
     resetConfiguration() {
       console.log("reset configuration");
-      this.tmpModalData.depth = this.configuration.httpPerformace.depth;
-      this.tmpModalData.timeout = 30000; //this.configuration.httpPerformace.timeout;
+      this.tmpModalData.timeout = this.configuration.releStatus.timeout;
       this.model.fields = [
-        {
-          label: "Profondità in secondi",
-          type: "number",
-          min: 10,
-          max: 120
-        },
         {
           label: "Timeout in millisecondi",
           type: "number",
-          min: 2000
+          min: 10000
         }
       ];
       this.refreshConfiguration();

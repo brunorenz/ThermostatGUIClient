@@ -7,104 +7,30 @@ const serverUrlD = local
   ? "http://localhost:8101/therm/rest/"
   : "http://192.168.0.120:8101/therm/rest/";
 
-var configuration = {
+let configuration = {
   serverUrl: process.env.NODE_ENV === "production" ? serverUrlP : serverUrlD,
-  httpPerformace: {
-    timeout: 5000,
-    depth: 60
-  },
-  httpStatistics: {
-    timeout: 15000,
-    hourInterval: 2,
+  releStatistics: {
+    timeout: 30000,
+    hourInterval: 5,
     dayInterval: 15,
     type: "hour"
   },
-  rbusStatistics: {
-    timeout: 60000,
-    parent: true,
-    depth: 20,
-    onlyKo: false,
-    avg: false
+  sensorStatistics: {
+    timeout: 30000,
+    hourInterval: 5,
+    dayInterval: 15,
+    type: "hour"
   },
-  rbusPerformance: {
-    transaction: {
-      depth: 20,
-      interval: 1,
-      timeout: 1000
-    },
-    responseTime: {
-      depth: 200,
-      interval: 5,
-      timeout: 5000
-    }
+  releStatus: {
+    timeout: 30000
   },
-  rbusServer: [
-    {
-      name: "Errori",
-      index: 2,
-      color: "#ff0000",
-      label: "TRX in ERRORE"
-    },
-    {
-      name: "serverRBUS_01",
-      index: 0,
-      color: "#24d654",
-      label: "RBUS CED 01"
-    },
-    {
-      name: "serverRBUS_02",
-      index: 1,
-      color: "#90e4a7",
-      label: "RBUS CED 02"
-    },
-    {
-      name: "serverRBUS_01B",
-      index: 2,
-      color: "#d1f3c8",
-      label: "RBUS BPB 01"
-    }
-  ],
-  server: [
-    {
-      name: "HTTPAEM1",
-      type: "WEB",
-      index: 0,
-      color: "#F7347A",
-      label: "HTTP AEM 01"
-    },
-    {
-      name: "HTTPAEM2",
-      type: "WEB",
-      index: 1,
-      color: "#F53C55",
-      label: "HTTP AEM 02"
-    },
-    {
-      name: "HTTPCED1",
-      type: "APP",
-      index: 2,
-      color: "#4FECAE",
-      label: "HTTP CED 01"
-    },
-    {
-      name: "HTTPCED2",
-      type: "APP",
-      index: 3,
-      color: "#5AC18E",
-      label: "HTTP CED 02"
-    },
-    {
-      name: "HTTPWAS1",
-      type: "APP",
-      index: 4,
-      color: "#F2F022",
-      label: "HTTP WAS 01"
-    }
-  ]
+  sensorStatus: {
+    timeout: 30000
+  }
 };
 
 export function getConfiguration() {
-  return JSON.parse(JSON.stringify(configuration));
+  return Object.assign({}, configuration);
 }
 
 export function getInitialRBUSGraphConfiguration() {

@@ -1,25 +1,61 @@
 <template>
-  <div>
-    <h4>Login</h4>
-    <form>
-      <label for="email">E-Mail Address</label>
-      <div>
-        <input id="email" type="email" v-model="email" required autofocus />
-      </div>
-      <div>
-        <label for="password">Password</label>
-        <div>
-          <input id="password" type="password" v-model="password" required />
-        </div>
-      </div>
-      <div>
-        <button type="submit" @click="handleSubmit">
-          Login
-        </button>
-      </div>
-    </form>
+  <div class="app flex-row align-items-center">
+    <div class="container">
+      <b-row class="justify-content-center">
+        <b-col md="4">
+          <b-card no-body class="p-4">
+            <b-form>
+              <h1>Login</h1>
+              <p class="text-muted">Effettua il login al tuo account</p>
+              <b-input-group class="mb-3">
+                <b-input-group-prepend
+                  ><b-input-group-text
+                    ><i class="fa fa-user"></i></b-input-group-text
+                ></b-input-group-prepend>
+                <b-form-input
+                  type="text"
+                  class="form-control"
+                  placeholder="Email"
+                  autocomplete="username email"
+                  v-model="email"
+                  required
+                  autofocus
+                />
+              </b-input-group>
+              <b-input-group class="mb-4">
+                <b-input-group-prepend
+                  ><b-input-group-text
+                    ><i class="fa fa-lock"></i></b-input-group-text
+                ></b-input-group-prepend>
+                <b-form-input
+                  type="password"
+                  class="form-control"
+                  placeholder="Password"
+                  autocomplete="current-password"
+                  v-model="password"
+                  required
+                />
+              </b-input-group>
+              <b-row>
+                <b-col cols="6">
+                  <b-button variant="primary" class="px-4" @click="handleSubmit"
+                    >Login</b-button
+                  >
+                </b-col>
+                <b-col cols="6" class="text-right">
+                  <b-button variant="link" class="px-0"
+                    >Password dimenticata?</b-button
+                  >
+                </b-col>
+              </b-row>
+            </b-form>
+          </b-card>
+        </b-col>
+      </b-row>
+    </div>
   </div>
 </template>
+
 <script>
 import HttpServer from "@/services/httpMonitorRest";
 import router from "@/router/index";

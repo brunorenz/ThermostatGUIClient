@@ -5,16 +5,25 @@
         <h4 class="card-title mb-1">Sensori</h4>
       </b-col>
       <b-col sm="3" class="d-none d-md-block">
-        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+        <ModalConfiguration
+          :model="model"
+          v-on:updateConfiguration="updateConfiguration"
+        ></ModalConfiguration>
       </b-col>
     </b-row>
-    <b-row class="text-center" v-for="datiServer in datiServers" :key="datiServer.macAddress">
+    <b-row
+      class="text-center"
+      v-for="datiServer in datiServers"
+      :key="datiServer.macAddress"
+    >
       <b-col>
         <b-row>
           <b-col>
-            <strong>{{ datiServer.location }}
-            -
-            {{ datiServer.lastAccessD }}</strong>
+            <strong
+              >{{ datiServer.location }}
+              -
+              {{ datiServer.lastAccessD }}</strong
+            >
           </b-col>
         </b-row>
         <b-row>
@@ -33,9 +42,9 @@
               :min="0"
               :max="40"
               :gauge-color="[
-                  { offset: 0, color: '#0000FF' },
-                  { offset: 40, color: '#FF0000' }
-                ]"
+                { offset: 0, color: '#0000FF' },
+                { offset: 40, color: '#FF0000' }
+              ]"
               :scale-interval="1"
             />
           </b-col>
@@ -54,9 +63,9 @@
               :min="0"
               :max="100"
               :gauge-color="[
-                  { offset: 0, color: '#FFFFFF' },
-                  { offset: 100, color: '#FFFF00' }
-                ]"
+                { offset: 0, color: '#FFFFFF' },
+                { offset: 100, color: '#FFFF00' }
+              ]"
               :scale-interval="2"
             />
           </b-col>
@@ -122,9 +131,6 @@ export default {
           var entry = model[ix];
           switch (entry.id) {
             case "ID0":
-              this.tmpModalData.depth = entry.value;
-              break;
-            case "ID1":
               this.tmpModalData.timeout = entry.value;
               break;
           }
@@ -138,8 +144,7 @@ export default {
     },
     refreshConfiguration() {
       console.log("refresh configuration");
-      this.model.fields[0].value = this.tmpModalData.depth;
-      this.model.fields[1].value = this.tmpModalData.timeout;
+      this.model.fields[0].value = this.tmpModalData.timeout;
       for (var ix = 0; ix < this.model.fields.length; ix++) {
         this.model.fields[ix].id = "ID" + ix;
         this.model.fields[ix].state = true;
@@ -147,15 +152,9 @@ export default {
     },
     resetConfiguration() {
       console.log("reset configuration");
-      this.tmpModalData.depth = this.configuration.httpPerformace.depth;
-      this.tmpModalData.timeout = 30000; //this.configuration.httpPerformace.timeout;
+      this.tmpModalData.depth = 1;
+      this.tmpModalData.timeout = this.configuration.sensorStatus.timeout;
       this.model.fields = [
-        {
-          label: "Profondità in secondi",
-          type: "number",
-          min: 10,
-          max: 120
-        },
         {
           label: "Timeout in millisecondi",
           type: "number",
