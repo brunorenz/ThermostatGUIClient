@@ -214,20 +214,17 @@ export default {
           var label = [];
           if (data.data) {
             var dati = data.data;
-            var conf = data.data.configurazione;
             var graphDataset = [];
             var datiServers = []; // getInitialHTTPGraphConfiguration();
             // create dataset empty record
             var ixGraph = [];
-            for (var i = 0; i < datiServers.length; i++) {
+            for (var i = 0; i < dati.length; i++) {
               graphDataset.push({
-                label: "Richieste " + datiServers[i].label,
+                label: "Andamento Accensione  " + dati[i].location,
                 backgroundColor: "transparent",
                 borderColor: this.configuration.server[i].color,
                 pointHoverBackgroundColor: "#fff",
-                borderWidth: 2,
-                serverName: datiServers[i].name,
-                serverType: datiServers[i].type
+                borderWidth: 2
               });
               ixGraph.push(-1);
             }
