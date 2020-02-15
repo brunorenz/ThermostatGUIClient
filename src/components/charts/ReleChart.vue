@@ -1,34 +1,27 @@
 <template>
   <div class="animated fadeIn">
-    <b-card>
-      <b-row>
-        <b-col sm="7">
-          <h4 id="traffic" class="card-title mb-1">
-            Andamento Accensione {{ tipoDispositivo }}
-          </h4>
-          <h6 class="card-subtitle mb-0 text-muted">{{ intervallo }}</h6>
-        </b-col>
-        <b-col sm="5" class="d-none d-md-block">
-          <ModalConfiguration
-            :model="model"
-            v-on:updateConfiguration="updateConfiguration"
-          ></ModalConfiguration>
-        </b-col>
-      </b-row>
-      <!--   v-for="entry in tmpData.prog" :key="entry.id">-->
-      <b-row sm="12">
-        <div v-if="showGraph">
+    <b-row>
+      <b-col sm="7">
+        <h4 id="traffic" class="card-title mb-1">{{ dataCollection.datasets.label }}</h4>
+        <h6 class="card-subtitle mb-0 text-muted">{{ intervallo }}</h6>
+      </b-col>
+      <b-col sm="5" class="d-none d-md-block">
+        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+      </b-col>
+    </b-row>
+    <!--   v-for="entry in tmpData.prog" :key="entry.id">-->
+    <b-row>
+      <b-col  v-if="showGraph">
           <LineCharts
             chartId="main-chart-01"
             class="chart-wrapper"
-            style="height:250px;margin-top:00px;"
-            height="250"
+            style="height:250px;margin-top:20px;"
+            height="200"
             :chart-data="dataCollection"
             :options="options"
           ></LineCharts>
-        </div>
-      </b-row>
-    </b-card>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
@@ -41,14 +34,9 @@ import ModalConfiguration from "@/components/common/ModalConfiguration";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getStyle, hexToRgba } from "@coreui/coreui/dist/js/coreui-utilities";
 import {
-  createGraphStructure,
-  getGraphStructureIndex
+  createSingleGraphStructure,
 } from "@/services/monitorGraph";
-import {
-  getConfiguration,
-  getDefaultLineOptions,
-  getInitialHTTPGraphConfiguration
-} from "@/services/config";
+import { getConfiguration, getDefaultLineOptions } from "@/services/config";
 
 export default {
   name: "ReleChart",
@@ -70,13 +58,9 @@ export default {
       tipoDispositivo: "",
       timerId: null,
       dataCollection: {},
-
-      dataCollectionWeb: {},
-      dataCollectionApp: {},
       options: {},
 
       datiServers: [],
-      //radiosBtnDisable: false,
       changeCfgState: {}
     };
   },
@@ -183,145 +167,82 @@ export default {
       console.log("Start immediate GetStatistics");
       setImmediate(this.getStatistics());
     },
-    variant(value) {
-      let $variant;
-      if (value <= 25) {
-        $variant = "info";
-      } else if (value > 25 && value <= 50) {
-        $variant = "success";
-      } else if (value > 50 && value <= 75) {
-        $variant = "warning";
-      } else if (value > 75 && value <= 100) {
-        $variant = "danger";
-      }
-      return $variant;
-    },
-    flag(value) {
-      return "flag-icon flag-icon-" + value;
-    },
     getStatistics() {
-      console.log("Refresh statistics for " + this.selected);
+      console.log("Refresh statistics for " + this.tmpModalData.param.type);
       //this.radiosBtnDisable = true;
       const httpService = new HttpMonitor();
       var interval =
-        this.selected === "hour"
+        this.tmpModalData.param.type === "hour"
           ? this.tmpModalData.param.hourInterval
           : this.tmpModalData.param.dayInterval;
       httpService
-        .getStatistics("RELE", this.selected, interval)
+        .getStatistics("RELE", this.tmpModalData.param.type, interval)
         .then(response => {
           var data = response.data;
-          var label = [];
+
           if (data.data) {
             var dati = data.data;
             var graphDataset = [];
-            var datiServers = []; // getInitialHTTPGraphConfiguration();
+            var datiServers = [];
             // create dataset empty record
-            var ixGraph = [];
             for (var i = 0; i < dati.length; i++) {
-              graphDataset.push({
-                label: "Andamento Accensione  " + dati[i].location,
+              let rele = dati[i];
+              var label = [];
+              graphDataset = {
+                label: "Andamento Accensione  " + rele.location,
                 backgroundColor: "transparent",
-                borderColor: this.configuration.server[i].color,
+                borderColor: "#24d654",
                 pointHoverBackgroundColor: "#fff",
                 borderWidth: 2
-              });
-              ixGraph.push(-1);
-            }
-            let graphParams = {
-              initialDate: new Date(conf.infDate),
-              finalDate: new Date(conf.supDate),
-              interval: conf.interval,
-              servers: conf.servers
-            };
-            var graph = createGraphStructure(graphParams, true);
-            // creo indice grafico rispetto out servizio
-            for (let i = 0; i < graph.length; i++) {
-              let y = this.getServerIndex(graph[i].server);
-              if (y >= 0) ixGraph[y] = i;
-            }
-            let initialDate = new Date(conf.infDate).getTime();
-            let msInterval = conf.interval * 1000 * 60;
-            for (let i = 0; i < dati.length; i++) {
-              var entry = dati[i].value;
-              var key = dati[i].key;
-              let ix = this.getServerIndex(key.server);
-              if (ix >= 0) {
-                let serverInfo = graphParams.servers[ix];
-                let ixG = ixGraph[ix];
-                if (ixG >= 0) {
-                  let ixGD =
-                    (new Date(key.time).getTime() - initialDate) / msInterval;
-                  try {
-                    if (ixGD < graph[ixG].dati.length) {
-                      graph[ixG].dati[ixGD].value = entry.num;
-                    }
-                  } catch (error) {
-                    console.error(
-                      "ixG : " +
-                        ixG +
-                        " - " +
-                        "ixGD : " +
-                        ixGD +
-                        " msInterval : " +
-                        msInterval
-                    );
-                  }
+              };
+              let graphParams = {
+                initialDate: new Date(rele.startTime),
+                finalDate: new Date(rele.endTime),
+                interval: interval
+              };
+              var graph = createSingleGraphStructure(graphParams, true);
+              let msInterval = interval * 1000 * 60;
+              for (let i = 0; i < rele.statistics.length; i++) {
+                var entry = rele.statistics[i].value;
+                var currentTime = rele.statistics[i].time;
+                let ixGD = (currentTime - rele.startTime) / msInterval;
+                try {
+                  if (ixGD < graph.dati.length) {
+                    graph.dati[ixGD] = entry.on / entry.tot / 2 > 0 ? 1: 0;
+                  } else console.err("INdice errato "+ixGD)
+                } catch (error) {
+                  console.error(
+                    "ixGD : " + ixGD + " msInterval : " + msInterval
+                  );
                 }
-              }
-              // Creo Struttura output
 
-              for (let i = 0; i < graphDataset.length; i++) {
-                let ixG = ixGraph[i];
-                if (ixG >= 0) {
-                  let values = graph[ixG].dati;
-                  let datiG = [];
-                  for (let y = 0; y < values.length; y++) {
-                    datiG.push(values[y].value);
-                  }
-                  if (label.length === 0) {
-                    for (let y = 0; y < values.length; y++) {
-                      var d = new Date(
-                        new Date(values[y].time).getTime() + msInterval
-                      );
-                      var datestring =
-                        ("0" + d.getHours()).slice(-2) +
-                        ":" +
-                        ("0" + d.getMinutes()).slice(-2);
-                      label.push(datestring);
-                    }
-                  }
-                  graphDataset[i].data = datiG;
-                }
+                var d = new Date(new Date(currentTime) + msInterval);
+                var datestring =
+                  ("0" + d.getHours()).slice(-2) +
+                  ":" +
+                  ("0" + d.getMinutes()).slice(-2);
+                label.push(datestring);
               }
+              graphDataset.data = graph.dati;
             }
-            var graphDatasetWEB = [];
-            var graphDatasetAPP = [];
-            for (var i = 0; i < graphDataset.length; i++)
-              if (graphDataset[i].serverType === "APP")
-                graphDatasetAPP.push(graphDataset[i]);
-              else graphDatasetWEB.push(graphDataset[i]);
-            this.dataCollectionWeb = {
+            let dataCollection = {
               labels: label,
-              datasets: graphDatasetWEB
+              datasets: [graphDataset]
             };
-            this.dataCollectionApp = {
-              labels: label,
-              datasets: graphDatasetAPP
-            };
+            this.dataCollection = dataCollection;
             this.options = getDefaultLineOptions();
-            this.intervallo = "Gruppi di " + conf.interval + " minuti";
-            if (conf.supDate)
-              this.intervallo =
-                this.intervallo +
-                " " +
-                moment(conf.supDate).format("DD/MM/YYYY HH:mm:ss");
+            this.intervallo = "Gruppi di " + interval + " minuti";
+            // if (conf.supDate)
+            //   this.intervallo =
+            //     this.intervallo +
+            //     " " +
+            //     moment(conf.supDate).format("DD/MM/YYYY HH:mm:ss");
             this.options.title.text = this.intervallo;
             this.showGraph = true;
             if (this.tmpModalData.windowsOpen)
               this.timerId = setTimeout(
-                this.getHTTPStatistics,
-                this.tmpModalData.timeout
+                this.getStatistics,
+                this.tmpModalData.param.timeout
               );
             //this.radiosBtnDisable = false;
           }

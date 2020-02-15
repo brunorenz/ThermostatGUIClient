@@ -38,3 +38,33 @@ export function createGraphStructure(config, intervalMinutes) {
   //console.log(JSON.stringify(out));
   return out;
 }
+
+/**
+ * Create a structure for a singol Graphic
+ * @param {*} config
+ * @param {*} intervalMinutes
+ */
+export function createSingleGraphStructure(config, intervalMinutes) {
+
+  // Create scructure
+  var outRec = {
+    dati: [] ,
+    label : []
+  };
+  let interval = config.interval * 1000;
+  if (intervalMinutes) interval = interval * 60;
+  // create empty record
+  var n =
+    (config.finalDate.getTime() - config.initialDate.getTime()) / interval;
+  var dt = config.initialDate.getTime();
+  for (var i = 0; i < n; i++) {
+    // var rec = {
+    //   time: new Date(dt),
+    //   value: 0
+    // };
+    outRec.dati.push(0);
+    outRec.label.push(dt);
+    dt += interval;
+  }
+  return outRec;
+}

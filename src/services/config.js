@@ -1,6 +1,6 @@
 import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
 
-const local = true;
+const local = false;
 const serverUrlP = "/therm/rest/";
 const serverUrlR = "http://srvwas1.bpbari.it:8099/rest/";
 const serverUrlD = local
@@ -13,7 +13,7 @@ let configuration = {
     timeout: 30000,
     hourInterval: 5,
     dayInterval: 15,
-    type: "hour"
+    type: "day"
   },
   sensorStatistics: {
     timeout: 30000,

@@ -14,8 +14,10 @@
       </b-col>
     </b-row>
     <b-row>
-      <b-col sm="6">
-        <ReleChart />
+      <b-col sm="12">
+        <b-card>
+            <ReleChart />
+        </b-card>      
       </b-col>
     </b-row>
     <div class="row">

@@ -1,6 +1,5 @@
 <template>
   <div class="animated fadeIn">
-    <b-card>
       <b-row>
         <b-col sm="9">
           <h4 id="traffic" class="card-title mb-1">Relè</h4>
@@ -40,7 +39,6 @@
           </b-row>
         </b-col>
       </b-row>
-    </b-card>
   </div>
 </template>
 
