@@ -2,7 +2,7 @@
   <div class="animated fadeIn">
     <b-row>
       <b-col sm="7">
-        <h4 id="traffic" class="card-title mb-1">{{ dataCollection.datasets[0].label }}</h4>
+        <h4 id="traffic" class="card-title mb-1">{{ dataCollection.datasets.label }}</h4>
         <h6 class="card-subtitle mb-0 text-muted">{{ intervallo }}</h6>
       </b-col>
       <b-col sm="5" class="d-none d-md-block">
@@ -39,7 +39,7 @@ import {
 import { getConfiguration, getDefaultLineOptions } from "@/services/config";
 
 export default {
-  name: "ReleChart",
+  name: "SensorChart",
   components: {
     LineCharts,
     ModalConfiguration
@@ -103,6 +103,9 @@ export default {
             case "ID3":
               this.tmpModalData.param.type = entry.value;
               break;
+            case "ID4":
+              this.tmpModalData.param.full = entry.value;
+              break;
           }
         }
         this.refreshConfiguration();
@@ -118,6 +121,7 @@ export default {
       this.model.fields[1].value = this.tmpModalData.param.hourInterval;
       this.model.fields[2].value = this.tmpModalData.param.timeout;
       this.model.fields[3].value = this.tmpModalData.param.type;
+      this.model.fields[4].value = this.tmpModalData.param.full;
       for (var ix = 0; ix < this.model.fields.length; ix++) {
         this.model.fields[ix].id = "ID" + ix;
         this.model.fields[ix].state = true;
@@ -152,7 +156,16 @@ export default {
             { text: "Ultima ora", value: "hour" },
             { text: "Giornalieri", value: "day" }
           ]
+        },
+                {
+          label: "Sensori",
+          type: "radio",
+          options: [
+            { text: "Luce e Temperature", value: "false" },
+            { text: "Tutti", value: "true" }
+          ]
         }
+
       ];
       this.refreshConfiguration();
     },
@@ -169,14 +182,13 @@ export default {
     },
     getStatistics() {
       console.log("Refresh statistics for " + this.tmpModalData.param.type);
-      //this.radiosBtnDisable = true;
       const httpService = new HttpMonitor();
       var interval =
         this.tmpModalData.param.type === "hour"
           ? this.tmpModalData.param.hourInterval
           : this.tmpModalData.param.dayInterval;
       httpService
-        .getStatistics("RELE", this.tmpModalData.param.type, interval)
+        .getStatistics("SENSOR", this.tmpModalData.param.type, interval)
         .then(response => {
           var data = response.data;
 

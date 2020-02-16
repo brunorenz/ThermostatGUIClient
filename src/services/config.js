@@ -13,13 +13,14 @@ let configuration = {
     timeout: 30000,
     hourInterval: 5,
     dayInterval: 15,
-    type: "day"
+    type: "hour"
   },
   sensorStatistics: {
     timeout: 30000,
     hourInterval: 5,
     dayInterval: 15,
-    type: "hour"
+    type: "day",
+    full : false
   },
   releStatus: {
     timeout: 30000
