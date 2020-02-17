@@ -1,6 +1,6 @@
 import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
 
-const local = false;
+const local = true;
 const serverUrlP = "/therm/rest/";
 const serverUrlR = "http://srvwas1.bpbari.it:8099/rest/";
 const serverUrlD = local
@@ -13,14 +13,14 @@ let configuration = {
     timeout: 30000,
     hourInterval: 5,
     dayInterval: 15,
-    type: "hour"
+    type: "day"
   },
   sensorStatistics: {
     timeout: 30000,
     hourInterval: 5,
     dayInterval: 15,
     type: "day",
-    full : false
+    full: false
   },
   releStatus: {
     timeout: 30000
@@ -31,7 +31,7 @@ let configuration = {
 };
 
 export function getConfiguration() {
-  return Object.assign({}, configuration);
+  return JSON.parse(JSON.stringify(configuration));
 }
 
 export function getInitialRBUSGraphConfiguration() {

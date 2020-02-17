@@ -2,26 +2,81 @@
   <div class="animated fadeIn">
     <b-row>
       <b-col sm="7">
-        <h4 id="traffic" class="card-title mb-1">{{ dataCollection.datasets.label }}</h4>
+        <h4 id="traffic" class="card-title mb-1">
+          Grafici Sensori
+        </h4>
         <h6 class="card-subtitle mb-0 text-muted">{{ intervallo }}</h6>
       </b-col>
       <b-col sm="5" class="d-none d-md-block">
-        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+        <ModalConfiguration
+          :model="model"
+          v-on:updateConfiguration="updateConfiguration"
+        ></ModalConfiguration>
       </b-col>
     </b-row>
     <!--   v-for="entry in tmpData.prog" :key="entry.id">-->
-    <b-row>
-      <b-col  v-if="showGraph">
+    <b-card v-if="showGraphBase">
+      <b-row>
+        <b-col>
+          <h6 class="card-title mb-1">
+            Temperatura e Luce
+          </h6>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
           <LineCharts
             chartId="main-chart-01"
             class="chart-wrapper"
             style="height:250px;margin-top:20px;"
             height="200"
-            :chart-data="dataCollection"
+            :chart-data="dataCollectionT"
             :options="options"
           ></LineCharts>
-      </b-col>
-    </b-row>
+        </b-col>
+        <b-col>
+          <LineCharts
+            chartId="main-chart-01"
+            class="chart-wrapper"
+            style="height:250px;margin-top:20px;"
+            height="200"
+            :chart-data="dataCollectionL"
+            :options="options"
+          ></LineCharts>
+        </b-col>
+      </b-row>
+    </b-card>
+    <b-card v-if="showGraphFull">
+      <b-row>
+        <b-col sm="7">
+          <h6 id="traffic" class="card-title mb-1">
+            Umidità e Pressione Atmosferica
+          </h6>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
+          <LineCharts
+            chartId="main-chart-01"
+            class="chart-wrapper"
+            style="height:250px;margin-top:20px;"
+            height="200"
+            :chart-data="dataCollectionU"
+            :options="options"
+          ></LineCharts>
+        </b-col>
+        <b-col>
+          <LineCharts
+            chartId="main-chart-01"
+            class="chart-wrapper"
+            style="height:250px;margin-top:20px;"
+            height="200"
+            :chart-data="dataCollectionP"
+            :options="options"
+          ></LineCharts>
+        </b-col>
+      </b-row>
+    </b-card>
   </div>
 </template>
 
@@ -33,9 +88,7 @@ import HttpMonitor from "@/services/httpMonitorRest";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getStyle, hexToRgba } from "@coreui/coreui/dist/js/coreui-utilities";
-import {
-  createSingleGraphStructure,
-} from "@/services/monitorGraph";
+import { createSingleGraphStructure } from "@/services/monitorGraph";
 import { getConfiguration, getDefaultLineOptions } from "@/services/config";
 
 export default {
@@ -49,6 +102,8 @@ export default {
       selected: "hour",
       intervallo: "",
       showGraph: false,
+      showGraphBase: false,
+      showGraphFull: false,
       tmpModalData: { disable: false, windowsOpen: true },
       model: {
         title: "Configurazione Grafici Andamento Accensione Rele",
@@ -57,11 +112,11 @@ export default {
       configuration: {},
       tipoDispositivo: "",
       timerId: null,
-      dataCollection: {},
       options: {},
-
-      datiServers: [],
-      changeCfgState: {}
+      dataCollectionT: {},
+      dataCollectionL: {},
+      dataCollectionU: {},
+      dataCollectionP: {}
     };
   },
   created: function() {
@@ -130,7 +185,7 @@ export default {
 
     resetConfiguration() {
       console.log("reset configuration");
-      this.tmpModalData.param = this.configuration.releStatistics;
+      this.tmpModalData.param = this.configuration.sensorStatistics;
       this.model.fields = [
         {
           label: "Intervallo grafico Giorno in minuti",
@@ -157,7 +212,7 @@ export default {
             { text: "Giornalieri", value: "day" }
           ]
         },
-                {
+        {
           label: "Sensori",
           type: "radio",
           options: [
@@ -165,7 +220,6 @@ export default {
             { text: "Tutti", value: "true" }
           ]
         }
-
       ];
       this.refreshConfiguration();
     },
@@ -191,19 +245,47 @@ export default {
         .getStatistics("SENSOR", this.tmpModalData.param.type, interval)
         .then(response => {
           var data = response.data;
-
+          function rgbToHex(n) {
+            return "#" + ((1 << 24) + n).toString(16).slice(1);
+          }
+          let baseColor = parseInt("24d654", 16);
+          let hexColor = rgbToHex(baseColor);
           if (data.data) {
             var dati = data.data;
-            var graphDataset = [];
-            var datiServers = [];
+            let datasetL = [];
+            let datasetT = [];
+            let datasetU = [];
+            let datasetP = [];
+            //var datiServers = [];
             // create dataset empty record
             for (var i = 0; i < dati.length; i++) {
               let rele = dati[i];
               var label = [];
-              graphDataset = {
-                label: "Andamento Accensione  " + rele.location,
+              let graphDatasetT = {
+                label: "Temperatura  " + rele.location,
                 backgroundColor: "transparent",
-                borderColor: "#24d654",
+                borderColor: rgbToHex(baseColor + (i + 1) * 100),
+                pointHoverBackgroundColor: "#fff",
+                borderWidth: 2
+              };
+              let graphDatasetL = {
+                label: "Luce  " + rele.location,
+                backgroundColor: "transparent",
+                borderColor: rgbToHex(baseColor + (i + 1) * 110),
+                pointHoverBackgroundColor: "#fff",
+                borderWidth: 2
+              };
+              let graphDatasetU = {
+                label: "Umidità  " + rele.location,
+                backgroundColor: "transparent",
+                borderColor: rgbToHex(baseColor + (i + 1) * 120),
+                pointHoverBackgroundColor: "#fff",
+                borderWidth: 2
+              };
+              let graphDatasetP = {
+                label: "Pressione Atmosferica  " + rele.location,
+                backgroundColor: "transparent",
+                borderColor: rgbToHex(baseColor + (i + 1) * 130),
                 pointHoverBackgroundColor: "#fff",
                 borderWidth: 2
               };
@@ -212,51 +294,83 @@ export default {
                 finalDate: new Date(rele.endTime),
                 interval: interval
               };
-              var graph = createSingleGraphStructure(graphParams, true);
-              let msInterval = interval * 1000 * 60;
-              for (let i = 0; i < rele.statistics.length; i++) {
-                var entry = rele.statistics[i].value;
-                var currentTime = rele.statistics[i].time;
-                let ixGD = (currentTime - rele.startTime) / msInterval;
-                try {
-                  if (ixGD < graph.dati.length) {
-                    graph.dati[ixGD] = entry.on / entry.tot / 2 > 0 ? 1: 0;
-                  } else console.err("INdice errato "+ixGD)
-                } catch (error) {
-                  console.error(
-                    "ixGD : " + ixGD + " msInterval : " + msInterval
-                  );
-                }
-
-                var d = new Date(new Date(currentTime) + msInterval);
+              var graph1 = createSingleGraphStructure(graphParams, true);
+              var graph2 = JSON.parse(JSON.stringify(graph1));
+              var graph3 = JSON.parse(JSON.stringify(graph1));
+              var graph4 = JSON.parse(JSON.stringify(graph1));
+              // creo label
+              for (let ix = 0; ix < graph1.label.length; ix++) {
+                var d = new Date(graph1.label[ix]);
                 var datestring =
                   ("0" + d.getHours()).slice(-2) +
                   ":" +
                   ("0" + d.getMinutes()).slice(-2);
                 label.push(datestring);
               }
-              graphDataset.data = graph.dati;
+              let msInterval = interval * 1000 * 60;
+              if (typeof rele.statistics != "undefined")
+                for (let i = 0; i < rele.statistics.length; i++) {
+                  var entry = rele.statistics[i].value;
+                  var currentTime = rele.statistics[i].time;
+                  let ixGD = (currentTime - rele.startTime) / msInterval;
+                  try {
+                    if (ixGD < graph1.dati.length) {
+                      graph1.dati[ixGD] = entry.temperature;
+                      graph2.dati[ixGD] = entry.light;
+                      graph3.dati[ixGD] = entry.humidity;
+                      graph4.dati[ixGD] = entry.pressure;
+                    } else console.err("Indice errato " + ixGD);
+                  } catch (error) {
+                    console.error(
+                      "ixGD : " + ixGD + " msInterval : " + msInterval
+                    );
+                  }
+                  // var d = new Date(new Date(currentTime) + msInterval);
+                  // var datestring =
+                  //   ("0" + d.getHours()).slice(-2) +
+                  //   ":" +
+                  //   ("0" + d.getMinutes()).slice(-2);
+                  // label.push(datestring);
+                }
+              graphDatasetT.data = graph1.dati;
+              graphDatasetL.data = graph2.dati;
+              graphDatasetU.data = graph3.dati;
+              graphDatasetP.data = graph4.dati;
+              datasetT.push(graphDatasetT);
+              datasetL.push(graphDatasetL);
+              datasetU.push(graphDatasetU);
+              datasetP.push(graphDatasetP);
             }
-            let dataCollection = {
+            let dataCollectionT = {
               labels: label,
-              datasets: [graphDataset]
+              datasets: datasetT
             };
-            this.dataCollection = dataCollection;
+            let dataCollectionL = {
+              labels: label,
+              datasets: datasetL
+            };
+            let dataCollectionU = {
+              labels: label,
+              datasets: datasetU
+            };
+            let dataCollectionP = {
+              labels: label,
+              datasets: datasetP
+            };
+            this.dataCollectionT = dataCollectionT;
+            this.dataCollectionL = dataCollectionL;
+            this.dataCollectionU = dataCollectionU;
+            this.dataCollectionP = dataCollectionP;
             this.options = getDefaultLineOptions();
             this.intervallo = "Gruppi di " + interval + " minuti";
-            // if (conf.supDate)
-            //   this.intervallo =
-            //     this.intervallo +
-            //     " " +
-            //     moment(conf.supDate).format("DD/MM/YYYY HH:mm:ss");
             this.options.title.text = this.intervallo;
-            this.showGraph = true;
+            this.showGraphBase = true;
+            this.showGraphFull = this.tmpModalData.param.full;
             if (this.tmpModalData.windowsOpen)
               this.timerId = setTimeout(
                 this.getStatistics,
                 this.tmpModalData.param.timeout
               );
-            //this.radiosBtnDisable = false;
           }
         })
         .catch(error => {
@@ -266,7 +380,6 @@ export default {
               this.getHTTPStatistics,
               this.tmpModalData.timeout
             );
-          //this.radiosBtnDisable = false;
         });
     }
   }

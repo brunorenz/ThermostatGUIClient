@@ -1,44 +1,53 @@
 <template>
   <div class="animated fadeIn">
-      <b-row>
-        <b-col sm="9">
-          <h4 id="traffic" class="card-title mb-1">Relè</h4>
-        </b-col>
-        <b-col sm="3" class="d-none d-md-block">
-          <ModalConfiguration
-            :model="model"
-            v-on:updateConfiguration="updateConfiguration"
-          ></ModalConfiguration>
-        </b-col>
-      </b-row>
-      <b-row
-        class="text-center"
-        v-for="datiServer in datiServers"
-        :key="datiServer.shellyId"
-      >
-        <b-col>
-          <b-row>
-            <b-col>
-              <strong>
-                {{ datiServer.location }}
-                -
-                {{ datiServer.lastAccessD }}
-              </strong>
-            </b-col>
-          </b-row>
-          <b-row>
-            <b-col class="mb-sm-2 mb-0" v-if="datiServer.status === 0">
-              <img src="img/icons8-pastel-64-off.png" />
-            </b-col>
-            <b-col class="mb-sm-2 mb-0" v-if="datiServer.status === 1">
-              <img src="img/icons8-pastel-64-on.png" />
-            </b-col>
-            <b-col class="mb-sm-2 mb-0">
-              Stato <br /><strong>{{ datiServer.progType }}</strong>
-            </b-col>
-          </b-row>
-        </b-col>
-      </b-row>
+    <b-row>
+      <b-col sm="9">
+        <h4 id="traffic" class="card-title mb-1">Relè</h4>
+      </b-col>
+      <b-col sm="3" class="d-none d-md-block">
+        <ModalConfiguration
+          :model="model"
+          v-on:updateConfiguration="updateConfiguration"
+        ></ModalConfiguration>
+      </b-col>
+    </b-row>
+    <b-row
+      class="text-center"
+      v-for="datiServer in datiServers"
+      :key="datiServer.shellyId"
+    >
+      <b-col>
+        <b-row>
+          <b-col>
+            <strong>
+              {{ datiServer.location }}
+              -
+              {{ datiServer.lastAccessD }}
+            </strong>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col class="mb-sm-2 mb-0" v-if="datiServer.status === 0">
+            <img src="img/icons8-pastel-64-off.png" @click="programSwitch" />
+          </b-col>
+          <b-col class="mb-sm-2 mb-0" v-if="datiServer.status === 1">
+            <img src="img/icons8-pastel-64-on.png" @click="programSwitch" />
+          </b-col>
+          <b-col class="mb-sm-2 mb-0">
+            Stato <br /><strong>{{ datiServer.progType }}</strong>
+          </b-col>
+          <!--
+          <b-col>
+            <b-button
+              v-on:click="programSwitch"
+              style="background-color:transparent; border-color:transparent;"
+              ><img src="img/icons8-pastel-64-off.png"
+            /></b-button>
+          </b-col>
+          -->
+        </b-row>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
@@ -150,6 +159,9 @@ export default {
     },
     flag(value) {
       return "flag-icon flag-icon-" + value;
+    },
+    programSwitch() {
+      console.log("PUSH");
     },
     showMsgConfermaEsecuzione(message) {
       this.$bvModal

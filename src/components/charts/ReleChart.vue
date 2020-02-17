@@ -1,25 +1,30 @@
 <template>
-  <div class="animated fadeIn">
+  <div class="animated fadeIn" v-if="showGraph">
     <b-row>
       <b-col sm="7">
-        <h4 id="traffic" class="card-title mb-1">{{ dataCollection.datasets[0].label }}</h4>
+        <h4 id="traffic" class="card-title mb-1">
+          {{ dataCollection.datasets[0].label }}
+        </h4>
         <h6 class="card-subtitle mb-0 text-muted">{{ intervallo }}</h6>
       </b-col>
       <b-col sm="5" class="d-none d-md-block">
-        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+        <ModalConfiguration
+          :model="model"
+          v-on:updateConfiguration="updateConfiguration"
+        ></ModalConfiguration>
       </b-col>
     </b-row>
     <!--   v-for="entry in tmpData.prog" :key="entry.id">-->
     <b-row>
-      <b-col  v-if="showGraph">
-          <LineCharts
-            chartId="main-chart-01"
-            class="chart-wrapper"
-            style="height:250px;margin-top:20px;"
-            height="200"
-            :chart-data="dataCollection"
-            :options="options"
-          ></LineCharts>
+      <b-col>
+        <LineCharts
+          chartId="main-chart-01"
+          class="chart-wrapper"
+          style="height:250px;margin-top:20px;"
+          height="200"
+          :chart-data="dataCollection"
+          :options="options"
+        ></LineCharts>
       </b-col>
     </b-row>
   </div>
@@ -33,9 +38,7 @@ import HttpMonitor from "@/services/httpMonitorRest";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getStyle, hexToRgba } from "@coreui/coreui/dist/js/coreui-utilities";
-import {
-  createSingleGraphStructure,
-} from "@/services/monitorGraph";
+import { createSingleGraphStructure } from "@/services/monitorGraph";
 import { getConfiguration, getDefaultLineOptions } from "@/services/config";
 
 export default {
@@ -201,28 +204,37 @@ export default {
                 interval: interval
               };
               var graph = createSingleGraphStructure(graphParams, true);
-              let msInterval = interval * 1000 * 60;
-              for (let i = 0; i < rele.statistics.length; i++) {
-                var entry = rele.statistics[i].value;
-                var currentTime = rele.statistics[i].time;
-                let ixGD = (currentTime - rele.startTime) / msInterval;
-                try {
-                  if (ixGD < graph.dati.length) {
-                    graph.dati[ixGD] = entry.on / entry.tot / 2 > 0 ? 1: 0;
-                  } else console.err("INdice errato "+ixGD)
-                } catch (error) {
-                  console.error(
-                    "ixGD : " + ixGD + " msInterval : " + msInterval
-                  );
-                }
-
-                var d = new Date(new Date(currentTime) + msInterval);
+              for (let ix = 0; ix < graph.label.length; ix++) {
+                var d = new Date(graph.label[ix]);
                 var datestring =
                   ("0" + d.getHours()).slice(-2) +
                   ":" +
                   ("0" + d.getMinutes()).slice(-2);
                 label.push(datestring);
               }
+              let msInterval = interval * 1000 * 60;
+              if (typeof rele.statistics != "undefined")
+                for (let i = 0; i < rele.statistics.length; i++) {
+                  var entry = rele.statistics[i].value;
+                  var currentTime = rele.statistics[i].time;
+                  let ixGD = (currentTime - rele.startTime) / msInterval;
+                  try {
+                    if (ixGD < graph.dati.length) {
+                      graph.dati[ixGD] = entry.on / entry.tot / 2 > 0 ? 1 : 0;
+                    } else console.err("INdice errato " + ixGD);
+                  } catch (error) {
+                    console.error(
+                      "ixGD : " + ixGD + " msInterval : " + msInterval
+                    );
+                  }
+
+                  // var d = new Date(new Date(currentTime) + msInterval);
+                  // var datestring =
+                  //   ("0" + d.getHours()).slice(-2) +
+                  //   ":" +
+                  //   ("0" + d.getMinutes()).slice(-2);
+                  // label.push(datestring);
+                }
               graphDataset.data = graph.dati;
             }
             let dataCollection = {

@@ -16,8 +16,15 @@
     <b-row>
       <b-col sm="12">
         <b-card>
-            <ReleChart />
-        </b-card>      
+          <ReleChart />
+        </b-card>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col sm="12">
+        <b-card>
+          <SensorChart />
+        </b-card>
       </b-col>
     </b-row>
     <div class="row">
@@ -81,13 +88,15 @@ import moment from "moment";
 import SensorMonitor from "@/components/pages/SensorMonitor";
 import ReleMonitor from "@/components/pages/ReleMonitor";
 import ReleChart from "@/components/charts/ReleChart";
+import SensorChart from "@/components/charts/SensorChart";
 
 export default {
   name: "dashboard",
   components: {
     SensorMonitor,
     ReleMonitor,
-    ReleChart
+    ReleChart,
+    SensorChart
   },
   data: function() {
     return {};
