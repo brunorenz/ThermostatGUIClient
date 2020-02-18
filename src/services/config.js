@@ -172,6 +172,15 @@ export function getDefaultBarOptions() {
   return options;
 }
 
+export function checkSecurity(router) {
+  if (SecurityConfiguration.jwtRequired) {
+    let token = window.sessionStorage.getItem("jwttoken");
+    if (token === null) {
+      //let a = router;
+      router.push("/login");
+    }
+  }
+}
 // Definizioni da Server
 
 export var TypeStatus = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };

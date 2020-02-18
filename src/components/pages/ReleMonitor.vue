@@ -33,6 +33,7 @@
           <b-col class="mb-sm-2 mb-0" v-if="datiServer.status === 1">
             <img src="img/icons8-pastel-64-on.png" @click="programSwitch" />
           </b-col>
+
           <b-col class="mb-sm-2 mb-0">
             Stato <br /><strong>{{ datiServer.progType }}</strong>
           </b-col>
@@ -48,6 +49,36 @@
         </b-row>
       </b-col>
     </b-row>
+    <b-modal
+      v-model="tmpModalData.showUpdateModal"
+      id="modalAggiornaStato"
+      title="Aggiorna Stato Relè"
+      @ok="updateStatus"
+      :ok-disabled="tmpModalData.disable"
+    >
+      <b-form-group label-cols-lg="6" label="PIIPO">
+        <div sm="1">
+          <b-form-radio-group
+            id="idXX"
+            v-model="tmpModalData.currentProg"
+            placeholder="Imposta stato Relè"
+          >
+            <b-row>
+              <b-form-radio class="mx-2" value="0">SPENTO</b-form-radio>
+            </b-row>
+            <b-row>
+              <b-form-radio class="mx-2" value="1">ACCESO</b-form-radio>
+            </b-row>
+            <b-row>
+              <b-form-radio class="mx-2" value="2">MANUALE</b-form-radio>
+            </b-row>
+            <b-row>
+              <b-form-radio class="mx-2" value="3">AUTOMATICO</b-form-radio>
+            </b-row>
+          </b-form-radio-group>
+        </div>
+      </b-form-group>
+    </b-modal>
   </div>
 </template>
 
@@ -56,7 +87,8 @@ import moment from "moment";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
 import HttpServer from "@/services/httpMonitorRest";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
-import { getConfiguration, TypeStatus } from "@/services/config";
+import { getConfiguration, TypeStatus, checkSecurity } from "@/services/config";
+import router from "@/router/index";
 
 export default {
   name: "ReleMonitor",
@@ -67,7 +99,12 @@ export default {
     return {
       timerId: null,
       datiServers: [],
-      tmpModalData: { disable: false, windowsOpen: true },
+      tmpModalData: {
+        disable: false,
+        windowsOpen: true,
+        showUpdateModal: false,
+        currentProg: 0
+      },
       model: {
         title: "Configurazione Grafici Sensori",
         fields: []
@@ -95,6 +132,42 @@ export default {
     this.getReleData();
   },
   methods: {
+    updateStatus(model) {
+      this.$bvModal
+        .msgBoxConfirm("Confermi l'aggiornamento ?")
+        .then(value => {
+          if (value) {
+            const httpService = new HttpServer();
+            httpService
+              .updateConfiguration(
+                this.elencoDispositivi[this.dispositivoSelezionato]
+              )
+              .then(response => {
+                let dati = response.data;
+                if (dati.error.code === 0) {
+                  this.showMsgConfermaEsecuzione(
+                    "Aggiornamento effettuato con successo"
+                  );
+                  this.dispositivoSelezionato = null;
+                  this.optionsElencoDispositivi = [];
+                  this.getConfiguration();
+                } else {
+                  this.showMsgConfermaEsecuzione(
+                    "Errore in fase di aggiornamento : " + dati.error.message
+                  );
+                }
+              })
+              .catch(error => {
+                this.showMsgConfermaEsecuzione(
+                  "Errore in fase di aggiornamento : " + error
+                );
+              });
+          }
+        })
+        .catch(err => {
+          // An error occurred
+        });
+    },
     updateConfiguration(model) {
       if (model.length) {
         for (var ix = 0; ix < model.length; ix++) {
@@ -144,24 +217,9 @@ export default {
       console.log("Start immediate getReleData");
       setImmediate(this.getReleData());
     },
-    variant(value) {
-      let $variant;
-      if (value <= 25) {
-        $variant = "info";
-      } else if (value > 25 && value <= 50) {
-        $variant = "success";
-      } else if (value > 50 && value <= 75) {
-        $variant = "warning";
-      } else if (value > 75 && value <= 100) {
-        $variant = "danger";
-      }
-      return $variant;
-    },
-    flag(value) {
-      return "flag-icon flag-icon-" + value;
-    },
     programSwitch() {
-      console.log("PUSH");
+      checkSecurity(router);
+      this.tmpModalData.showUpdateModal = true;
     },
     showMsgConfermaEsecuzione(message) {
       this.$bvModal
@@ -202,6 +260,7 @@ export default {
                       d.progType = "AUTOMATICO";
                       break;
                   }
+                  this.tmpModalData.currentProg = d.statusThermostat;
                 }
                 d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
                 sd.push(d);
