@@ -132,8 +132,12 @@ export default {
     this.tmpModalData.windowsOpen = false;
   },
   beforeMount: function() {
-    console.log("Load configuration..");
+    console.log("Load configuration.." + screen.width);
     this.configuration = getConfiguration();
+    if (screen.width < 500) {
+      // forzo viosualizzazione per ore
+      this.configuration.sensorStatistics.type = "hour";
+    }
     this.resetConfiguration();
   },
   mounted: function() {
