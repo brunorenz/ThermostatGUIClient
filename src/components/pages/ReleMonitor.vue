@@ -56,7 +56,7 @@
       @ok="updateStatus"
       :ok-disabled="tmpModalData.disable"
     >
-      <b-form-group label-cols-lg="6" label="PIIPO">
+      <b-form-group label-cols-lg="6" label="Imposta tipo programma">
         <div sm="1">
           <b-form-radio-group
             id="idXX"

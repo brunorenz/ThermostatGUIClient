@@ -10,6 +10,7 @@ import router from "@/router/index";
 
 const GET_CONFIGURATION = "getConfiguration";
 const UPDATE_CONFIGURATION = "updateConfiguration";
+const UPDATE_STATUS = "updateStatus";
 
 const GET_SENSORDATA = "getSensorData";
 const GET_RELEDATA = "getReleData";
@@ -198,9 +199,15 @@ export default class HttpMonitor {
       }
     );
   }
-  // application/x-www-form-urlencoded
+  
   updateConfiguration(inputData) {
     let url = this.getUrl(UPDATE_CONFIGURATION);
+    return axios.post(url, "data=" + JSON.stringify(inputData), {
+      headers: this.getPostSecurityHeader()
+    });
+  }
+  updateStatus(inputData) {
+    let url = this.getUrl(UPDATE_STATUS);
     return axios.post(url, "data=" + JSON.stringify(inputData), {
       headers: this.getPostSecurityHeader()
     });
