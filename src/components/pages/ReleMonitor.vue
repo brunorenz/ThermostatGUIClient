@@ -28,10 +28,16 @@
         </b-row>
         <b-row>
           <b-col class="mb-sm-2 mb-0" v-if="datiServer.status === 0">
-            <img src="img/icons8-pastel-64-off.png" @click="programSwitch" />
+            <img
+              src="img/icons8-pastel-64-off.png"
+              @click="programSwitch(datiServer)"
+            />
           </b-col>
           <b-col class="mb-sm-2 mb-0" v-if="datiServer.status === 1">
-            <img src="img/icons8-pastel-64-on.png" @click="programSwitch" />
+            <img
+              src="img/icons8-pastel-64-on.png"
+              @click="programSwitch(datiServer)"
+            />
           </b-col>
 
           <b-col class="mb-sm-2 mb-0">
@@ -133,40 +139,45 @@ export default {
   },
   methods: {
     updateStatus(model) {
-      this.$bvModal
-        .msgBoxConfirm("Confermi l'aggiornamento ?")
-        .then(value => {
-          if (value) {
-            const httpService = new HttpServer();
-            httpService
-              .updateConfiguration(
-                this.elencoDispositivi[this.dispositivoSelezionato]
-              )
-              .then(response => {
-                let dati = response.data;
-                if (dati.error.code === 0) {
+      let macAddress = this.tmpModalData.currentConfig.macAddress;
+      let newStatus = this.tmpModalData.currentProg;
+      let oldStatus = this.tmpModalData.currentConfig.statusThermostat;
+      if (newStatus != oldStatus) {
+        this.$bvModal
+          .msgBoxConfirm("Confermi l'aggiornamento ?")
+          .then(value => {
+            if (value) {
+              const httpService = new HttpServer();
+              httpService
+                .updateStatus({
+                  macAddress: macAddress,
+                  statusThermostat: newStatus
+                })
+                .then(response => {
+                  let dati = response.data;
+                  if (dati.error.code === 0) {
+                    this.showMsgConfermaEsecuzione(
+                      "Aggiornamento effettuato con successo"
+                    );
+                    //                    this.tmpModalData.currentConfig = null;
+                    this.getReleData();
+                  } else {
+                    this.showMsgConfermaEsecuzione(
+                      "Errore in fase di aggiornamento : " + dati.error.message
+                    );
+                  }
+                })
+                .catch(error => {
                   this.showMsgConfermaEsecuzione(
-                    "Aggiornamento effettuato con successo"
+                    "Errore in fase di aggiornamento : " + error
                   );
-                  this.dispositivoSelezionato = null;
-                  this.optionsElencoDispositivi = [];
-                  this.getConfiguration();
-                } else {
-                  this.showMsgConfermaEsecuzione(
-                    "Errore in fase di aggiornamento : " + dati.error.message
-                  );
-                }
-              })
-              .catch(error => {
-                this.showMsgConfermaEsecuzione(
-                  "Errore in fase di aggiornamento : " + error
-                );
-              });
-          }
-        })
-        .catch(err => {
-          // An error occurred
-        });
+                });
+            }
+          })
+          .catch(err => {
+            // An error occurred
+          });
+      }
     },
     updateConfiguration(model) {
       if (model.length) {
@@ -217,8 +228,9 @@ export default {
       console.log("Start immediate getReleData");
       setImmediate(this.getReleData());
     },
-    programSwitch() {
+    programSwitch(config) {
       checkSecurity(router);
+      this.tmpModalData.currentConfig = config;
       this.tmpModalData.showUpdateModal = true;
     },
     showMsgConfermaEsecuzione(message) {
