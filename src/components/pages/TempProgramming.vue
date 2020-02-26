@@ -275,7 +275,8 @@ export default {
       //
       disableAggiorna: true,
       disableElimina: false,
-      disableAttiva: false
+      disableAttiva: false,
+      selectedProgram: 0
     };
   },
   mounted: function() {
@@ -445,13 +446,6 @@ export default {
     updateProgrammingView(data, idProg) {
       let ed = [];
       let programming = data.programming;
-      // let index = 0;
-      // for (let ix = 0; ix < programming.length; ix++) {
-      //   if (programming[ix].idProg === idProg) {
-      //     index = ix;
-      //     break;
-      //   }
-      // }
       let index = this.getIndexProgram(data, idProg);
       let indexDefault = this.getIndexProgram(data);
       this.programmaSelezionato = index;
@@ -479,6 +473,7 @@ export default {
       this.disableElimina = programmaAttivo;
       this.tabIndex = 0;
       this.defProgStyle = programmaAttivo ? "color: green;" : "";
+      this.selectedProgram = index;
     },
     /**
      * Leggi record programmazione

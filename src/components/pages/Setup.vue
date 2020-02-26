@@ -57,7 +57,7 @@
         </b-row>
         <b-form-group
           label-cols-sm="2"
-          label="Stanza"
+          label="Posizione"
           label-class="font-weight-bold"
         >
           <b-form-input
@@ -69,7 +69,22 @@
             trim
           ></b-form-input>
         </b-form-group>
-
+        <b-form-group
+          v-if="
+            elencoDispositivi[dispositivoSelezionato].deviceType === type.SHELLY
+          "
+          label-cols-sm="2"
+          label="Sensore di riferimento"
+          label-for="selDisp"
+          label-class="font-weight-bold"
+        >
+          <b-form-select
+            id="selDisp"
+            v-model="dispositivoSelezionato"
+            :options="optionsElencoSensori"
+            @change="showDettaglioDispositivo"
+          ></b-form-select>
+        </b-form-group>
         <b-row>
           <b-col sm="2">
             <label class="font-weight-bold">Ultimo Accesso</label>
@@ -87,16 +102,6 @@
               elencoDispositivi[dispositivoSelezionato].lastCheckD
             }}</label>
           </b-col>
-          <!--
-          <b-col sm="2">
-            <label class="font-weight-bold">Ultimo Aggiornamento</label>
-          </b-col>
-          <b-col sm="4">
-            <label>{{
-              elencoDispositivi[dispositivoSelezionato].lastUpdateD
-            }}</label>
-          </b-col>
-          -->
         </b-row>
         <div
           v-if="
@@ -320,7 +325,6 @@
     </div>
   </div>
 </template>
-// https://icons8.com/icons/set/thermostat
 <script>
 import moment from "moment";
 import HttpServer from "@/services/httpMonitorRest";
@@ -337,6 +341,7 @@ export default {
       elencoDispositivi: [],
       elencoDispositiviOrig: [],
       optionsElencoDispositivi: [],
+      optionsElencoSensori: [],
       dispositivoSelezionato: null,
       disableAggiorna: true,
       type: TypeDeviceType
@@ -386,7 +391,7 @@ export default {
       console.log("Selezionato " + ix);
       if (ix !== null) {
         var cfg = this.elencoDispositivi[ix];
-        console.log("VisualiSelezionato " + cfg.macAddress);
+        console.log("VisualizzaSelezionato " + cfg.macAddress);
         this.showDispositivo = true;
         this.dispositivoSelezionato = ix;
       } else this.showDispositivo = false;
@@ -449,20 +454,33 @@ export default {
               this.elencoDispositiviOrig = dati.data;
               this.elencoDispositivi = JSON.parse(JSON.stringify(dati.data));
               var data = dati.data;
+              let es = [];
+
               let ed = [];
               ed.push({
                 value: null,
                 text: "Seleziona un dispositivo"
               });
+              es.push({
+                value: null,
+                text: "Seleziona un sensore"
+              });
+              let iy = 0;
               for (let ix = 0; ix < data.length; ix++) {
                 ed.push({
                   value: ix,
-                  text: data[ix].location + "(" + data[ix].macAddress + ")"
+                  text:
+                    data[ix].location +
+                    (data[ix].deviceType === 1 ? " (SENSORE)" : " (RELE')")
                 });
                 let deviceName = "NON DEFINITO";
                 switch (data[ix].deviceType) {
                   case 1:
                     deviceName = "ARDUINO";
+                    es.push({
+                      value: iy++,
+                      text: data[ix].location
+                    });
                     break;
                   case 2:
                     deviceName = "SHELLY";
@@ -488,6 +506,7 @@ export default {
                   data[ix].lastCheck
                 ).format("DD/MM/YYYY HH:mm");
               }
+              this.optionsElencoSensori = es;
               if (data.length === 1) {
                 this.showListDispositivi = false;
                 this.showDispositivo = true;
@@ -496,6 +515,7 @@ export default {
                 this.optionsElencoDispositivi = ed;
                 this.showListDispositivi = true;
                 this.showDispositivo = false;
+                //this.optionsElencoSensori = es;
               }
             } else {
               console.log("Nessun dato da visualizzare");
