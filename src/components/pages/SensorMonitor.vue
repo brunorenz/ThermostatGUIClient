@@ -5,25 +5,18 @@
         <h4 class="card-title mb-1">Sensori</h4>
       </b-col>
       <b-col sm="3" class="d-none d-md-block">
-        <ModalConfiguration
-          :model="model"
-          v-on:updateConfiguration="updateConfiguration"
-        ></ModalConfiguration>
+        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
       </b-col>
     </b-row>
-    <b-row
-      class="text-center"
-      v-for="datiServer in datiServers"
-      :key="datiServer.macAddress"
-    >
+    <b-row class="text-center" v-for="datiServer in datiServers" :key="datiServer.macAddress">
       <b-col>
         <b-row>
           <b-col>
-            <strong
-              >{{ datiServer.location }}
+            <strong>
+              {{ datiServer.location }}
               -
-              {{ datiServer.lastAccessD }}</strong
-            >
+              {{ datiServer.lastAccessD }}
+            </strong>
           </b-col>
         </b-row>
         <b-row>

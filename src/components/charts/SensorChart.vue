@@ -2,25 +2,18 @@
   <div class="animated fadeIn">
     <b-row>
       <b-col sm="7">
-        <h4 id="traffic" class="card-title mb-1">
-          Grafici Sensori
-        </h4>
+        <h4 id="traffic" class="card-title mb-1">Grafici Sensori</h4>
         <h6 class="card-subtitle mb-0 text-muted">{{ intervallo }}</h6>
       </b-col>
       <b-col sm="5" class="d-none d-md-block">
-        <ModalConfiguration
-          :model="model"
-          v-on:updateConfiguration="updateConfiguration"
-        ></ModalConfiguration>
+        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
       </b-col>
     </b-row>
     <!--   v-for="entry in tmpData.prog" :key="entry.id">-->
     <b-card v-if="showGraphBase">
       <b-row>
         <b-col>
-          <h6 class="card-title mb-1">
-            Temperatura e Luce
-          </h6>
+          <h6 class="card-title mb-1">Temperatura e Luce</h6>
         </b-col>
       </b-row>
       <b-row>
@@ -49,9 +42,7 @@
     <b-card v-if="showGraphFull">
       <b-row>
         <b-col sm="7">
-          <h6 id="traffic" class="card-title mb-1">
-            Umidità e Pressione Atmosferica
-          </h6>
+          <h6 id="traffic" class="card-title mb-1">Umidità e Pressione Atmosferica</h6>
         </b-col>
       </b-row>
       <b-row>
@@ -97,6 +88,12 @@ export default {
     LineCharts,
     ModalConfiguration
   },
+  props: {
+    full: {
+      type: Boolean,
+      default: false
+    }
+  },
   data: function() {
     return {
       selected: "hour",
@@ -134,6 +131,11 @@ export default {
   beforeMount: function() {
     console.log("Load configuration.." + screen.width);
     this.configuration = getConfiguration();
+    if (this.full)
+    {
+      this.configuration.sensorStatistics.type = "day";
+      this.configuration.sensorStatistics.full = true;
+    }
     if (screen.width < 500) {
       // forzo viosualizzazione per ore
       this.configuration.sensorStatistics.type = "hour";

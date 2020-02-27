@@ -160,6 +160,7 @@
             <b-tab title="Lunedi'" active>
               <dayProgramming
                 :model="programmazioneGiornaliera[0]"
+                :refresh="refresh"
                 v-on:updateConfiguration="updateDayProgramming"
               ></dayProgramming>
             </b-tab>
@@ -189,7 +190,7 @@
             </b-tab>
             <b-tab title="Sabato">
               <dayProgramming
-                :model="programmazioneGiornaliera[5]"
+                v-bind:model="programmazioneGiornaliera[5]"
                 v-on:updateConfiguration="updateDayProgramming"
               ></dayProgramming>
             </b-tab>
@@ -249,7 +250,7 @@ export default {
   data: function() {
     return {
       programmazioneCompleta: null,
-      programmazioneGiornaliera: null,
+      programmazioneGiornaliera: [],
       dettaglioProgramma: null,
       programmaSelezionato: 0,
       optionsElencoProgrammi: [],
@@ -262,7 +263,8 @@ export default {
       intTemp: 0.5,
       disableAggiorna: true,
       disableElimina: false,
-      disableAttiva: false
+      disableAttiva: false,
+      refresh:  ""
     };
   },
   mounted: function() {
@@ -457,10 +459,11 @@ export default {
         "updateProgrammingView - Indice Programma selezionato " +
           this.programmaSelezionato
       );
-      this.programmazioneGiornaliera = JSON.parse(
+      let t = JSON.parse(
         JSON.stringify(programming[index].dayProgramming)
       );
-      //this.selectedProgram = index;
+      this.programmazioneGiornaliera = t;
+      this.refresh = this.programmaSelezionato;
     },
     /**
      * Leggi record programmazione

@@ -1,22 +1,23 @@
 <template>
   <div>
+    <label>{{ refresh }}</label>
     <b-row v-for="entry in tmpData.prog" :key="entry.id">
       <b-col sm="2">
         <b-row class="text-center">
-          <b-button class="mx-1 my-1" variant="primary"
-            ><b-icon icon="plus"></b-icon
-          ></b-button>
-          <b-button class="my-1" variant="primary"
-            ><b-icon icon="trash"></b-icon
-          ></b-button>
+          <b-button class="mx-1 my-1" variant="primary">
+            <b-icon icon="plus"></b-icon>
+          </b-button>
+          <b-button class="my-1" variant="primary">
+            <b-icon icon="trash"></b-icon>
+          </b-button>
         </b-row>
         <b-row class="text-center">
-          <b-button class="mx-1" variant="primary"
-            ><b-icon icon="arrow-up"></b-icon
-          ></b-button>
-          <b-button variant="primary"
-            ><b-icon icon="arrow-down"></b-icon
-          ></b-button>
+          <b-button class="mx-1" variant="primary">
+            <b-icon icon="arrow-up"></b-icon>
+          </b-button>
+          <b-button variant="primary">
+            <b-icon icon="arrow-down"></b-icon>
+          </b-button>
         </b-row>
       </b-col>
       <b-col sm="3">
@@ -50,7 +51,7 @@
         <b-row>
           <b-col>
             <datetime
-              :input-id="idOra1"
+              :input-id="entry.idOraOn"
               input-style="width: 60px;text-align:center;"
               v-model="entry.oraOn"
               type="time"
@@ -73,7 +74,7 @@
         <b-row>
           <b-col>
             <datetime
-              :input-id="idOra2"
+              :input-id="entry.idOraOff"
               input-style="width: 60px;text-align:center;"
               v-model="entry.oraOff"
               type="time"
@@ -106,13 +107,11 @@ export default {
     picker: DatetimeTimePicker,
     slider: VueSlider
   },
-  props: ["model"],
+  props: ["model" , "refresh"],
   data: function() {
     return {
       dateOn: "00:00",
       dateOff: "23:50",
-      idOra1: "0",
-      idOra2: "1",
       maxTemp: 25,
       minTemp: 10,
       intTemp: 0.5,
@@ -136,6 +135,9 @@ export default {
   },
   beforeUpdate: function() {
     console.log(">>>> DayProgramming : beforeUpdate..");
+  },
+  updated: function() {
+    console.log(">>>> DayProgramming : Update..");
   },
   methods: {
     checkField(event) {
@@ -170,13 +172,15 @@ export default {
         let rec = modelOut.prog[ix];
         rec.oraOn = this.getDataFromNum(rec.timeStart);
         rec.oraOff = this.getDataFromNum(rec.timeEnd);
+        rec.idOraOn = "On" + modelOut.idDay + "_" + ix;
+        rec.idOraOff = "Off" + modelOut.idDay + "_" + ix;
         rec.ix = ix;
         console.log("Record : " + JSON.stringify(rec));
       }
       this.tmpData = modelOut;
       this.tmpSaveData = JSON.parse(JSON.stringify(this.tmpData));
-      this.idOra1 = "O1" + modelOut.idDay;
-      this.idOra2 = "O2" + modelOut.idDay;
+      //this.idOra1 = "O1" + modelOut.idDay;
+      //this.idOra2 = "O2" + modelOut.idDay;
     },
     getNumFromData(dt) {
       let h = dt.getHours();

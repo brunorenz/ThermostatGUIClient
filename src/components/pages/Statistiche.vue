@@ -23,7 +23,7 @@
     <b-row>
       <b-col sm="12">
         <b-card>
-          <SensorChart />
+          <SensorChart full="true"/>
         </b-card>
       </b-col>
     </b-row>
