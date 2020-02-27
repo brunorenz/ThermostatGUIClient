@@ -109,8 +109,6 @@ export default {
   props: ["model"],
   data: function() {
     return {
-      tmpData: {},
-      show: false,
       dateOn: "00:00",
       dateOff: "23:50",
       idOra1: "0",
@@ -118,6 +116,7 @@ export default {
       maxTemp: 25,
       minTemp: 10,
       intTemp: 0.5,
+      tmpData: {},
       tmpSaveData: {}
     };
   },
@@ -128,58 +127,54 @@ export default {
     }
   },
   beforeMount: function() {
-    console.log(">>>> beforeMount : Load configuration..");
+    console.log(">>>> DayProgramming : beforeMount ");
+    //this.resetConfiguration();
+  },
+  mounted: function() {
+    console.log(">>>> DayProgramming : mounted : Load configuration..");
     this.resetConfiguration();
   },
   beforeUpdate: function() {
-    console.log(">>>> beforeUpdate Load configuration..");
-    //this.resetConfiguration();
+    console.log(">>>> DayProgramming : beforeUpdate..");
   },
   methods: {
-    showModal() {
-      this.resetConfiguration();
-      this.show = true;
-    },
     checkField(event) {
-      // change date ?
       let change = false;
       for (let ix = 0; ix < this.tmpData.prog.length; ix++) {
         let rec = this.tmpData.prog[ix];
-        let recSave = this.model.prog[ix];
+        let recSave = this.tmpSaveData.prog[ix];
         let ts = this.getNumFromData(new Date(rec.oraOn));
         let te = this.getNumFromData(new Date(rec.oraOff));
         rec.timeStart = ts;
         rec.timeEnd = te;
         change =
+          change ||
           rec.minTemp != recSave.minTemp ||
           rec.timeStart != recSave.timeStart ||
           rec.timeEnd != recSave.timeEnd ||
           rec.priorityDisp != recSave.priorityDisp;
-        if (change) break;
-        console.log("Start : " + ts + " - End : " + te);
+        //console.log("Start : " + ts + " - End : " + te);
       }
-      console.log("Current : " + JSON.stringify(this.tmpData));
-      console.log("Last    : " + this.tmpSaveData);
+      //console.log("Current : " + JSON.stringify(this.tmpData));
+      //console.log("Last    : " + this.tmpSaveData);
       if (change) {
         console.log("Check for changes ..");
         this.$emit("updateConfiguration", this.tmpData);
+        this.tmpSaveData = JSON.parse(JSON.stringify(this.tmpData));
       } else console.log("No changes found ..");
     },
     resetConfiguration() {
-      console.log("reset configuration");
+      console.log("DayProgramming : reset configuration");
       var modelOut = JSON.parse(JSON.stringify(this.model));
       for (let ix = 0; ix < modelOut.prog.length; ix++) {
         let rec = modelOut.prog[ix];
-        let on = this.getDataFromNum(rec.timeStart);
-        let off = this.getDataFromNum(rec.timeEnd);
-        console.log("ON : " + on + " - OFF : " + off);
-        rec.oraOn = on;
-        rec.oraOff = off;
+        rec.oraOn = this.getDataFromNum(rec.timeStart);
+        rec.oraOff = this.getDataFromNum(rec.timeEnd);
         rec.ix = ix;
+        console.log("Record : " + JSON.stringify(rec));
       }
       this.tmpData = modelOut;
-      this.tmpSaveData = JSON.stringify(modelOut);
-      //this.tmpData.disable = false;
+      this.tmpSaveData = JSON.parse(JSON.stringify(this.tmpData));
       this.idOra1 = "O1" + modelOut.idDay;
       this.idOra2 = "O2" + modelOut.idDay;
     },

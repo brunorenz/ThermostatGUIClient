@@ -70,7 +70,7 @@
           <div slot="header">
             <h5>
               Programma
-              <b v-bind:style="defProgStyle">{{ programName }}</b>
+              <b v-bind:style="defProgStyle">{{ dettaglioProgramma.name }}</b>
             </h5>
           </div>
 
@@ -159,51 +159,44 @@
           <b-tabs justified v-model="tabIndex">
             <b-tab title="Lunedi'" active>
               <dayProgramming
-                :model="programmaGiornaliero[0]"
+                :model="programmazioneGiornaliera[0]"
                 v-on:updateConfiguration="updateDayProgramming"
-                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Martedi'">
               <dayProgramming
-                :model="programmaGiornaliero[1]"
+                :model="programmazioneGiornaliera[1]"
                 v-on:updateConfiguration="updateDayProgramming"
-                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Mercoledi'">
               <dayProgramming
-                :model="programmaGiornaliero[2]"
+                :model="programmazioneGiornaliera[2]"
                 v-on:updateConfiguration="updateDayProgramming"
-                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Giovedi'">
               <dayProgramming
-                :model="programmaGiornaliero[3]"
+                :model="programmazioneGiornaliera[3]"
                 v-on:updateConfiguration="updateDayProgramming"
-                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Venerdi'">
               <dayProgramming
-                :model="programmaGiornaliero[4]"
+                :model="programmazioneGiornaliera[4]"
                 v-on:updateConfiguration="updateDayProgramming"
-                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Sabato">
               <dayProgramming
-                :model="programmaGiornaliero[5]"
+                :model="programmazioneGiornaliera[5]"
                 v-on:updateConfiguration="updateDayProgramming"
-                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Domenica">
               <dayProgramming
-                :model="programmaGiornaliero[6]"
+                :model="programmazioneGiornaliera[6]"
                 v-on:updateConfiguration="updateDayProgramming"
-                :key="programmaSelezionato"
               ></dayProgramming>
             </b-tab>
           </b-tabs>
@@ -256,27 +249,20 @@ export default {
   data: function() {
     return {
       programmazioneCompleta: null,
-      elencoProgrammi: [],
+      programmazioneGiornaliera: null,
       dettaglioProgramma: null,
-      programmaSelezionato: null,
+      programmaSelezionato: 0,
       optionsElencoProgrammi: [],
       showPage: false,
-      programName: "",
       tabIndex: 0,
       defProgStyle: "",
       // valori default
       maxTemp: 25,
       minTemp: 10,
       intTemp: 0.5,
-      //value: 10,
-      //dateOn: "00:00",
-      //dateOff: "23:50",
-      programmaGiornaliero: {},
-      //
       disableAggiorna: true,
       disableElimina: false,
-      disableAttiva: false,
-      selectedProgram: 0
+      disableAttiva: false
     };
   },
   mounted: function() {
@@ -324,11 +310,41 @@ export default {
       this.manageProgramming(TypeAction.UPDATE);
     },
     updateDayProgramming(model) {
-      console.log("Update  Day programming " + JSON.stringify(model));
-      let current = this.programmazioneCompleta.programming[
-        this.selectedProgram
-      ].dayProgramming[model.idDay];
-      console.log("Current Day programming " + JSON.stringify(current));
+      console.log(
+        "updateDayProgramming : Indice Programma selezionato " +
+          this.programmaSelezionato
+      );
+      let record = {
+        idDay: model.idDay,
+        prog: []
+      };
+      for (let ix = 0; ix < model.prog.length; ix++) {
+        let rec = model.prog[ix];
+        record.prog.push({
+          minTemp: rec.minTemp,
+          timeStart: rec.timeStart,
+          timeEnd: rec.timeEnd,
+          priorityDisp: rec.priorityDisp
+        });
+        let recSave;
+      }
+      console.log(
+        "Update  Day programming BEFORE :" +
+          JSON.stringify(
+            this.programmazioneCompleta.programming[this.programmaSelezionato]
+              .dayProgramming[model.idDay]
+          )
+      );
+      this.programmazioneCompleta.programming[
+        this.programmaSelezionato
+      ].dayProgramming[model.idDay] = record;
+      console.log(
+        "Update  Day programming AFTER : " +
+          JSON.stringify(
+            this.programmazioneCompleta.programming[this.programmaSelezionato]
+              .dayProgramming[model.idDay]
+          )
+      );
       this.disableAggiorna = false;
     },
     copyProgramming() {
@@ -408,13 +424,13 @@ export default {
      * Update view after any programming change
      */
     updateProgrammingView(data, idProg) {
+      console.log("Update Programming View !");
       let ed = [];
       let programming = data.programming;
       let index = this.getIndexProgram(data, idProg);
       let indexDefault = this.getIndexProgram(data);
       this.programmaSelezionato = index;
       this.dettaglioProgramma = programming[index];
-      this.programName = this.dettaglioProgramma.name;
       this.dettaglioProgramma.lastUpdateD = moment(data.lastUpdate).format(
         "DD/MM/YYYY HH:mm"
       );
@@ -424,12 +440,12 @@ export default {
         else opt.text = programming[ix].name;
         ed.push(opt);
       }
-      this.programmaGiornaliero = {
-        changed: false,
-        data: programming[index].dayProgramming
-      };
       let programmaAttivo = index === indexDefault;
-      this.programmaGiornaliero = programming[index].dayProgramming;
+      // this.programmaGiornaliero = JSON.parse(
+      //   JSON.stringify(programming[index].dayProgramming)
+      // );
+      // this.programmaGiornaliero = programming[index].dayProgramming;
+
       this.optionsElencoProgrammi = ed;
       this.disableAggiorna = true;
       this.showPage = true;
@@ -437,7 +453,14 @@ export default {
       this.disableElimina = programmaAttivo;
       this.tabIndex = 0;
       this.defProgStyle = programmaAttivo ? "color: green;" : "";
-      this.selectedProgram = index;
+      console.log(
+        "updateProgrammingView - Indice Programma selezionato " +
+          this.programmaSelezionato
+      );
+      this.programmazioneGiornaliera = JSON.parse(
+        JSON.stringify(programming[index].dayProgramming)
+      );
+      //this.selectedProgram = index;
     },
     /**
      * Leggi record programmazione
