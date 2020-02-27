@@ -12,6 +12,7 @@ const Dashboard = () => import("@/components/dashboard/Dashboard");
 const Setup = () => import("@/components/pages/Setup");
 const TempProgramming = () => import("@/components/pages/TempProgramming");
 const Login = () => import("@/components/pages/Login");
+const Statistiche = () => import("@/components/pages/Statistiche");
 
 let router = new Router({
   routes: [
@@ -48,7 +49,7 @@ let router = new Router({
         {
           path: "statistiche",
           name: "Statistiche",
-          //component: Statistics
+          component: Statistiche,
           meta: {
             guest: true
           }

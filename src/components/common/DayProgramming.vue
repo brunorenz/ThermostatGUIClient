@@ -3,13 +3,15 @@
     <b-row v-for="entry in tmpData.prog" :key="entry.id">
       <b-col sm="2">
         <b-row class="text-center">
-          <b-button class="mr-2" variant="primary"
+          <b-button class="mx-1 my-1" variant="primary"
             ><b-icon icon="plus"></b-icon
           ></b-button>
-          <b-button variant="primary"><b-icon icon="trash"></b-icon></b-button>
+          <b-button class="my-1" variant="primary"
+            ><b-icon icon="trash"></b-icon
+          ></b-button>
         </b-row>
         <b-row class="text-center">
-          <b-button class="mr-2" variant="primary"
+          <b-button class="mx-1" variant="primary"
             ><b-icon icon="arrow-up"></b-icon
           ></b-button>
           <b-button variant="primary"
@@ -55,7 +57,9 @@
               :minute-step="10"
               :hour-step="1"
               title="Imposta Ora Accensione"
+              zone="Europe/Rome"
               :phrases="{ ok: 'Continua', cancel: 'Esci' }"
+              @close="checkField"
             />
           </b-col>
         </b-row>
@@ -78,6 +82,8 @@
               title="Imposta Ora Spegnimento"
               :min-datetime="dateOn"
               :phrases="{ ok: 'Continua', cancel: 'Esci' }"
+              zone="Europe/Rome"
+              @close="checkField"
             />
           </b-col>
         </b-row>
@@ -86,16 +92,18 @@
   </div>
 </template>
 <script>
-import { Datetime } from "vue-datetime";
+import { Datetime, DatetimeTimePicker } from "vue-datetime";
 import "vue-datetime/dist/vue-datetime.css";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
+import moment from "moment";
 //import { BIcon } from "bootstrap-vue";
 
 export default {
   name: "DayProgramming",
   components: {
     datetime: Datetime,
+    picker: DatetimeTimePicker,
     slider: VueSlider
   },
   props: ["model"],
@@ -109,7 +117,8 @@ export default {
       idOra2: "1",
       maxTemp: 25,
       minTemp: 10,
-      intTemp: 0.5
+      intTemp: 0.5,
+      tmpSaveData: {}
     };
   },
   computed: {
@@ -132,35 +141,64 @@ export default {
       this.show = true;
     },
     checkField(event) {
-      //this._checkField(event.target.id);
-    },
-    updateConfiguration() {
-      console.log("Update configuration");
-      var fields = [];
-      for (var ix = 0; ix < this.tmpModalData.model.fields.length; ix++) {
-        let field = this.tmpModalData.model.fields[ix];
-        if (field.value != this.model.fields[ix].value) fields.push(field);
+      // change date ?
+      let change = false;
+      for (let ix = 0; ix < this.tmpData.prog.length; ix++) {
+        let rec = this.tmpData.prog[ix];
+        let recSave = this.model.prog[ix];
+        let ts = this.getNumFromData(new Date(rec.oraOn));
+        let te = this.getNumFromData(new Date(rec.oraOff));
+        rec.timeStart = ts;
+        rec.timeEnd = te;
+        change =
+          rec.minTemp != recSave.minTemp ||
+          rec.timeStart != recSave.timeStart ||
+          rec.timeEnd != recSave.timeEnd ||
+          rec.priorityDisp != recSave.priorityDisp;
+        if (change) break;
+        console.log("Start : " + ts + " - End : " + te);
       }
-      if (fields.length > 0) this.$emit("updateConfiguration", fields);
+      console.log("Current : " + JSON.stringify(this.tmpData));
+      console.log("Last    : " + this.tmpSaveData);
+      if (change) {
+        console.log("Check for changes ..");
+        this.$emit("updateConfiguration", this.tmpData);
+      } else console.log("No changes found ..");
     },
     resetConfiguration() {
       console.log("reset configuration");
       var modelOut = JSON.parse(JSON.stringify(this.model));
       for (let ix = 0; ix < modelOut.prog.length; ix++) {
         let rec = modelOut.prog[ix];
-        rec.oraOn = this.getDataFromNum(rec.timeStart);
-        rec.oraOff = this.getDataFromNum(rec.timeEnd);
+        let on = this.getDataFromNum(rec.timeStart);
+        let off = this.getDataFromNum(rec.timeEnd);
+        console.log("ON : " + on + " - OFF : " + off);
+        rec.oraOn = on;
+        rec.oraOff = off;
         rec.ix = ix;
       }
       this.tmpData = modelOut;
+      this.tmpSaveData = JSON.stringify(modelOut);
       //this.tmpData.disable = false;
       this.idOra1 = "O1" + modelOut.idDay;
       this.idOra2 = "O2" + modelOut.idDay;
     },
+    getNumFromData(dt) {
+      let h = dt.getHours();
+      let m = dt.getMinutes();
+      return h * 60 + m;
+    },
     getDataFromNum(num) {
       let h = "00" + ((num / 60) >> 0);
       let m = "00" + (num - h * 60);
-      return h.substring(h.length - 2) + ":" + m.substring(m.length - 2);
+      let now = new Date();
+      now.setHours(h);
+      now.setMinutes(m);
+      now.setSeconds(0);
+      now.setMilliseconds(0);
+      now.getHours;
+      return moment(now).format();
+      //return h.substring(h.length - 2) + ":" + m.substring(m.length - 2);
     }
   }
 };

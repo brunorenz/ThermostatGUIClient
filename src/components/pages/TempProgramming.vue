@@ -37,31 +37,29 @@
           </b-row>
           <b-row>
             <b-col class="text-right">
-              <b-button-group>
-                <b-button
-                  variant="primary"
-                  v-on:click="addProgramming"
-                  class="mr-2"
-                  style="width: 90px;"
-                  >Aggiungi</b-button
-                >
-                <b-button
-                  variant="primary"
-                  v-on:click="deleteProgramming"
-                  :disabled="disableElimina"
-                  class="mr-2"
-                  style="width: 90px;"
-                  >Elimina</b-button
-                >
-                <b-button
-                  variant="primary"
-                  v-on:click="attivaProgramming"
-                  :disabled="disableAttiva"
-                  class="mr-2"
-                  style="width: 90px;"
-                  >Attiva</b-button
-                >
-              </b-button-group>
+              <b-button
+                variant="primary"
+                v-on:click="addProgramming"
+                class="mx-1"
+                style="width: 90px;"
+                >Aggiungi</b-button
+              >
+              <b-button
+                variant="primary"
+                v-on:click="deleteProgramming"
+                :disabled="disableElimina"
+                class="mx-1"
+                style="width: 90px;"
+                >Elimina</b-button
+              >
+              <b-button
+                variant="primary"
+                v-on:click="attivaProgramming"
+                :disabled="disableAttiva"
+                class="mx-0"
+                style="width: 90px;"
+                >Attiva</b-button
+              >
             </b-col>
           </b-row>
         </b-card>
@@ -92,7 +90,14 @@
           </b-form-group>
 
           <b-row>
-            <b-col sm="3">
+            <b-col sm="4">
+              <b-row>
+                <b-col>
+                  <label class="font-weight-bold"
+                    >Temperatura Minima in Automatico</label
+                  >
+                </b-col>
+              </b-row>
               <b-row>
                 <b-col>
                   <slider
@@ -105,19 +110,24 @@
                 </b-col>
               </b-row>
               <b-row>
-                <b-col>
+                <b-col sm="1">
+                  <i class="fa fa-thermometer-1"></i>
+                </b-col>
+                <b-col sm="1">
                   <label class="font-weight-bold">
                     {{ dettaglioProgramma.minTemp }}
                   </label>
                 </b-col>
               </b-row>
+            </b-col>
+            <b-col sm="4">
               <b-row>
                 <b-col>
-                  <label class="font-weight-bold">Temperatura Minima</label>
+                  <label class="font-weight-bold"
+                    >Temperatura Minima In Manuale</label
+                  >
                 </b-col>
               </b-row>
-            </b-col>
-            <b-col sm="3">
               <b-row>
                 <b-col>
                   <slider
@@ -130,24 +140,19 @@
                 </b-col>
               </b-row>
               <b-row>
-                <b-col>
+                <b-col sm="1">
+                  <i class="fa fa-thermometer-1"></i>
+                </b-col>
+                <b-col sm="1">
                   <label class="font-weight-bold">
                     {{ dettaglioProgramma.minTempManual }}
                   </label>
                 </b-col>
               </b-row>
-
-              <b-row>
-                <b-col>
-                  <label class="font-weight-bold"
-                    >Temperatura Minima In Manuale</label
-                  >
-                </b-col>
-              </b-row>
             </b-col>
           </b-row>
 
-          <div>
+          <div class="my-1">
             <h5>Programmazione Giornaliera</h5>
           </div>
 
@@ -203,32 +208,30 @@
             </b-tab>
           </b-tabs>
           <b-row>
-            <b-col class="text-right">
-              <b-button-group>
-                <b-button
-                  variant="primary"
-                  v-on:click="copyProgramming"
-                  class="mr-2"
-                  style="width: 90px;"
-                  >Copia</b-button
-                >
-                <b-button
-                  variant="primary"
-                  class="mr-2"
-                  style="width: 90px;"
-                  v-on:click="getProgramming"
-                  :disabled="disableAggiorna"
-                  >Ricarica</b-button
-                >
-                <b-button
-                  variant="primary"
-                  class="mr-2"
-                  style="width: 90px;"
-                  v-on:click="updateProgramming"
-                  :disabled="disableAggiorna"
-                  >Salva</b-button
-                >
-              </b-button-group>
+            <b-col class="text-right my-1">
+              <b-button
+                variant="primary"
+                v-on:click="copyProgramming"
+                class="mx-1"
+                style="width: 90px;"
+                >Copia</b-button
+              >
+              <b-button
+                variant="primary"
+                class="mx-1"
+                style="width: 90px;"
+                v-on:click="getProgramming"
+                :disabled="disableAggiorna"
+                >Ricarica</b-button
+              >
+              <b-button
+                variant="primary"
+                class="mx-0"
+                style="width: 90px;"
+                v-on:click="updateProgramming"
+                :disabled="disableAggiorna"
+                >Salva</b-button
+              >
             </b-col>
           </b-row>
         </b-card>
@@ -241,15 +244,12 @@ import moment from "moment";
 import HttpServer from "@/services/httpMonitorRest";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
 import { TypeAction, TypeDeviceType, TypeProgramming } from "@/services/config";
-import { Datetime } from "vue-datetime";
-import "vue-datetime/dist/vue-datetime.css";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
 import DayProgramming from "@/components/common/DayProgramming";
 export default {
   name: "TemperatureProgramming",
   components: {
-    datetime: Datetime,
     slider: VueSlider,
     dayProgramming: DayProgramming
   },
@@ -323,8 +323,13 @@ export default {
     updateProgramming() {
       this.manageProgramming(TypeAction.UPDATE);
     },
-    updateDayProgramming() {
-      console.log("Update Day programming");
+    updateDayProgramming(model) {
+      console.log("Update  Day programming " + JSON.stringify(model));
+      let current = this.programmazioneCompleta.programming[
+        this.selectedProgram
+      ].dayProgramming[model.idDay];
+      console.log("Current Day programming " + JSON.stringify(current));
+      this.disableAggiorna = false;
     },
     copyProgramming() {
       console.log("Copy programming");
@@ -365,7 +370,6 @@ export default {
                   this.showMsgConfermaEsecuzione(
                     "Operazione effettuata con successo!"
                   );
-                  // rileggo dati
                   this.getProgramming();
                 } else {
                   this.showMsgConfermaEsecuzione(
@@ -385,46 +389,6 @@ export default {
           this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
         });
     },
-    /**
-     * Update programming record
-
-    updateProgramming() {
-      this.$bvModal
-        .msgBoxConfirm("Confermi l'aggiornamento ?")
-        .then(value => {
-          if (value) {
-            const httpService = new HttpServer();
-            httpService
-              .updateProgramming(this.programmazioneCompleta)
-              .then(response => {
-                let dati = response.data;
-                if (dati.error.code === 0) {
-                  this.showMsgConfermaEsecuzione(
-                    "Aggiornamento effettuato con successo"
-                  );
-                  // this.elencoProgrammi =  [];
-                  // this.dettaglioProgramma= null;
-                  // this.programmaSelezionato= null;
-                  this.getProgramming();
-                } else {
-                  this.showMsgConfermaEsecuzione(
-                    "Errore in fase di aggiornamento : " + dati.error.message
-                  );
-                }
-              })
-              .catch(error => {
-                this.showMsgConfermaEsecuzione(
-                  "Errore in fase di aggiornamento : " + error
-                );
-              });
-          }
-        })
-        .catch(error => {
-          console.log("Error callig service 'updateProgramming' : " + error);
-          this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
-        });
-    },
-     */
     getProgramIndex(progRecord, index) {
       return progRecord.programming[index].idProg;
     },
