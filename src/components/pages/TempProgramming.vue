@@ -160,43 +160,49 @@
             <b-tab title="Lunedi'" active>
               <dayProgramming
                 :model="programmazioneGiornaliera[0]"
-                :refresh="refresh"
+                :deviceList="listaSensori"
                 v-on:updateConfiguration="updateDayProgramming"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Martedi'">
               <dayProgramming
                 :model="programmazioneGiornaliera[1]"
+                :deviceList="listaSensori"
                 v-on:updateConfiguration="updateDayProgramming"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Mercoledi'">
               <dayProgramming
                 :model="programmazioneGiornaliera[2]"
+                :deviceList="listaSensori"
                 v-on:updateConfiguration="updateDayProgramming"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Giovedi'">
               <dayProgramming
                 :model="programmazioneGiornaliera[3]"
+                :deviceList="listaSensori"
                 v-on:updateConfiguration="updateDayProgramming"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Venerdi'">
               <dayProgramming
                 :model="programmazioneGiornaliera[4]"
+                :deviceList="listaSensori"
                 v-on:updateConfiguration="updateDayProgramming"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Sabato">
               <dayProgramming
                 v-bind:model="programmazioneGiornaliera[5]"
+                :deviceList="listaSensori"
                 v-on:updateConfiguration="updateDayProgramming"
               ></dayProgramming>
             </b-tab>
             <b-tab title="Domenica">
               <dayProgramming
                 :model="programmazioneGiornaliera[6]"
+                :deviceList="listaSensori"
                 v-on:updateConfiguration="updateDayProgramming"
               ></dayProgramming>
             </b-tab>
@@ -249,6 +255,7 @@ export default {
   },
   data: function() {
     return {
+      listaSensori: [],
       programmazioneCompleta: null,
       programmazioneGiornaliera: [],
       dettaglioProgramma: null,
@@ -264,10 +271,11 @@ export default {
       disableAggiorna: true,
       disableElimina: false,
       disableAttiva: false,
-      refresh:  ""
+      refresh: ""
     };
   },
-  mounted: function() {
+  beforeMount: function() {
+    this.recuperaElencoSensori();
     this.getProgramming();
   },
   computed: {},
@@ -311,6 +319,9 @@ export default {
     updateProgramming() {
       this.manageProgramming(TypeAction.UPDATE);
     },
+    /**
+     * Aggiornamento programmazione giornaliera
+     */
     updateDayProgramming(model) {
       console.log(
         "updateDayProgramming : Indice Programma selezionato " +
@@ -459,11 +470,65 @@ export default {
         "updateProgrammingView - Indice Programma selezionato " +
           this.programmaSelezionato
       );
-      let t = JSON.parse(
-        JSON.stringify(programming[index].dayProgramming)
-      );
-      this.programmazioneGiornaliera = t;
-      this.refresh = this.programmaSelezionato;
+      // praparo dati per DayProgramming
+      let dp = JSON.parse(JSON.stringify(programming[index].dayProgramming));
+      for (let iy = 0; iy < dp.length; iy++) {
+        for (let ix = 0; ix < dp[iy].prog.length; ix++) {
+          let rec = dp[iy].prog[ix];
+          rec.oraOn = this.getDataFromNum(rec.timeStart);
+          rec.oraOff = this.getDataFromNum(rec.timeEnd);
+          rec.idOraOn = "on_" + iy + "_" + ix;
+          rec.idOraOff = "off_" + iy + "_" + ix;
+          rec.ix = ix;
+          //console.log("Record : " + JSON.stringify(rec));
+        }
+      }
+      this.programmazioneGiornaliera = dp;
+    },
+    getDataFromNum(num) {
+      let h = "00" + ((num / 60) >> 0);
+      let m = "00" + (num - h * 60);
+      let now = new Date();
+      now.setHours(h);
+      now.setMinutes(m);
+      now.setSeconds(0);
+      now.setMilliseconds(0);
+      now.getHours;
+      return moment(now).format();
+      //return h.substring(h.length - 2) + ":" + m.substring(m.length - 2);
+    },
+    recuperaElencoSensori() {
+      const httpService = new HttpServer();
+      httpService
+        .getConfiguration()
+        .then(response => {
+          let dati = response.data;
+          let es = [];
+          es.push({
+            value: "",
+            text: "Nessuna"
+          });
+          if (dati.error.code === 0) {
+            let data = dati.data;
+
+            for (let ix = 0; ix < data.length; ix++) {
+              if (data[ix].deviceType === 1) {
+                es.push({
+                  value: data[ix].macAddress,
+                  text: data[ix].location
+                });
+              }
+            }
+          } else {
+            console.log("Nessun dato da visualizzare");
+            this.showMsgConfermaEsecuzione("Nessun Sensore definito!");
+          }
+          this.listaSensori = es;
+        })
+        .catch(error => {
+          console.log("Error callig service 'getConfiguration' : " + error);
+          this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
+        });
     },
     /**
      * Leggi record programmazione

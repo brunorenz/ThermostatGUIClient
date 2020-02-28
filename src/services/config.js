@@ -1,6 +1,6 @@
 import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
 
-const local = false;
+const local = true;
 const serverUrlP = "/therm/rest/";
 const serverUrlR = "http://srvwas1.bpbari.it:8099/rest/";
 const serverUrlD = local

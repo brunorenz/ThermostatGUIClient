@@ -1,21 +1,37 @@
 <template>
   <div>
-    <label>{{ refresh }}</label>
-    <b-row v-for="entry in tmpData.prog" :key="entry.id">
+    <b-row v-for="entry in model.prog" :key="entry.ix">
       <b-col sm="2">
         <b-row class="text-center">
-          <b-button class="mx-1 my-1" variant="primary">
+          <b-button
+            class="mx-1 my-1"
+            variant="primary"
+            @click="manageButton('addB', entry.ix)"
+          >
             <b-icon icon="plus"></b-icon>
           </b-button>
-          <b-button class="my-1" variant="primary">
+          <b-button
+            class="my-1"
+            variant="primary"
+            @click="manageButton('deleteB', entry.ix)"
+          >
             <b-icon icon="trash"></b-icon>
           </b-button>
         </b-row>
         <b-row class="text-center">
-          <b-button class="mx-1" variant="primary">
+          <b-button
+            class="mx-1"
+            variant="primary"
+            :disabled="entry.up"
+            @click="manageButton('upB', entry.ix)"
+          >
             <b-icon icon="arrow-up"></b-icon>
           </b-button>
-          <b-button variant="primary">
+          <b-button
+            variant="primary"
+            :disabled="entry.down"
+            @click="manageButton('downB', entry.ix)"
+          >
             <b-icon icon="arrow-down"></b-icon>
           </b-button>
         </b-row>
@@ -89,6 +105,23 @@
           </b-col>
         </b-row>
       </b-col>
+      <b-col>
+        <b-row>
+          <b-col>
+            <label class="font-weight-bold">Priorità</label>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col>
+            <b-form-select
+              id="selReleType"
+              v-model="entry.priorityDisp"
+              :options="deviceList"
+              @change="checkField"
+            ></b-form-select>
+          </b-col>
+        </b-row>
+      </b-col>
     </b-row>
   </div>
 </template>
@@ -107,7 +140,7 @@ export default {
     picker: DatetimeTimePicker,
     slider: VueSlider
   },
-  props: ["model" , "refresh"],
+  props: ["model", "deviceList"],
   data: function() {
     return {
       dateOn: "00:00",
@@ -115,7 +148,7 @@ export default {
       maxTemp: 25,
       minTemp: 10,
       intTemp: 0.5,
-      tmpData: {},
+      //tmpData: {},
       tmpSaveData: {}
     };
   },
@@ -126,78 +159,87 @@ export default {
     }
   },
   beforeMount: function() {
-    console.log(">>>> DayProgramming : beforeMount ");
-    //this.resetConfiguration();
+    console.log(">>>> DayProgramming : beforeMount : reset configuration..");
+    this.updateButton();
+    this.resetConfiguration();
   },
   mounted: function() {
-    console.log(">>>> DayProgramming : mounted : Load configuration..");
-    this.resetConfiguration();
+    console.log(">>>> DayProgramming : mounted");
   },
   beforeUpdate: function() {
     console.log(">>>> DayProgramming : beforeUpdate..");
+    this.updateButton();
   },
-  updated: function() {
-    console.log(">>>> DayProgramming : Update..");
-  },
+  // updated: function() {
+  //   console.log(">>>> DayProgramming : Update..");
+  // },
   methods: {
     checkField(event) {
       let change = false;
-      for (let ix = 0; ix < this.tmpData.prog.length; ix++) {
-        let rec = this.tmpData.prog[ix];
-        let recSave = this.tmpSaveData.prog[ix];
-        let ts = this.getNumFromData(new Date(rec.oraOn));
-        let te = this.getNumFromData(new Date(rec.oraOff));
-        rec.timeStart = ts;
-        rec.timeEnd = te;
-        change =
-          change ||
-          rec.minTemp != recSave.minTemp ||
-          rec.timeStart != recSave.timeStart ||
-          rec.timeEnd != recSave.timeEnd ||
-          rec.priorityDisp != recSave.priorityDisp;
-        //console.log("Start : " + ts + " - End : " + te);
+      if (this.model.prog.length != this.tmpSaveData.prog.length) change = true;
+      else {
+        for (let ix = 0; ix < this.model.prog.length; ix++) {
+          let rec = this.model.prog[ix];
+          let recSave = this.tmpSaveData.prog[ix];
+          let ts = this.getNumFromData(new Date(rec.oraOn));
+          let te = this.getNumFromData(new Date(rec.oraOff));
+          rec.timeStart = ts;
+          rec.timeEnd = te;
+          change =
+            change ||
+            rec.minTemp != recSave.minTemp ||
+            rec.timeStart != recSave.timeStart ||
+            rec.timeEnd != recSave.timeEnd ||
+            rec.priorityDisp != recSave.priorityDisp;
+        }
       }
-      //console.log("Current : " + JSON.stringify(this.tmpData));
-      //console.log("Last    : " + this.tmpSaveData);
       if (change) {
         console.log("Check for changes ..");
-        this.$emit("updateConfiguration", this.tmpData);
-        this.tmpSaveData = JSON.parse(JSON.stringify(this.tmpData));
+        this.$emit("updateConfiguration", this.model);
+        this.tmpSaveData = JSON.parse(JSON.stringify(this.model));
       } else console.log("No changes found ..");
     },
     resetConfiguration() {
       console.log("DayProgramming : reset configuration");
-      var modelOut = JSON.parse(JSON.stringify(this.model));
-      for (let ix = 0; ix < modelOut.prog.length; ix++) {
-        let rec = modelOut.prog[ix];
-        rec.oraOn = this.getDataFromNum(rec.timeStart);
-        rec.oraOff = this.getDataFromNum(rec.timeEnd);
-        rec.idOraOn = "On" + modelOut.idDay + "_" + ix;
-        rec.idOraOff = "Off" + modelOut.idDay + "_" + ix;
-        rec.ix = ix;
-        console.log("Record : " + JSON.stringify(rec));
-      }
-      this.tmpData = modelOut;
-      this.tmpSaveData = JSON.parse(JSON.stringify(this.tmpData));
-      //this.idOra1 = "O1" + modelOut.idDay;
-      //this.idOra2 = "O2" + modelOut.idDay;
+      this.tmpSaveData = JSON.parse(JSON.stringify(this.model));
     },
     getNumFromData(dt) {
       let h = dt.getHours();
       let m = dt.getMinutes();
       return h * 60 + m;
     },
-    getDataFromNum(num) {
-      let h = "00" + ((num / 60) >> 0);
-      let m = "00" + (num - h * 60);
-      let now = new Date();
-      now.setHours(h);
-      now.setMinutes(m);
-      now.setSeconds(0);
-      now.setMilliseconds(0);
-      now.getHours;
-      return moment(now).format();
-      //return h.substring(h.length - 2) + ":" + m.substring(m.length - 2);
+    updateButton() {
+      for (let ix = 0; ix < this.model.prog.length; ix++) {
+        let rec = this.model.prog[ix];
+        rec.up = ix === 0;
+        rec.down = ix === this.model.prog.length - 1;
+      }
+    },
+    manageButton(action, ix) {
+      console.log("Button : " + action);
+      console.log("Button : " + ix);
+      let out = [];
+      if (action === "addB" || action === "deleteB") {
+        // add
+        for (let i = 0; i < this.model.prog.length; i++) {
+          if (i === ix) {
+            if (action === "addB") {
+              out.push(this.model.prog[i]);
+              out.push(JSON.parse(JSON.stringify(this.model.prog[i])));
+            }
+          } else out.push(this.model.prog[i]);
+        }
+        this.model.prog = out;
+      } else if (action === "upB" || action === "downB") {
+        let iy = ix + (action === "upB" ? -1 : 1);
+        let s = this.model.prog[ix];
+        this.model.prog[ix] = this.model.prog[iy];
+        this.model.prog[iy] = s;
+      }
+      // rebuild index
+      for (let i = 0; i < this.model.prog.length; i++)
+        this.model.prog[i].ix = i;
+      this.checkField();
     }
   }
 };
