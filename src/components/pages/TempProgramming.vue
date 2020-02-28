@@ -56,7 +56,7 @@
                 variant="primary"
                 v-on:click="attivaProgramming"
                 :disabled="disableAttiva"
-                class="mx-0"
+                class="mx-1"
                 style="width: 90px;"
                 >Attiva</b-button
               >
@@ -226,7 +226,7 @@
               >
               <b-button
                 variant="primary"
-                class="mx-0"
+                class="mx-1"
                 style="width: 90px;"
                 v-on:click="updateProgramming"
                 :disabled="disableAggiorna"
@@ -237,12 +237,35 @@
         </b-card>
       </div>
     </div>
+    <b-modal
+      v-model="showCopyModal"
+      id="modalConfiguration"
+      :title="copyModel.title"
+      @ok="updateAfterCopy"
+      :ok-disabled="copyModel.disable"
+    >
+      <div v-for="field in copyModel.fields" :key="field.id">
+        <b-form-group
+          label-cols-lg="8"
+          :label="field.label"
+          v-if="field.id != tabIndex"
+        >
+          <div>
+            <b-form-checkbox
+              :id="'ID' + field.id"
+              v-model="field.value"
+              :placeholder="field.label"
+              @input="changeAfterCopy"
+            ></b-form-checkbox>
+          </div>
+        </b-form-group>
+      </div>
+    </b-modal>
   </div>
 </template>
 <script>
 import moment from "moment";
 import HttpServer from "@/services/httpMonitorRest";
-import ModalConfiguration from "@/components/common/ModalConfiguration";
 import { TypeAction, TypeDeviceType, TypeProgramming } from "@/services/config";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
@@ -255,6 +278,12 @@ export default {
   },
   data: function() {
     return {
+      copyModel: {
+        title:
+          "Seleziona i giorni un cui copiare la programmazione selezionata",
+        fields: []
+      },
+      showCopyModal: false,
       listaSensori: [],
       programmazioneCompleta: null,
       programmazioneGiornaliera: [],
@@ -270,13 +299,40 @@ export default {
       intTemp: 0.5,
       disableAggiorna: true,
       disableElimina: false,
-      disableAttiva: false,
-      refresh: ""
+      disableAttiva: false
     };
   },
   beforeMount: function() {
     this.recuperaElencoSensori();
     this.getProgramming();
+    this.copyModel.fields.push({
+      label: "Lunedì",
+      id: 0
+    });
+    this.copyModel.fields.push({
+      id: 1,
+      label: "Martedì"
+    });
+    this.copyModel.fields.push({
+      id: 2,
+      label: "Mercoledì"
+    });
+    this.copyModel.fields.push({
+      id: 3,
+      label: "Giovedì"
+    });
+    this.copyModel.fields.push({
+      id: 4,
+      label: "Venerdì"
+    });
+    this.copyModel.fields.push({
+      id: 5,
+      label: "Sabato"
+    });
+    this.copyModel.fields.push({
+      id: 6,
+      label: "Domenica"
+    });
   },
   computed: {},
   methods: {
@@ -339,29 +395,34 @@ export default {
           timeEnd: rec.timeEnd,
           priorityDisp: rec.priorityDisp
         });
-        let recSave;
       }
-      console.log(
-        "Update  Day programming BEFORE :" +
-          JSON.stringify(
-            this.programmazioneCompleta.programming[this.programmaSelezionato]
-              .dayProgramming[model.idDay]
-          )
-      );
+      // console.log(
+      //   "Update  Day programming BEFORE :" +
+      //     JSON.stringify(
+      //       this.programmazioneCompleta.programming[this.programmaSelezionato]
+      //         .dayProgramming[model.idDay]
+      //     )
+      // );
+      this.reorganizeDayProgrammingModel(record);
       this.programmazioneCompleta.programming[
         this.programmaSelezionato
       ].dayProgramming[model.idDay] = record;
-      console.log(
-        "Update  Day programming AFTER : " +
-          JSON.stringify(
-            this.programmazioneCompleta.programming[this.programmaSelezionato]
-              .dayProgramming[model.idDay]
-          )
-      );
+      // console.log(
+      //   "Update  Day programming AFTER : " +
+      //     JSON.stringify(
+      //       this.programmazioneCompleta.programming[this.programmaSelezionato]
+      //         .dayProgramming[model.idDay]
+      //     )
+      // );
       this.disableAggiorna = false;
     },
     copyProgramming() {
       console.log("Copy programming");
+      for (let i = 0; i < this.copyModel.fields.length; i++) {
+        this.copyModel.fields[i].value = false;
+      }
+      this.copyModel.disable = false;
+      this.showCopyModal = true;
     },
     deleteProgramming() {
       console.log(
@@ -433,6 +494,24 @@ export default {
       }
       return index;
     },
+    changeAfterCopy() {
+      let dis = true;
+      for (let i = 0; i < this.copyModel.fields.length; i++)
+        if (this.copyModel.fields[i].value) {
+          dis = false;
+          break;
+        }
+      this.copyModel.disable = dis;
+    },
+    updateAfterCopy() {
+      let current = this.programmazioneGiornaliera[this.tabIndex];
+      for (let i = 0; i < this.copyModel.fields.length; i++)
+        if (this.copyModel.fields[i].value) {
+          console.log("Copio Giorno " + i);
+          this.programmazioneGiornaliera[i].prog = current.prog;
+          this.updateDayProgramming(this.programmazioneGiornaliera[i]);
+        }
+    },
     /**
      * Update view after any programming change
      */
@@ -454,11 +533,6 @@ export default {
         ed.push(opt);
       }
       let programmaAttivo = index === indexDefault;
-      // this.programmaGiornaliero = JSON.parse(
-      //   JSON.stringify(programming[index].dayProgramming)
-      // );
-      // this.programmaGiornaliero = programming[index].dayProgramming;
-
       this.optionsElencoProgrammi = ed;
       this.disableAggiorna = true;
       this.showPage = true;
@@ -471,19 +545,32 @@ export default {
           this.programmaSelezionato
       );
       // praparo dati per DayProgramming
+
       let dp = JSON.parse(JSON.stringify(programming[index].dayProgramming));
       for (let iy = 0; iy < dp.length; iy++) {
-        for (let ix = 0; ix < dp[iy].prog.length; ix++) {
-          let rec = dp[iy].prog[ix];
-          rec.oraOn = this.getDataFromNum(rec.timeStart);
-          rec.oraOff = this.getDataFromNum(rec.timeEnd);
-          rec.idOraOn = "on_" + iy + "_" + ix;
-          rec.idOraOff = "off_" + iy + "_" + ix;
-          rec.ix = ix;
-          //console.log("Record : " + JSON.stringify(rec));
-        }
+        this.reorganizeDayProgrammingModel(dp[iy]);
+        // for (let ix = 0; ix < dp[iy].prog.length; ix++) {
+        //   let rec = dp[iy].prog[ix];
+        //   rec.oraOn = this.getDataFromNum(rec.timeStart);
+        //   rec.oraOff = this.getDataFromNum(rec.timeEnd);
+        //   rec.idOraOn = "on_" + iy + "_" + ix;
+        //   rec.idOraOff = "off_" + iy + "_" + ix;
+        //   rec.ix = ix;
+        //   //console.log("Record : " + JSON.stringify(rec));
+        // }
       }
       this.programmazioneGiornaliera = dp;
+    },
+    reorganizeDayProgrammingModel(model) {
+      for (let ix = 0; ix < model.prog.length; ix++) {
+        let rec = model.prog[ix];
+        rec.oraOn = this.getDataFromNum(rec.timeStart);
+        rec.oraOff = this.getDataFromNum(rec.timeEnd);
+        rec.idOraOn = "on_" + model.idDay + "_" + ix;
+        rec.idOraOff = "off_" + model.idDay + "_" + ix;
+        rec.ix = ix;
+        //console.log("Record : " + JSON.stringify(rec));
+      }
     },
     getDataFromNum(num) {
       let h = "00" + ((num / 60) >> 0);
