@@ -80,9 +80,9 @@
         >
           <b-form-select
             id="selDisp"
-            v-model="dispositivoSelezionato"
+            v-model="sensoreSelezionato"
             :options="optionsElencoSensori"
-            @change="showDettaglioDispositivo"
+            @change="checkUpdateField"
           ></b-form-select>
         </b-form-group>
         <b-row>
@@ -342,6 +342,7 @@ export default {
       elencoDispositiviOrig: [],
       optionsElencoDispositivi: [],
       optionsElencoSensori: [],
+      sensoreSelezionato: null,
       dispositivoSelezionato: null,
       disableAggiorna: true,
       type: TypeDeviceType
@@ -366,6 +367,14 @@ export default {
         this.elencoDispositivi[this.dispositivoSelezionato].flagReleLight =
           tipo === "2" ? 1 : 0;
         changed = true;
+      }
+      if (!changed) {
+        this.elencoDispositivi[
+          this.dispositivoSelezionato
+        ].primarySensor = this.sensoreSelezionato;
+        changed =
+          this.elencoDispositivi[this.dispositivoSelezionato].primarySensor !=
+          this.elencoDispositiviOrig[this.dispositivoSelezionato].primarySensor;
       }
       if (!changed) {
         changed =
@@ -452,7 +461,7 @@ export default {
             let dati = response.data;
             if (dati.error.code === 0) {
               this.elencoDispositiviOrig = dati.data;
-              this.elencoDispositivi = JSON.parse(JSON.stringify(dati.data));
+              let elencoDispositivi = JSON.parse(JSON.stringify(dati.data));
               var data = dati.data;
               let es = [];
 
@@ -462,7 +471,7 @@ export default {
                 text: "Seleziona un dispositivo"
               });
               es.push({
-                value: null,
+                value: "",
                 text: "Seleziona un sensore"
               });
               let iy = 0;
@@ -478,34 +487,47 @@ export default {
                   case 1:
                     deviceName = "ARDUINO";
                     es.push({
-                      value: iy++,
+                      value: data[ix].macAddress,
                       text: data[ix].location
                     });
                     break;
                   case 2:
                     deviceName = "SHELLY";
-                    if (this.elencoDispositivi[ix].flagReleTemp === 1)
-                      this.elencoDispositivi[ix].tipoRele = "1";
-                    else if (this.elencoDispositivi[ix].flagReleLight === 1)
-                      this.elencoDispositivi[ix].tipoRele = "2";
-                    else this.elencoDispositivi[ix].tipoRele = "0";
+                    if (elencoDispositivi[ix].flagReleTemp === 1)
+                      elencoDispositivi[ix].tipoRele = "1";
+                    else if (elencoDispositivi[ix].flagReleLight === 1)
+                      elencoDispositivi[ix].tipoRele = "2";
+                    else elencoDispositivi[ix].tipoRele = "0";
+                    //
+                    if (
+                      typeof elencoDispositivi[ix].primarySensor ===
+                        "undefined" ||
+                      elencoDispositivi[ix].primarySensor === ""
+                    ) {
+                      this.sensoreSelezionato = "";
+                      // dato aggiunto
+                      elencoDispositivi[ix].primarySensor = "";
+                      this.elencoDispositiviOrig[ix].primarySensor = "";
+                    } else
+                      this.sensoreSelezionato =
+                        elencoDispositivi[ix].primarySensor;
                     break;
                 }
                 // propago in copia
-                this.elencoDispositiviOrig[
-                  ix
-                ].tipoRele = this.elencoDispositivi[ix].tipoRele;
-                this.elencoDispositivi[ix].deviceTypeName = deviceName;
-                this.elencoDispositivi[ix].lastAccessD = moment(
+                this.elencoDispositiviOrig[ix].tipoRele =
+                  elencoDispositivi[ix].tipoRele;
+                elencoDispositivi[ix].deviceTypeName = deviceName;
+                elencoDispositivi[ix].lastAccessD = moment(
                   data[ix].lastAccess
                 ).format("DD/MM/YYYY HH:mm");
-                this.elencoDispositivi[ix].lastUpdateD = moment(
+                elencoDispositivi[ix].lastUpdateD = moment(
                   data[ix].lastUpdate
                 ).format("DD/MM/YYYY HH:mm");
-                this.elencoDispositivi[ix].lastCheckD = moment(
+                elencoDispositivi[ix].lastCheckD = moment(
                   data[ix].lastCheck
                 ).format("DD/MM/YYYY HH:mm");
               }
+              this.elencoDispositivi = elencoDispositivi;
               this.optionsElencoSensori = es;
               if (data.length === 1) {
                 this.showListDispositivi = false;
