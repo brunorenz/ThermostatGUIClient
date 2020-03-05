@@ -1,67 +1,30 @@
 <template>
-  <div>
+  <b-div>
+    <h5 class="card-title mb-1">Temperatura Esterna</h5>
     <b-row>
-      <b-col sm="9">
-        <h4 id="traffic" class="card-title mb-1">Relè</h4>
+      <b-col class="text-left" sm="2">
+        <h1>
+          <strong>{{ dati.name }}</strong>
+        </h1>
       </b-col>
-      <b-col sm="3" class="d-none d-md-block">
-        <ModalConfiguration
-          :model="model"
-          v-on:updateConfiguration="updateConfiguration"
-        ></ModalConfiguration>
+      <b-col sm="1">
+        <img style="width: 48px;" src="img/temperature.png" />
       </b-col>
-    </b-row>
-    <b-row
-      class="text-center"
-      v-for="datiServer in datiServers"
-      :key="datiServer.shellyId"
-    >
+      <b-col sm="2">
+        <h1>
+          <strong> {{ dati.main.temp }}° </strong>
+        </h1>
+      </b-col>
+      <b-col sm="1">
+        <img
+          style="width: 48px;"
+          :src="'img/openweather/' + dati.weather[0].icon + '@2x.png'"
+        />
+      </b-col>
       <b-col>
-        <b-row>
-          <b-col class="text-left">
-            <strong>
-              {{ datiServer.location }}
-            </strong>
-          </b-col>
-          <b-col class="text-right">
-            <strong>
-              {{ datiServer.lastAccessD }}
-            </strong>
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col sm="3" v-if="datiServer.status === 0">
-            <img
-              src="img/icons8-pastel-64-off.png"
-              @click="programSwitch(datiServer)"
-            />
-          </b-col>
-          <b-col sm="3" v-if="datiServer.status === 1">
-            <img
-              src="img/icons8-pastel-64-on.png"
-              @click="programSwitch(datiServer)"
-            />
-          </b-col>
-
-          <b-col sm="9">
-            <b-row>
-              <b-col sm="7" class="text-left">
-                Stato
-              </b-col>
-              <b-col class="text-right"
-                ><strong>{{ datiServer.progType }}</strong></b-col
-              >
-            </b-row>
-            <b-row>
-              <b-col sm="8" class="text-left">Temperatura Programmata</b-col>
-              <b-col class="text-right"><strong>01°</strong></b-col>
-            </b-row>
-            <b-row>
-              <b-col sm="8" class="text-left">Temperatura Misurata</b-col>
-              <b-col class="text-right"><strong>01°</strong></b-col>
-            </b-row>
-          </b-col>
-        </b-row>
+        <h1>
+          <strong> {{ dati.weather[0].description }}</strong>
+        </h1>
       </b-col>
     </b-row>
     <b-modal
@@ -94,7 +57,7 @@
         </div>
       </b-form-group>
     </b-modal>
-  </div>
+  </b-div>
 </template>
 
 <script>
@@ -106,7 +69,7 @@ import { getConfiguration, TypeStatus, checkSecurity } from "@/services/config";
 import router from "@/router/index";
 
 export default {
-  name: "ReleMonitor",
+  name: "WeatherMonitor",
   components: {
     ModalConfiguration
   },
@@ -123,7 +86,8 @@ export default {
       model: {
         title: "Configurazione Grafici Sensori",
         fields: []
-      }
+      },
+      dati: {}
     };
   },
   created: function() {
@@ -144,7 +108,7 @@ export default {
     this.resetConfiguration();
   },
   mounted: function() {
-    this.getReleData();
+    this.getWeatherData();
   },
   methods: {
     updateStatus(model) {
@@ -253,47 +217,14 @@ export default {
           // An error occurred
         });
     },
-    getReleData() {
+    getWeatherData() {
       const httpService = new HttpServer();
       try {
         httpService
-          .getReleData()
+          .getWeatherInfo()
           .then(response => {
             let sd = [];
-            let dati = response.data;
-            if (dati.error.code === 0) {
-              var data = dati.data;
-              for (let ix = 0; ix < data.length; ix++) {
-                let d = data[ix];
-                // OFF: 0, ON: 1, MANUAL: 2, AUTO: 3
-                if (d.flagReleTemp === 1) {
-                  switch (d.statusThermostat) {
-                    case TypeStatus.OFF:
-                      d.progType = "SPENTO";
-                      break;
-                    case TypeStatus.ON:
-                      d.progType = "ACCESO";
-                      break;
-                    case TypeStatus.MANUAL:
-                      d.progType = "MANUALE";
-                      break;
-                    case TypeStatus.AUTO:
-                      d.progType = "AUTOMATICO";
-                      break;
-                  }
-                  this.tmpModalData.currentProg = d.statusThermostat;
-                }
-                d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
-                sd.push(d);
-              }
-            } else {
-              console.log("Nessun dato da visualizzare");
-            }
-            this.datiServers = sd;
-            this.timerId = setTimeout(
-              this.getReleData,
-              this.tmpModalData.timeout
-            );
+            this.dati = response.data;
           })
           .catch(error => {
             this.showMsgConfermaEsecuzione(

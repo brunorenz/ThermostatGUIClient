@@ -40,7 +40,9 @@ axios.interceptors.response.use(
   function(error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
+    let a = error;
     if (
+      typeof error.response != "undefined" &&
       typeof error.response.status != "undefined" &&
       error.response.status === 403
     ) {
@@ -104,6 +106,12 @@ export default class HttpMonitor {
     return axios.post(url, "data=" + JSON.stringify(inputData), {
       headers: this.getPostSecurityHeader(false)
     });
+  }
+
+  getWeatherInfo() {
+    let url = this.configuration.weatherUrl;
+    console.log("Call " + url);
+    return axios.get(url, {});
   }
 
   getConfiguration() {
@@ -199,7 +207,7 @@ export default class HttpMonitor {
       }
     );
   }
-  
+
   updateConfiguration(inputData) {
     let url = this.getUrl(UPDATE_CONFIGURATION);
     return axios.post(url, "data=" + JSON.stringify(inputData), {
