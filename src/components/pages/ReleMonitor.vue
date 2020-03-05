@@ -18,7 +18,7 @@
     >
       <b-col>
         <b-row>
-          <b-col class="text-left">
+          <b-col class="text-left" sm="8">
             <strong>
               {{ datiServer.location }}
             </strong>
