@@ -12,11 +12,16 @@ const serverUrlD = local
   : serverUrlRemote;
 
 const weatherUrl =
-  "https://api.openweathermap.org/data/2.5/weather?id=3182351&lang=it&units=metric&APPID=2c5c4639e9d55c06402b4396433a5944";
+  "https://api.openweathermap.org/data/2.5/weather?lang=it&units=metric&APPID=2c5c4639e9d55c06402b4396433a5944";
 
 let configuration = {
   serverUrl: process.env.NODE_ENV === "production" ? serverUrlP : serverUrlD,
-  weatherUrl: weatherUrl,
+  weatherMonitor: {
+    weatherUrl: weatherUrl,
+    id: 3182351,
+    timeout: 60000
+  },
+
   releStatistics: {
     timeout: 30000,
     hourInterval: 5,

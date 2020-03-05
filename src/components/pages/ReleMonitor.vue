@@ -168,7 +168,6 @@ export default {
                     this.showMsgConfermaEsecuzione(
                       "Aggiornamento effettuato con successo"
                     );
-                    //                    this.tmpModalData.currentConfig = null;
                     this.getReleData();
                   } else {
                     this.showMsgConfermaEsecuzione(

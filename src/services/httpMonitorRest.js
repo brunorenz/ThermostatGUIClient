@@ -109,7 +109,8 @@ export default class HttpMonitor {
   }
 
   getWeatherInfo() {
-    let url = this.configuration.weatherUrl;
+    let url = this.configuration.weatherMonitor.weatherUrl;
+    url = url + "&id=" + this.configuration.weatherMonitor.id;
     console.log("Call " + url);
     return axios.get(url, {});
   }
