@@ -5,10 +5,17 @@
         <h4 class="card-title mb-1">Sensori</h4>
       </b-col>
       <b-col sm="3" class="d-none d-md-block">
-        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+        <ModalConfiguration
+          :model="model"
+          v-on:updateConfiguration="updateConfiguration"
+        ></ModalConfiguration>
       </b-col>
     </b-row>
-    <b-row class="text-center" v-for="datiServer in datiServers" :key="datiServer.macAddress">
+    <b-row
+      class="text-center"
+      v-for="datiServer in datiServers"
+      :key="datiServer.macAddress"
+    >
       <b-col>
         <b-row>
           <b-col>
@@ -206,8 +213,10 @@ export default {
               var data = dati.data;
               for (let ix = 0; ix < data.length; ix++) {
                 let d = data[ix];
-                d.temperature = Math.floor(d.temperature * 100) / 100;
-                d.light = Math.floor(d.light * 100) / 100;
+                //d.temperature = Math.floor(d.temperature * 100) / 100;
+                //d.light = Math.floor(d.light * 100) / 100;
+                d.temperature = d.temperature.toFixed(2);
+                d.light = d.light.toFixed(2);
 
                 //
                 sd.push(d);

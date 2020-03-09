@@ -53,12 +53,16 @@
               >
             </b-row>
             <b-row>
-              <b-col sm="8" class="text-left">Temperatura Programmata</b-col>
-              <b-col class="text-right"><strong>01°</strong></b-col>
+              <b-col sm="8" class="text-left">Temperatura Misurata</b-col>
+              <b-col class="text-right"
+                ><strong>{{ datiServer.temperature }}</strong></b-col
+              >
             </b-row>
             <b-row>
-              <b-col sm="8" class="text-left">Temperatura Misurata</b-col>
-              <b-col class="text-right"><strong>01°</strong></b-col>
+              <b-col sm="8" class="text-left">Temperatura Programmata</b-col>
+              <b-col class="text-right"
+                ><strong>{{ datiServer.temperatureRif }}</strong></b-col
+              >
             </b-row>
           </b-col>
         </b-row>
@@ -263,7 +267,10 @@ export default {
             if (dati.error.code === 0) {
               var data = dati.data;
               for (let ix = 0; ix < data.length; ix++) {
-                let d = data[ix];
+                let out = {};
+                let d = data[ix].configuration;
+                d.shellyId = d.shellyMqttId;
+                d.status = data[ix].shelly.status;
                 // OFF: 0, ON: 1, MANUAL: 2, AUTO: 3
                 if (d.flagReleTemp === 1) {
                   switch (d.statusThermostat) {
@@ -283,6 +290,13 @@ export default {
                   this.tmpModalData.currentProg = d.statusThermostat;
                 }
                 d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
+                let t = data[ix].temperature;
+                d.temperature = t.temperature.toFixed(2) + "°";
+                d.temperatureRif = "N/A";
+                if (t.temperatureMeasure === 2)
+                  d.temperatureRif = t.minTempManual.toFixed(2) + "°";
+                else if (t.temperatureMeasure === 3)
+                  d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
                 sd.push(d);
               }
             } else {

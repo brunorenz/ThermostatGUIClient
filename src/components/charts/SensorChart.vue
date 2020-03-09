@@ -6,7 +6,10 @@
         <h6 class="card-subtitle mb-0 text-muted">{{ intervallo }}</h6>
       </b-col>
       <b-col sm="5" class="d-none d-md-block">
-        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+        <ModalConfiguration
+          :model="model"
+          v-on:updateConfiguration="updateConfiguration"
+        ></ModalConfiguration>
       </b-col>
     </b-row>
     <!--   v-for="entry in tmpData.prog" :key="entry.id">-->
@@ -42,7 +45,9 @@
     <b-card v-if="showGraphFull">
       <b-row>
         <b-col sm="7">
-          <h6 id="traffic" class="card-title mb-1">Umidità e Pressione Atmosferica</h6>
+          <h6 id="traffic" class="card-title mb-1">
+            Umidità e Pressione Atmosferica
+          </h6>
         </b-col>
       </b-row>
       <b-row>
@@ -131,8 +136,7 @@ export default {
   beforeMount: function() {
     console.log("Load configuration.." + screen.width);
     this.configuration = getConfiguration();
-    if (this.full)
-    {
+    if (this.full) {
       this.configuration.sensorStatistics.type = "day";
       this.configuration.sensorStatistics.full = true;
     }
@@ -321,10 +325,10 @@ export default {
                   let ixGD = (currentTime - rele.startTime) / msInterval;
                   try {
                     if (ixGD < graph1.dati.length) {
-                      graph1.dati[ixGD] = entry.temperature;
-                      graph2.dati[ixGD] = entry.light;
-                      graph3.dati[ixGD] = entry.humidity;
-                      graph4.dati[ixGD] = entry.pressure;
+                      graph1.dati[ixGD] = entry.temperature.toFixed(2);
+                      graph2.dati[ixGD] = entry.light.toFixed(2);
+                      graph3.dati[ixGD] = entry.humidity.toFixed(2);
+                      graph4.dati[ixGD] = entry.pressure.toFixed(2);
                     } else console.err("Indice errato " + ixGD);
                   } catch (error) {
                     console.error(
