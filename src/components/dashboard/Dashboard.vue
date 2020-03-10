@@ -20,6 +20,7 @@
         </b-card>
       </b-col>
     </b-row>
+    <!--    
     <b-row>
       <b-col sm="12">
         <b-card>
@@ -34,6 +35,7 @@
         </b-card>
       </b-col>
     </b-row>
+-->
     <div class="row">
       <div class="col-md-4 col-sm-4 col-xs-12">
         <div class="ourTeam-box text-center">
