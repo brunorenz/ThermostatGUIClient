@@ -1,11 +1,11 @@
 import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
 
-const local = true;
-const remote = false;
+const local = false;
+const remote = true;
 const serverUrlP = "/therm/rest/";
 const serverUrlR = "http://srvwas1.bpbari.it:8099/rest/";
 const serverUrlRemote = remote
-  ? "https://65bruno.ddns.net/therm/rest/"
+  ? "https://therm.65bruno.it/therm/rest/"
   : "http://192.168.0.101:8101/therm/rest/";
 const serverUrlD = local
   ? "http://localhost:8101/therm/rest/"
