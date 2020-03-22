@@ -31,7 +31,7 @@
             <div>
               <strong>
                 Temperatura
-                {{ datiServer.temperature }}°
+                {{ datiServer.temperatureS }}°
               </strong>
             </div>
             <VueSvgGauge
@@ -52,7 +52,7 @@
             <div>
               <strong>
                 Luce
-                {{ datiServer.light }}%
+                {{ datiServer.lightS }}%
               </strong>
             </div>
             <VueSvgGauge
@@ -215,9 +215,10 @@ export default {
                 let d = data[ix];
                 //d.temperature = Math.floor(d.temperature * 100) / 100;
                 //d.light = Math.floor(d.light * 100) / 100;
-                d.temperature = d.temperature.toFixed(2);
-                d.light = d.light.toFixed(2);
-
+                //d.temperature = d.temperature.toFixed(2);
+                //d.light = d.light.toFixed(2);
+                d.temperatureS = d.temperature.toFixed(2);
+                d.lightS = d.light.toFixed(2);
                 //
                 sd.push(d);
                 d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");

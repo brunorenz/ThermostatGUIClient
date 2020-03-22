@@ -1,68 +1,49 @@
 <template>
-  <div>
+  <div v-if="tmpModalData.windowsOpen">
     <b-row>
       <b-col sm="9">
         <h4 id="traffic" class="card-title mb-1">Relè</h4>
       </b-col>
       <b-col sm="3" class="d-none d-md-block">
-        <ModalConfiguration
-          :model="model"
-          v-on:updateConfiguration="updateConfiguration"
-        ></ModalConfiguration>
+        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
       </b-col>
     </b-row>
-    <b-row
-      class="text-center"
-      v-for="datiServer in datiServers"
-      :key="datiServer.shellyId"
-    >
+    <b-row class="text-center" v-for="datiServer in datiServers" :key="datiServer.shellyId">
       <b-col>
         <b-row>
           <b-col class="text-left" sm="8">
-            <strong>
-              {{ datiServer.location }}
-            </strong>
+            <strong>{{ datiServer.location }}</strong>
           </b-col>
           <b-col class="text-right">
-            <strong>
-              {{ datiServer.lastAccessD }}
-            </strong>
+            <strong>{{ datiServer.lastAccessD }}</strong>
           </b-col>
         </b-row>
         <b-row>
           <b-col sm="3" v-if="datiServer.status === 0">
-            <img
-              src="img/icons8-pastel-64-off.png"
-              @click="programSwitch(datiServer)"
-            />
+            <img src="img/icons8-pastel-64-off.png" @click="programSwitch(datiServer)" />
           </b-col>
           <b-col sm="3" v-if="datiServer.status === 1">
-            <img
-              src="img/icons8-pastel-64-on.png"
-              @click="programSwitch(datiServer)"
-            />
+            <img src="img/icons8-pastel-64-on.png" @click="programSwitch(datiServer)" />
           </b-col>
 
           <b-col sm="9">
             <b-row>
-              <b-col sm="7" class="text-left">
-                Stato
+              <b-col sm="7" class="text-left">Stato</b-col>
+              <b-col class="text-right">
+                <strong>{{ datiServer.progType }}</strong>
               </b-col>
-              <b-col class="text-right"
-                ><strong>{{ datiServer.progType }}</strong></b-col
-              >
             </b-row>
-            <b-row>
+            <b-row v-if="datiServer.flagReleTemp === 1">
               <b-col sm="8" class="text-left">Temperatura Misurata</b-col>
-              <b-col class="text-right"
-                ><strong>{{ datiServer.temperature }}</strong></b-col
-              >
+              <b-col class="text-right">
+                <strong>{{ datiServer.temperature }}</strong>
+              </b-col>
             </b-row>
-            <b-row>
+            <b-row v-if="datiServer.flagReleTemp === 1">
               <b-col sm="8" class="text-left">Temperatura Programmata</b-col>
-              <b-col class="text-right"
-                ><strong>{{ datiServer.temperatureRif }}</strong></b-col
-              >
+              <b-col class="text-right">
+                <strong>{{ datiServer.temperatureRif }}</strong>
+              </b-col>
             </b-row>
           </b-col>
         </b-row>
@@ -88,10 +69,10 @@
             <b-row>
               <b-form-radio class="mx-2" value="1">ACCESO</b-form-radio>
             </b-row>
-            <b-row>
+            <b-row v-if="tmpModalData.currentConfig.flagReleTemp === 1">
               <b-form-radio class="mx-2" value="2">MANUALE</b-form-radio>
             </b-row>
-            <b-row>
+            <b-row v-if="tmpModalData.currentConfig.flagReleTemp === 1">
               <b-form-radio class="mx-2" value="3">AUTOMATICO</b-form-radio>
             </b-row>
           </b-form-radio-group>
@@ -120,7 +101,7 @@ export default {
       datiServers: [],
       tmpModalData: {
         disable: false,
-        windowsOpen: true,
+        windowsOpen: false,
         showUpdateModal: false,
         currentProg: 0
       },
@@ -133,7 +114,7 @@ export default {
   created: function() {
     let name = `${this.$options.name}`;
     console.log("Create component " + name + " .. TIMER : " + this.timerId);
-    this.tmpModalData.windowsOpen = true;
+    //this.tmpModalData.windowsOpen = true;
   },
   beforeDestroy: function() {
     let name = `${this.$options.name}`;
@@ -243,6 +224,7 @@ export default {
     programSwitch(config) {
       checkSecurity(router);
       this.tmpModalData.currentConfig = config;
+      this.tmpModalData.currentProg = config.flagReleTemp === 1 ? config.statusThermostat : config.statusLight;
       this.tmpModalData.showUpdateModal = true;
     },
     showMsgConfermaEsecuzione(message) {
@@ -271,8 +253,9 @@ export default {
                 let d = data[ix].configuration;
                 d.shellyId = d.shellyMqttId;
                 d.status = data[ix].shelly.status;
-                // OFF: 0, ON: 1, MANUAL: 2, AUTO: 3
+                d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
                 if (d.flagReleTemp === 1) {
+                  // OFF: 0, ON: 1, MANUAL: 2, AUTO: 3
                   switch (d.statusThermostat) {
                     case TypeStatus.OFF:
                       d.progType = "SPENTO";
@@ -287,17 +270,32 @@ export default {
                       d.progType = "AUTOMATICO";
                       break;
                   }
-                  this.tmpModalData.currentProg = d.statusThermostat;
+                  let t = data[ix].temperature;
+                  d.temperature = t.temperature.toFixed(2) + "°";
+                  d.temperatureRif = "N/A";
+                  if (t.temperatureMeasure === 2)
+                    d.temperatureRif = t.minTempManual.toFixed(2) + "°";
+                  else if (t.temperatureMeasure === 3)
+                    d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
+                  sd.push(d);
+                } else if (d.flagReleLight === 1) {
+                  switch (d.statusLight) {
+                    case TypeStatus.OFF:
+                      d.progType = "SPENTO";
+                      break;
+                    case TypeStatus.ON:
+                      d.progType = "ACCESO";
+                      break;
+                    case TypeStatus.MANUAL:
+                      d.progType = "MANUALE";
+                      break;
+                    case TypeStatus.AUTO:
+                      d.progType = "AUTOMATICO";
+                      break;
+                  }
+
+                  sd.push(d);
                 }
-                d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
-                let t = data[ix].temperature;
-                d.temperature = t.temperature.toFixed(2) + "°";
-                d.temperatureRif = "N/A";
-                if (t.temperatureMeasure === 2)
-                  d.temperatureRif = t.minTempManual.toFixed(2) + "°";
-                else if (t.temperatureMeasure === 3)
-                  d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
-                sd.push(d);
               }
             } else {
               console.log("Nessun dato da visualizzare");
@@ -307,6 +305,10 @@ export default {
               this.getReleData,
               this.tmpModalData.timeout
             );
+            this.tmpModalData.currentConfig = sd[0];
+            this.tmpModalData.currentProg = sd[0].statusThermostat;
+            this.tmpModalData.windowsOpen = true;
+
           })
           .catch(error => {
             this.showMsgConfermaEsecuzione(

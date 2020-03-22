@@ -1,34 +1,32 @@
 <template>
-  <div>
+  <div class="animated fadeIn" v-if="showGraph">
     <b-row>
       <b-col sm="7">
-        <h4 id="traffic" class="card-title mb-1">Grafici Relè</h4>
+        <h4 id="traffic" class="card-title mb-1">
+          {{ dataCollection.datasets[0].label }}
+        </h4>
         <h6 class="card-subtitle mb-0 text-muted">{{ intervallo }}</h6>
       </b-col>
       <b-col sm="5" class="d-none d-md-block">
-        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+        <ModalConfiguration
+          :model="model"
+          v-on:updateConfiguration="updateConfiguration"
+        ></ModalConfiguration>
       </b-col>
     </b-row>
-    <!--   v-for="dataCollection in dataCollections" :key="dataCollection.ix">-->
-    <b-card v-for="dataCollection in dataCollections" :key="dataCollection.ix">
-      <b-row>
-        <b-col>
-          <h6 class="card-title mb-1">{{ dataCollection.datasets[0].label }}</h6>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col>
-          <LineCharts
-            chartId="main-chart-01"
-            class="chart-wrapper"
-            style="height:250px;margin-top:20px;"
-            height="200"
-            :chart-data="dataCollection"
-            :options="options"
-          ></LineCharts>
-        </b-col>
-      </b-row>
-    </b-card>
+    <!--   v-for="entry in tmpData.prog" :key="entry.id">-->
+    <b-row>
+      <b-col>
+        <LineCharts
+          chartId="main-chart-01"
+          class="chart-wrapper"
+          style="height:250px;margin-top:20px;"
+          height="200"
+          :chart-data="dataCollection"
+          :options="options"
+        ></LineCharts>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
@@ -62,10 +60,10 @@ export default {
       configuration: {},
       tipoDispositivo: "",
       timerId: null,
-      dataCollections: {},
+      dataCollection: {},
       options: {},
 
-      //datiServers: [],
+      datiServers: [],
       changeCfgState: {}
     };
   },
@@ -187,16 +185,14 @@ export default {
 
           if (data.data) {
             var dati = data.data;
-            //var graphDataset = [];
+            var graphDataset = [];
             var datiServers = [];
             // create dataset empty record
-            let dataCollections = [];
             for (var i = 0; i < dati.length; i++) {
               let rele = dati[i];
               var label = [];
-              let graphDataset = {
-                //label: "Andamento Accensione  " + rele.location,
-                label: rele.location,
+              graphDataset = {
+                label: "Andamento Accensione  " + rele.location,
                 backgroundColor: "transparent",
                 borderColor: "#24d654",
                 pointHoverBackgroundColor: "#fff",
@@ -231,19 +227,21 @@ export default {
                       "ixGD : " + ixGD + " msInterval : " + msInterval
                     );
                   }
+
+                  // var d = new Date(new Date(currentTime) + msInterval);
+                  // var datestring =
+                  //   ("0" + d.getHours()).slice(-2) +
+                  //   ":" +
+                  //   ("0" + d.getMinutes()).slice(-2);
+                  // label.push(datestring);
                 }
               graphDataset.data = graph.dati;
-              dataCollections.push({
-                ix : i,
-                labels: label,
-                datasets: [graphDataset]
-              });
             }
-            // let dataCollection = {
-            //   labels: label,
-            //   datasets: [graphDataset]
-            // };
-            this.dataCollections = dataCollections;
+            let dataCollection = {
+              labels: label,
+              datasets: [graphDataset]
+            };
+            this.dataCollection = dataCollection;
             this.options = getDefaultLineOptions();
             this.intervallo = "Gruppi di " + interval + " minuti";
             // if (conf.supDate)
