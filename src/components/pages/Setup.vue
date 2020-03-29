@@ -5,8 +5,10 @@
 
     <p>
       E' possibile:
-      <br />1) Aggiornare il nome del dispositivo <br />2) Impostare modalità di
-      funzionamento del dispositivo <br />3) Impostare modalità di relevazione
+      <br />1) Aggiornare il nome del dispositivo
+      <br />2) Impostare modalità di
+      funzionamento del dispositivo
+      <br />3) Impostare modalità di relevazione
       temperatura
     </p>
 
@@ -32,9 +34,11 @@
             <label class="font-weight-bold">Tipo</label>
           </b-col>
           <b-col sm="4">
-            <label>{{
+            <label>
+              {{
               elencoDispositivi[dispositivoSelezionato].deviceTypeName
-            }}</label>
+              }}
+            </label>
           </b-col>
         </b-row>
         <b-row>
@@ -42,24 +46,24 @@
             <label class="font-weight-bold">MacAddress</label>
           </b-col>
           <b-col sm="4">
-            <label>{{
+            <label>
+              {{
               elencoDispositivi[dispositivoSelezionato].macAddress
-            }}</label>
+              }}
+            </label>
           </b-col>
           <b-col sm="2">
             <label class="font-weight-bold">IP Address</label>
           </b-col>
           <b-col sm="4">
-            <label>{{
+            <label>
+              {{
               elencoDispositivi[dispositivoSelezionato].ipAddress
-            }}</label>
+              }}
+            </label>
           </b-col>
         </b-row>
-        <b-form-group
-          label-cols-sm="2"
-          label="Posizione"
-          label-class="font-weight-bold"
-        >
+        <b-form-group label-cols-sm="2" label="Posizione" label-class="font-weight-bold">
           <b-form-input
             type="text"
             id="location"
@@ -90,17 +94,21 @@
             <label class="font-weight-bold">Ultimo Accesso</label>
           </b-col>
           <b-col sm="4">
-            <label>{{
+            <label>
+              {{
               elencoDispositivi[dispositivoSelezionato].lastAccessD
-            }}</label>
+              }}
+            </label>
           </b-col>
           <b-col sm="2">
             <label class="font-weight-bold">Ultimo Contatto</label>
           </b-col>
           <b-col sm="4">
-            <label>{{
+            <label>
+              {{
               elencoDispositivi[dispositivoSelezionato].lastCheckD
-            }}</label>
+              }}
+            </label>
           </b-col>
         </b-row>
         <div
@@ -113,9 +121,11 @@
               <label class="font-weight-bold">ID Dispositivo</label>
             </b-col>
             <b-col sm="4">
-              <label>{{
+              <label>
+                {{
                 elencoDispositivi[dispositivoSelezionato].shellyMqttId
-              }}</label>
+                }}
+              </label>
             </b-col>
           </b-row>
         </div>
@@ -127,11 +137,7 @@
       >
         <h3>Dati Controlli</h3>
         <b-card>
-          <b-form-group
-            label-cols-sm="2"
-            label="Utilizzo"
-            label-class="font-weight-bold"
-          >
+          <b-form-group label-cols-sm="2" label="Utilizzo" label-class="font-weight-bold">
             <b-form-select
               id="selReleType"
               v-model="elencoDispositivi[dispositivoSelezionato].tipoRele"
@@ -252,6 +258,22 @@
               />
             </b-col>
           </b-row>
+
+          <b-form-group
+            v-if="elencoDispositivi[dispositivoSelezionato].flagTemperatureSensor"
+            label-cols-sm="2"
+            label="Correzione Temperatura"
+            label-class="font-weight-bold"
+          >
+            <b-form-input
+              type="number"
+              id="location"
+              @input.native="checkUpdateField"
+              v-model="elencoDispositivi[dispositivoSelezionato].temperatureError"
+              required
+              trim
+            ></b-form-input>
+          </b-form-group>
         </b-card>
       </div>
 
@@ -260,11 +282,7 @@
         <b-card>
           <b-row>
             <b-col sm="6">
-              <b-form-group
-                label-cols-sm="2"
-                label="Modalità"
-                label-class="font-weight-bold"
-              >
+              <b-form-group label-cols-sm="2" label="Modalità" label-class="font-weight-bold">
                 <b-form-select
                   id="selStatus"
                   v-model="
@@ -304,11 +322,9 @@
         </b-card>
       </div>
       <b-row class="justify-content-md-center">
-        <b-col sm="3"> </b-col>
+        <b-col sm="3"></b-col>
         <b-col class="text-center">
-          <b-button class="px-4" variant="primary" v-on:click="getConfiguration"
-            >Ricarica</b-button
-          >
+          <b-button class="px-4" variant="primary" v-on:click="getConfiguration">Ricarica</b-button>
         </b-col>
         <b-col class="text-center">
           <b-button
@@ -317,10 +333,9 @@
             variant="primary"
             :disabled="disableAggiorna"
             v-on:click="updateConfiguration"
-            >Aggiorna</b-button
-          >
+          >Aggiorna</b-button>
         </b-col>
-        <b-col sm="3"> </b-col>
+        <b-col sm="3"></b-col>
       </b-row>
     </div>
   </div>
@@ -393,6 +408,10 @@ export default {
         changed =
           this.elencoDispositivi[this.dispositivoSelezionato].location !=
           this.elencoDispositiviOrig[this.dispositivoSelezionato].location;
+      if (!changed)
+        changed =
+          this.elencoDispositivi[this.dispositivoSelezionato].temperatureError !=
+          this.elencoDispositiviOrig[this.dispositivoSelezionato].temperatureError;          
       console.log("Changed = " + changed);
       this.disableAggiorna = !changed; // === 1;
     },
@@ -490,6 +509,8 @@ export default {
                       value: data[ix].macAddress,
                       text: data[ix].location
                     });
+                    if (typeof data[ix].temperatureError === "undefined")
+                      data[ix].temperatureError = 0.0;
                     break;
                   case 2:
                     deviceName = "SHELLY";

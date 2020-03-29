@@ -97,12 +97,12 @@ export default {
             );
           })
           .catch(error => {
-            this.showMsgConfermaEsecuzione(
-              "Servizio non disponibile : " + error
-            );
+            // this.showMsgConfermaEsecuzione(
+            //   "Servizio non disponibile : " + error
+            // );
           });
       } catch (error) {
-        this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
+        //this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
       }
     }
   }

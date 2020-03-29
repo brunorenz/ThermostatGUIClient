@@ -45,6 +45,18 @@
                 <strong>{{ datiServer.temperatureRif }}</strong>
               </b-col>
             </b-row>
+                        <b-row v-if="datiServer.flagReleLight === 1">
+              <b-col sm="8" class="text-left">Luce Misurata</b-col>
+              <b-col class="text-right">
+                <strong>{{ datiServer.currentLigth}}</strong>
+              </b-col>
+            </b-row>
+            <b-row v-if="datiServer.flagReleLight === 1">
+              <b-col sm="8" class="text-left">Luce Minima Programmata</b-col>
+              <b-col class="text-right">
+                <strong>{{ datiServer.currentLigthRif }}</strong>
+              </b-col>
+            </b-row>
           </b-col>
         </b-row>
       </b-col>
@@ -256,6 +268,9 @@ export default {
                 d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
                 if (d.flagReleTemp === 1) {
                   // OFF: 0, ON: 1, MANUAL: 2, AUTO: 3
+                  let t = data[ix].temperature;
+                  d.temperature = t.temperature.toFixed(2) + "°";
+                  d.temperatureRif = "N/A";
                   switch (d.statusThermostat) {
                     case TypeStatus.OFF:
                       d.progType = "SPENTO";
@@ -265,20 +280,22 @@ export default {
                       break;
                     case TypeStatus.MANUAL:
                       d.progType = "MANUALE";
+                      d.temperatureRif = t.minTempManual.toFixed(2) + "°";
                       break;
                     case TypeStatus.AUTO:
                       d.progType = "AUTOMATICO";
+                      d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
                       break;
                   }
-                  let t = data[ix].temperature;
-                  d.temperature = t.temperature.toFixed(2) + "°";
-                  d.temperatureRif = "N/A";
-                  if (t.temperatureMeasure === 2)
-                    d.temperatureRif = t.minTempManual.toFixed(2) + "°";
-                  else if (t.temperatureMeasure === 3)
-                    d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
+                  // if (t.temperatureMeasure === 2)
+                  //   d.temperatureRif = t.minTempManual.toFixed(2) + "°";
+                  // else if (t.temperatureMeasure === 3)
+                  //   d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
                   sd.push(d);
                 } else if (d.flagReleLight === 1) {
+                  let t = data[ix].ligth;
+                  d.currentLigth = t.currentLigth.toFixed(2) + "%";
+                  d.currentLigthRif = t.minLigthAuto.toFixed(2) + "%";
                   switch (d.statusLight) {
                     case TypeStatus.OFF:
                       d.progType = "SPENTO";
