@@ -11,6 +11,7 @@ const DefaultContainer = () => import("@/components/DefaultContainer");
 const Dashboard = () => import("@/components/dashboard/Dashboard");
 const Setup = () => import("@/components/pages/Setup");
 const TempProgramming = () => import("@/components/pages/TempProgramming");
+const LightProgramming = () => import("@/components/pages/LightProgramming");
 const Login = () => import("@/components/pages/Login");
 const Statistiche = () => import("@/components/pages/Statistiche");
 
@@ -27,32 +28,32 @@ let router = new Router({
           name: "Login",
           component: Login,
           meta: {
-            guest: true
-          }
+            guest: true,
+          },
         },
         {
           path: "dashboard",
           name: "Dashboard",
           component: Dashboard,
           meta: {
-            guest: true
-          }
+            guest: true,
+          },
         },
         {
           path: "gestione",
           name: "Gestione Dispositivi",
           component: Setup,
           meta: {
-            auth: true
-          }
+            auth: true,
+          },
         },
         {
           path: "statistiche",
           name: "Statistiche",
           component: Statistiche,
           meta: {
-            guest: true
-          }
+            guest: true,
+          },
         },
         {
           path: "programmazione",
@@ -60,7 +61,7 @@ let router = new Router({
           component: {
             render(c) {
               return c("router-view");
-            }
+            },
           },
           children: [
             {
@@ -68,29 +69,30 @@ let router = new Router({
               name: "Termostato",
               component: TempProgramming,
               meta: {
-                auth: true
-              }
+                auth: true,
+              },
             },
             {
               path: "luce",
               name: "Luce",
+              component: LightProgramming,
               meta: {
-                auth: true
-              }
-            }
-          ]
-        }
-      ]
-    }
-  ]
+                auth: true,
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ],
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.auth)) {
+  if (to.matched.some((record) => record.meta.auth)) {
     if (window.sessionStorage.getItem("jwt") === null) {
       next({
         path: "/login",
-        query: { redirect: to.fullPath }
+        query: { redirect: to.fullPath },
       });
     } else {
       let user = JSON.parse(window.sessionStorage.getItem("user"));
@@ -104,7 +106,7 @@ router.beforeEach((to, from, next) => {
       next();
       //}
     }
-  } else if (to.matched.some(record => record.meta.guest)) {
+  } else if (to.matched.some((record) => record.meta.guest)) {
     next();
   } else {
     next();

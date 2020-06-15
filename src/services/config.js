@@ -1,10 +1,10 @@
 import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
 
-const local = true;
-const remote = false;
+const local = false;
+const remoteNodeServer = true;
 const serverUrlP = "/therm/rest/";
 const serverUrlR = "http://srvwas1.bpbari.it:8099/rest/";
-const serverUrlRemote = remote
+const serverUrlRemote = remoteNodeServer
   ? "https://therm.65bruno.it/therm/rest/"
   : "http://192.168.0.101:8101/therm/rest/";
 const serverUrlD = local
@@ -19,28 +19,28 @@ let configuration = {
   weatherMonitor: {
     weatherUrl: weatherUrl,
     id: 3182351,
-    timeout: 60000
+    timeout: 60000,
   },
 
   releStatistics: {
     timeout: 30000,
     hourInterval: 5,
     dayInterval: 15,
-    type: "day"
+    type: "day",
   },
   sensorStatistics: {
     timeout: 30000,
     hourInterval: 5,
     dayInterval: 15,
     type: "day",
-    full: false
+    full: false,
   },
   releStatus: {
-    timeout: 30000
+    timeout: 30000,
   },
   sensorStatus: {
-    timeout: 30000
-  }
+    timeout: 30000,
+  },
 };
 
 export function getConfiguration() {
@@ -55,7 +55,7 @@ export function getInitialRBUSGraphConfiguration() {
       label: configuration.rbusServer[i].label,
       tot: 0,
       ok: 0,
-      ko: 0
+      ko: 0,
       //perServer: 0
     };
     dati.push(entry);
@@ -72,7 +72,7 @@ export function getInitialHTTPGraphConfiguration() {
       label: configuration.server[i].label,
       tot: 0,
       ok: 0,
-      ko: 0
+      ko: 0,
       //perServer: 0
     };
     dati.push(entry);
@@ -92,49 +92,49 @@ export function getDefaultLineOptions() {
         labelColor: function(tooltipItem, chart) {
           return {
             backgroundColor:
-              chart.data.datasets[tooltipItem.datasetIndex].borderColor
+              chart.data.datasets[tooltipItem.datasetIndex].borderColor,
           };
-        }
-      }
+        },
+      },
     },
     title: {
       display: false,
-      text: "Custom Chart Title"
+      text: "Custom Chart Title",
     },
     maintainAspectRatio: false,
     legend: {
-      display: true
+      display: true,
     },
     scales: {
       xAxes: [
         {
           gridLines: {
-            drawOnChartArea: true
-          }
-        }
+            drawOnChartArea: true,
+          },
+        },
       ],
       yAxes: [
         {
           ticks: {
             beginAtZero: true,
-            maxTicksLimit: 5
+            maxTicksLimit: 5,
             //stepSize: Math.ceil(maxG / 10)
             //max: maxG
           },
           gridLines: {
-            display: true
-          }
-        }
-      ]
+            display: true,
+          },
+        },
+      ],
     },
     elements: {
       point: {
         radius: 0,
         hitRadius: 10,
         hoverRadius: 4,
-        hoverBorderWidth: 3
-      }
-    }
+        hoverBorderWidth: 3,
+      },
+    },
   };
   return options;
 }
@@ -151,22 +151,22 @@ export function getDefaultBarOptions() {
         labelColor: function(tooltipItem, chart) {
           return {
             backgroundColor:
-              chart.data.datasets[tooltipItem.datasetIndex].borderColor
+              chart.data.datasets[tooltipItem.datasetIndex].borderColor,
           };
-        }
-      }
+        },
+      },
     },
     title: {
       display: false,
-      text: "Custom Chart Title"
+      text: "Custom Chart Title",
     },
     maintainAspectRatio: false,
     legend: {
-      display: true
+      display: true,
     },
     scales: {
       xAxes: [{ stacked: true, barPercentage: 0.9, categoryPercentage: 1 }],
-      yAxes: [{ stacked: true, id: "y-axis-ok" }]
+      yAxes: [{ stacked: true, id: "y-axis-ok" }],
       //yAxes: [{ stacked: true ,id: "y-axis-ok" },{ stacked: true ,id: "y-axis-ko" }]
     },
     elements: {
@@ -174,13 +174,13 @@ export function getDefaultBarOptions() {
         radius: 0,
         hitRadius: 10,
         hoverRadius: 4,
-        hoverBorderWidth: 3
-      }
+        hoverBorderWidth: 3,
+      },
     },
     animation: {
       duration: 0,
-      easing: "linear"
-    }
+      easing: "linear",
+    },
   };
   return options;
 }
@@ -198,7 +198,7 @@ export function checkSecurity(router) {
 
 export var TypeStatus = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };
 export var TypeMeasure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };
-export var TypeProgramming = { THEMP: 1, LIGTH: 2 };
+export var TypeProgramming = { THEMP: 1, LIGHT: 2 };
 export var TypeDeviceType = { ANY: 0, ARDUINO: 1, SHELLY: 2 };
 export var TypeAction = { ADD: 0, UPDATE: 1, DELETE: 2, READ: 3 };
 
@@ -206,5 +206,5 @@ export var TypeAction = { ADD: 0, UPDATE: 1, DELETE: 2, READ: 3 };
 export var SecurityConfiguration = {
   basicAuth: "Basic YWRtaW46YWgwNjB2eUEu",
   basicAuthRequired: true,
-  jwtRequired: true
+  jwtRequired: true,
 };
