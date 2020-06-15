@@ -5,10 +5,17 @@
         <h4 id="traffic" class="card-title mb-1">Relè</h4>
       </b-col>
       <b-col sm="3" class="d-none d-md-block">
-        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+        <ModalConfiguration
+          :model="model"
+          v-on:updateConfiguration="updateConfiguration"
+        ></ModalConfiguration>
       </b-col>
     </b-row>
-    <b-row class="text-center" v-for="datiServer in datiServers" :key="datiServer.shellyId">
+    <b-row
+      class="text-center"
+      v-for="datiServer in datiServers"
+      :key="datiServer.shellyId"
+    >
       <b-col>
         <b-row>
           <b-col class="text-left" sm="8">
@@ -20,10 +27,16 @@
         </b-row>
         <b-row>
           <b-col sm="3" v-if="datiServer.status === 0">
-            <img src="img/icons8-pastel-64-off.png" @click="programSwitch(datiServer)" />
+            <img
+              src="img/icons8-pastel-64-off.png"
+              @click="programSwitch(datiServer)"
+            />
           </b-col>
           <b-col sm="3" v-if="datiServer.status === 1">
-            <img src="img/icons8-pastel-64-on.png" @click="programSwitch(datiServer)" />
+            <img
+              src="img/icons8-pastel-64-on.png"
+              @click="programSwitch(datiServer)"
+            />
           </b-col>
 
           <b-col sm="9">
@@ -45,16 +58,16 @@
                 <strong>{{ datiServer.temperatureRif }}</strong>
               </b-col>
             </b-row>
-                        <b-row v-if="datiServer.flagReleLight === 1">
+            <b-row v-if="datiServer.flagReleLight === 1">
               <b-col sm="8" class="text-left">Luce Misurata</b-col>
               <b-col class="text-right">
-                <strong>{{ datiServer.currentLigth}}</strong>
+                <strong>{{ datiServer.currentLight }}</strong>
               </b-col>
             </b-row>
             <b-row v-if="datiServer.flagReleLight === 1">
               <b-col sm="8" class="text-left">Luce Minima Programmata</b-col>
               <b-col class="text-right">
-                <strong>{{ datiServer.currentLigthRif }}</strong>
+                <strong>{{ datiServer.currentLightRif }}</strong>
               </b-col>
             </b-row>
           </b-col>
@@ -105,7 +118,7 @@ import router from "@/router/index";
 export default {
   name: "ReleMonitor",
   components: {
-    ModalConfiguration
+    ModalConfiguration,
   },
   data: function() {
     return {
@@ -115,12 +128,12 @@ export default {
         disable: false,
         windowsOpen: false,
         showUpdateModal: false,
-        currentProg: 0
+        currentProg: 0,
       },
       model: {
         title: "Configurazione Grafici Sensori",
-        fields: []
-      }
+        fields: [],
+      },
     };
   },
   created: function() {
@@ -151,15 +164,15 @@ export default {
       if (newStatus != oldStatus) {
         this.$bvModal
           .msgBoxConfirm("Confermi l'aggiornamento ?")
-          .then(value => {
+          .then((value) => {
             if (value) {
               const httpService = new HttpServer();
               httpService
                 .updateStatus({
                   macAddress: macAddress,
-                  statusThermostat: newStatus
+                  statusThermostat: newStatus,
                 })
-                .then(response => {
+                .then((response) => {
                   let dati = response.data;
                   if (dati.error.code === 0) {
                     this.showMsgConfermaEsecuzione(
@@ -172,14 +185,14 @@ export default {
                     );
                   }
                 })
-                .catch(error => {
+                .catch((error) => {
                   this.showMsgConfermaEsecuzione(
                     "Errore in fase di aggiornamento : " + error
                   );
                 });
             }
           })
-          .catch(err => {
+          .catch((err) => {
             // An error occurred
           });
       }
@@ -217,8 +230,8 @@ export default {
         {
           label: "Timeout in millisecondi",
           type: "number",
-          min: 10000
-        }
+          min: 10000,
+        },
       ];
       this.refreshConfiguration();
     },
@@ -236,7 +249,10 @@ export default {
     programSwitch(config) {
       checkSecurity(router);
       this.tmpModalData.currentConfig = config;
-      this.tmpModalData.currentProg = config.flagReleTemp === 1 ? config.statusThermostat : config.statusLight;
+      this.tmpModalData.currentProg =
+        config.flagReleTemp === 1
+          ? config.statusThermostat
+          : config.statusLight;
       this.tmpModalData.showUpdateModal = true;
     },
     showMsgConfermaEsecuzione(message) {
@@ -245,8 +261,8 @@ export default {
           //          title: "Please Confirm",
           //          okVariant: "danger"
         })
-        .then(value => {})
-        .catch(err => {
+        .then((value) => {})
+        .catch((err) => {
           // An error occurred
         });
     },
@@ -255,7 +271,7 @@ export default {
       try {
         httpService
           .getReleData()
-          .then(response => {
+          .then((response) => {
             let sd = [];
             let dati = response.data;
             if (dati.error.code === 0) {
@@ -293,9 +309,9 @@ export default {
                   //   d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
                   sd.push(d);
                 } else if (d.flagReleLight === 1) {
-                  let t = data[ix].ligth;
-                  d.currentLigth = t.currentLigth.toFixed(2) + "%";
-                  d.currentLigthRif = t.minLigthAuto.toFixed(2) + "%";
+                  let t = data[ix].light;
+                  d.currentLight = t.currentLight.toFixed(2) + "%";
+                  d.currentLightRif = t.minLightAuto.toFixed(2) + "%";
                   switch (d.statusLight) {
                     case TypeStatus.OFF:
                       d.progType = "SPENTO";
@@ -325,9 +341,8 @@ export default {
             this.tmpModalData.currentConfig = sd[0];
             this.tmpModalData.currentProg = sd[0].statusThermostat;
             this.tmpModalData.windowsOpen = true;
-
           })
-          .catch(error => {
+          .catch((error) => {
             this.showMsgConfermaEsecuzione(
               "Servizio non disponibile : " + error
             );
@@ -335,7 +350,7 @@ export default {
       } catch (error) {
         this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
       }
-    }
-  }
+    },
+  },
 };
 </script>
