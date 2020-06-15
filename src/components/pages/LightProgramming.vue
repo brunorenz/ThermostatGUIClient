@@ -623,7 +623,7 @@ export default {
     getProgramming() {
       const httpService = new HttpServer();
       httpService
-        .getProgramming(TypeProgramming.THEMP)
+        .getProgramming(TypeProgramming.LIGHT)
         .then((response) => {
           let dati = response.data;
           if (dati.error.code === 0) {
