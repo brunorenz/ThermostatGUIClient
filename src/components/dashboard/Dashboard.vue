@@ -107,11 +107,11 @@ export default {
     ReleMonitor,
     ReleChart,
     SensorChart,
-    WeatherMonitor
+    WeatherMonitor,
   },
   data: function() {
     return {};
-  }
+  },
 };
 </script>
 

@@ -303,10 +303,6 @@ export default {
                       d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
                       break;
                   }
-                  // if (t.temperatureMeasure === 2)
-                  //   d.temperatureRif = t.minTempManual.toFixed(2) + "°";
-                  // else if (t.temperatureMeasure === 3)
-                  //   d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
                   sd.push(d);
                 } else if (d.flagReleLight === 1) {
                   let t = data[ix].light;

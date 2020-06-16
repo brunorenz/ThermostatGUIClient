@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="tmpModalData.windowsOpen">
     <h5 class="card-title mb-1">Temperatura Esterna</h5>
     <b-row>
       <b-col class="text-left" sm="2">
@@ -41,9 +41,9 @@ export default {
     return {
       timerId: null,
       tmpModalData: {
-        windowsOpen: true
+        windowsOpen: false,
       },
-      dati: {}
+      dati: {},
     };
   },
   created: function() {
@@ -74,8 +74,8 @@ export default {
     showMsgConfermaEsecuzione(message) {
       this.$bvModal
         .msgBoxOk(message, {})
-        .then(value => {})
-        .catch(err => {});
+        .then((value) => {})
+        .catch((err) => {});
     },
 
     restartTimer() {
@@ -89,14 +89,16 @@ export default {
       try {
         httpService
           .getWeatherInfo()
-          .then(response => {
+          .then((response) => {
             this.dati = response.data;
+            //let d = this.dati;
+            this.tmpModalData.windowsOpen = true;
             this.timerId = setTimeout(
               this.getWeatherData,
               this.tmpModalData.timeout
             );
           })
-          .catch(error => {
+          .catch((error) => {
             // this.showMsgConfermaEsecuzione(
             //   "Servizio non disponibile : " + error
             // );
@@ -104,7 +106,7 @@ export default {
       } catch (error) {
         //this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
       }
-    }
-  }
+    },
+  },
 };
 </script>
