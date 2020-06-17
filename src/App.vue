@@ -1,10 +1,8 @@
-/* eslint-disable */ 
-
+/* eslint-disable */
 
 <template>
   <router-view></router-view>
 </template>
-
 
 <style lang="scss">
 // CoreUI Icons Set

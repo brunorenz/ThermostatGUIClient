@@ -50,41 +50,6 @@ input:focus ~ .highlight {
   animation: inputHighlighter 0.3s ease;
 }
 
-/* ANIMATIONS ================ 
-@
--webkit-keyframes inputHighlighter {from { background:#198573;
-	
-}
-
-to {
-	width: 0;
-	background: transparent;
-}
-
-}
-@
--moz-keyframes inputHighlighter {from { background:#198573;
-	
-}
-
-to {
-	width: 0;
-	background: transparent;
-}
-
-}
-@
-keyframes inputHighlighter {from { background:#198573;
-	
-}
-
-to {
-	width: 0;
-	background: transparent;
-}
-
-}
-*/
 .ourTeam-box {
   border-top: 6px solid #5dddd3;
   background-color: #fff;

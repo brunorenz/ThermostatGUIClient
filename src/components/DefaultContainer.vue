@@ -5,27 +5,34 @@
       <b-link class="navbar-brand" to="#">
         <img
           class="navbar-brand-full"
-          src="img/thermostat-2.png"
-          width="70"
-          height="50"
-          alt="Logo BPB"
+          src="img/thermostat-14-803426.png"
+          width="60"
+          height="45"
+          alt="ThermGUI"
         />
         <img
           class="navbar-brand-minimized"
-          src="img/thermostat-2.png"
+          src="img/thermostat-14-803426.png"
           width="30"
-          height="50"
-          alt="Logo BPB"
+          height="20"
+          alt="ThermGUI"
         />
       </b-link>
-      <SidebarToggler class="d-md-down-none" display="lg" :defaultOpen="true" />
+      <SidebarToggler
+        class="d-md-down-none"
+        display="lg"
+        :defaultOpen="false"
+      />
       <b-navbar-nav class="d-md-down-none">
         <b-nav-item class="px-3" to="/dashboard">Dashboard</b-nav-item>
         <b-nav-item class="px-3" to="/gestione">Gestione</b-nav-item>
         <b-nav-item class="px-3" to="/statistiche">Statistiche</b-nav-item>
-        <b-nav-item class="px-3" to="/programmazione" exact
-          >Programmazione</b-nav-item
-        >
+        <b-nav-item-dropdown class="px-3" text="Programmazione">
+          <b-dropdown-item to="/programmazione/termostato"
+            >Termostato</b-dropdown-item
+          >
+          <b-dropdown-item to="/programmazione/luce">Luce</b-dropdown-item>
+        </b-nav-item-dropdown>
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto"></b-navbar-nav>
     </AppHeader>
@@ -71,7 +78,7 @@ import {
   Aside as AppAside,
   AsideToggler,
   Footer as TheFooter,
-  Breadcrumb
+  Breadcrumb,
 } from "@coreui/vue";
 
 export default {
@@ -88,7 +95,7 @@ export default {
     SidebarToggler,
     SidebarHeader,
     SidebarNav,
-    SidebarMinimizer
+    SidebarMinimizer,
   },
   data() {
     return {
@@ -98,13 +105,13 @@ export default {
           url: "/dashboard",
           icon: "fa fa-dashboard ",
           badge: {
-            variant: "primary"
-          }
+            variant: "primary",
+          },
         },
         {
           name: "Gestione Dispositivi",
           url: "/gestione",
-          icon: "fa fa-cogs"
+          icon: "fa fa-cogs",
         },
         {
           name: "Programmazione",
@@ -114,21 +121,21 @@ export default {
             {
               name: "Termostato",
               url: "/programmazione/termostato",
-              icon: "fa fa-thermometer-1"
+              icon: "fa fa-thermometer-1",
             },
             {
               name: "Controllo Luce",
               url: "/programmazione/luce",
-              icon: "fa fa-lightbulb-o"
-            }
-          ]
+              icon: "fa fa-lightbulb-o",
+            },
+          ],
         },
         {
           name: "Statistiche",
           url: "/statistiche",
-          icon: "fa fa-bar-chart"
-        }
-      ]
+          icon: "fa fa-bar-chart",
+        },
+      ],
     };
   },
   computed: {
@@ -137,9 +144,9 @@ export default {
     },
     list() {
       return this.$route.matched.filter(
-        route => route.name || route.meta.label
+        (route) => route.name || route.meta.label
       );
-    }
-  }
+    },
+  },
 };
 </script>
