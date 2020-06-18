@@ -34,7 +34,9 @@
           <b-dropdown-item to="/programmazione/luce">Luce</b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
-      <b-navbar-nav class="ml-auto"></b-navbar-nav>
+      <b-navbar-nav class="ml-auto">
+        <HeaderDropdownAccount />
+      </b-navbar-nav>
     </AppHeader>
     <div class="app-body">
       <AppSidebar fixed>
@@ -80,6 +82,7 @@ import {
   Footer as TheFooter,
   Breadcrumb,
 } from "@coreui/vue";
+import HeaderDropdownAccount from "./HeaderDropdownAccount";
 
 export default {
   name: "DefaultContainer",
@@ -96,6 +99,7 @@ export default {
     SidebarHeader,
     SidebarNav,
     SidebarMinimizer,
+    HeaderDropdownAccount,
   },
   data() {
     return {

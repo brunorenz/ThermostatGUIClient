@@ -30,7 +30,7 @@
     <b-row>
       <b-col sm="12">
         <b-card>
-          <SensorChart full="true" />
+          <SensorChart :full="true" />
         </b-card>
       </b-col>
     </b-row>
@@ -51,7 +51,7 @@ export default {
     ReleMonitor,
     ReleChart,
     SensorChart,
-    WeatherMonitor
-  }
+    WeatherMonitor,
+  },
 };
 </script>

@@ -1,6 +1,6 @@
 import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
 
-const local = true;
+const local = false;
 const remoteNodeServer = true;
 const serverUrlP = "/therm/rest/";
 const serverUrlR = "http://srvwas1.bpbari.it:8099/rest/";
@@ -188,7 +188,7 @@ export function getDefaultBarOptions() {
 export function checkSecurity(router) {
   if (SecurityConfiguration.jwtRequired) {
     let token = window.sessionStorage.getItem("jwttoken");
-    if (token === null) {
+    if (token == null) {
       //let a = router;
       router.push("/login");
     }

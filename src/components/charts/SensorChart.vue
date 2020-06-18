@@ -91,13 +91,13 @@ export default {
   name: "SensorChart",
   components: {
     LineCharts,
-    ModalConfiguration
+    ModalConfiguration,
   },
   props: {
     full: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data: function() {
     return {
@@ -109,7 +109,7 @@ export default {
       tmpModalData: { disable: false, windowsOpen: true },
       model: {
         title: "Configurazione Grafici Andamento Accensione Rele",
-        fields: []
+        fields: [],
       },
       configuration: {},
       tipoDispositivo: "",
@@ -118,7 +118,7 @@ export default {
       dataCollectionT: {},
       dataCollectionL: {},
       dataCollectionU: {},
-      dataCollectionP: {}
+      dataCollectionP: {},
     };
   },
   created: function() {
@@ -201,35 +201,35 @@ export default {
           label: "Intervallo grafico Giorno in minuti",
           type: "number",
           min: 10,
-          max: 120
+          max: 120,
         },
         {
           label: "Intervallo grafico Ora in minuti",
           type: "number",
           min: 1,
-          max: 30
+          max: 30,
         },
         {
           label: "Timeout in millisecondi",
           type: "number",
-          min: 10000
+          min: 10000,
         },
         {
           label: "Andamento",
           type: "radio",
           options: [
             { text: "Ultima ora", value: "hour" },
-            { text: "Giornalieri", value: "day" }
-          ]
+            { text: "Giornalieri", value: "day" },
+          ],
         },
         {
           label: "Sensori",
           type: "radio",
           options: [
             { text: "Luce e Temperature", value: "false" },
-            { text: "Tutti", value: "true" }
-          ]
-        }
+            { text: "Tutti", value: "true" },
+          ],
+        },
       ];
       this.refreshConfiguration();
     },
@@ -253,7 +253,7 @@ export default {
           : this.tmpModalData.param.dayInterval;
       httpService
         .getStatistics("SENSOR", this.tmpModalData.param.type, interval)
-        .then(response => {
+        .then((response) => {
           var data = response.data;
           function rgbToHex(n) {
             return "#" + ((1 << 24) + n).toString(16).slice(1);
@@ -276,33 +276,33 @@ export default {
                 backgroundColor: "transparent",
                 borderColor: rgbToHex(baseColor + (i + 1) * 100),
                 pointHoverBackgroundColor: "#fff",
-                borderWidth: 2
+                borderWidth: 2,
               };
               let graphDatasetL = {
                 label: "Luce  " + rele.location,
                 backgroundColor: "transparent",
                 borderColor: rgbToHex(baseColor + (i + 1) * 110),
                 pointHoverBackgroundColor: "#fff",
-                borderWidth: 2
+                borderWidth: 2,
               };
               let graphDatasetU = {
                 label: "Umidità  " + rele.location,
                 backgroundColor: "transparent",
                 borderColor: rgbToHex(baseColor + (i + 1) * 120),
                 pointHoverBackgroundColor: "#fff",
-                borderWidth: 2
+                borderWidth: 2,
               };
               let graphDatasetP = {
                 label: "Pressione Atmosferica  " + rele.location,
                 backgroundColor: "transparent",
                 borderColor: rgbToHex(baseColor + (i + 1) * 130),
                 pointHoverBackgroundColor: "#fff",
-                borderWidth: 2
+                borderWidth: 2,
               };
               let graphParams = {
                 initialDate: new Date(rele.startTime),
                 finalDate: new Date(rele.endTime),
-                interval: interval
+                interval: interval,
               };
               var graph1 = createSingleGraphStructure(graphParams, true);
               var graph2 = JSON.parse(JSON.stringify(graph1));
@@ -353,19 +353,19 @@ export default {
             }
             let dataCollectionT = {
               labels: label,
-              datasets: datasetT
+              datasets: datasetT,
             };
             let dataCollectionL = {
               labels: label,
-              datasets: datasetL
+              datasets: datasetL,
             };
             let dataCollectionU = {
               labels: label,
-              datasets: datasetU
+              datasets: datasetU,
             };
             let dataCollectionP = {
               labels: label,
-              datasets: datasetP
+              datasets: datasetP,
             };
             this.dataCollectionT = dataCollectionT;
             this.dataCollectionL = dataCollectionL;
@@ -383,7 +383,7 @@ export default {
               );
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.log("Error callig service 'getStatistics' : " + error);
           if (this.tmpModalData.windowsOpen)
             this.timerId = setTimeout(
@@ -391,8 +391,8 @@ export default {
               this.tmpModalData.timeout
             );
         });
-    }
-  }
+    },
+  },
 };
 </script>
 

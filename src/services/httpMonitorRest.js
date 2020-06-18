@@ -3,7 +3,7 @@ import {
   TypeAction,
   getConfiguration,
   TypeProgramming,
-  SecurityConfiguration
+  SecurityConfiguration,
 } from "@/services/config";
 
 import router from "@/router/index";
@@ -61,7 +61,7 @@ export default class HttpMonitor {
 
   getPostSecurityHeader(auth) {
     let headers = {
-      "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
+      "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
     };
     if (typeof auth === "undefined") auth = true;
     return this.getSecurityHeader(headers, auth);
@@ -74,7 +74,7 @@ export default class HttpMonitor {
     if (typeof auth === "undefined") auth = false;
     if (SecurityConfiguration.jwtRequired && auth) {
       let token = window.sessionStorage.getItem("jwttoken");
-      if (token === null) {
+      if (token == null) {
         //let a = router;
         router.push("/login");
         throw new Error("No security record found!");
@@ -100,11 +100,11 @@ export default class HttpMonitor {
   login(email, password) {
     let inputData = {
       email: email,
-      password: password
+      password: password,
     };
     let url = this.getUrl(LOGIN);
     return axios.post(url, "data=" + JSON.stringify(inputData), {
-      headers: this.getPostSecurityHeader(false)
+      headers: this.getPostSecurityHeader(false),
     });
   }
 
@@ -118,14 +118,14 @@ export default class HttpMonitor {
   getConfiguration() {
     var queryParams = [];
     return axios.get(this.getUrl(GET_CONFIGURATION, queryParams), {
-      headers: this.getSecurityHeader()
+      headers: this.getSecurityHeader(),
     });
   }
 
   getStatistics(sType, type, interval) {
     var queryParams = [
       { key: "type", value: type },
-      { key: "interval", value: interval }
+      { key: "interval", value: interval },
     ];
     return axios.get(
       this.getUrl(
@@ -133,7 +133,7 @@ export default class HttpMonitor {
         queryParams
       ),
       {
-        headers: this.getSecurityHeader()
+        headers: this.getSecurityHeader(),
       }
     );
   }
@@ -143,19 +143,19 @@ export default class HttpMonitor {
     if (type) qType = type === TypeProgramming.THEMP ? "temp" : "light";
     var queryParams = [{ key: "type", value: qType }];
     return axios.get(this.getUrl(GET_PROGRAMMING, queryParams), {
-      headers: this.getSecurityHeader()
+      headers: this.getSecurityHeader(),
     });
   }
 
   getSensorData() {
     return axios.get(this.getUrl(GET_SENSORDATA), {
-      headers: this.getSecurityHeader()
+      headers: this.getSecurityHeader(),
     });
   }
 
   getReleData() {
     return axios.get(this.getUrl(GET_RELEDATA), {
-      headers: this.getSecurityHeader()
+      headers: this.getSecurityHeader(),
     });
   }
 
@@ -179,11 +179,11 @@ export default class HttpMonitor {
 
     if (usePost)
       return axios.post(url, "data=" + JSON.stringify(inputData), {
-        headers: this.getPostSecurityHeader()
+        headers: this.getPostSecurityHeader(),
       });
     else
       return axios.get(url, {
-        headers: this.getSecurityHeader()
+        headers: this.getSecurityHeader(),
       });
   }
   /*
@@ -204,7 +204,7 @@ export default class HttpMonitor {
       this.getUrl(ADD_PROGRAMMING),
       "data=" + JSON.stringify({ type: type }),
       {
-        headers: getPostSecurityHeader()
+        headers: getPostSecurityHeader(),
       }
     );
   }
@@ -212,13 +212,13 @@ export default class HttpMonitor {
   updateConfiguration(inputData) {
     let url = this.getUrl(UPDATE_CONFIGURATION);
     return axios.post(url, "data=" + JSON.stringify(inputData), {
-      headers: this.getPostSecurityHeader()
+      headers: this.getPostSecurityHeader(),
     });
   }
   updateStatus(inputData) {
     let url = this.getUrl(UPDATE_STATUS);
     return axios.post(url, "data=" + JSON.stringify(inputData), {
-      headers: this.getPostSecurityHeader()
+      headers: this.getPostSecurityHeader(),
     });
   }
 }
