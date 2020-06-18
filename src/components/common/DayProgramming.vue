@@ -36,7 +36,7 @@
           </b-button>
         </b-row>
       </b-col>
-      <b-col sm="3">
+      <b-col sm="3" v-if="programmingType === 1">
         <b-row class="text-center">
           <b-col>
             <label class="font-weight-bold">Temperatura Minima</label>
@@ -54,6 +54,27 @@
           </b-col>
           <b-col>
             <label class="font-weight-bold">{{ entry.minTemp }}</label>
+          </b-col>
+        </b-row>
+      </b-col>
+      <b-col sm="3" v-if="programmingType === 2">
+        <b-row class="text-center">
+          <b-col>
+            <label class="font-weight-bold">Luce Minima</label>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col sm="9">
+            <slider
+              v-model="entry.minLight"
+              :min="minTemp"
+              :max="maxTemp"
+              :interval="intTemp"
+              @change="checkField"
+            ></slider>
+          </b-col>
+          <b-col>
+            <label class="font-weight-bold">{{ entry.minLight }}%</label>
           </b-col>
         </b-row>
       </b-col>
@@ -105,7 +126,7 @@
           </b-col>
         </b-row>
       </b-col>
-      <b-col>
+      <b-col v-if="programmingType === 1">
         <b-row>
           <b-col>
             <label class="font-weight-bold">Priorità</label>
@@ -138,9 +159,9 @@ export default {
   components: {
     datetime: Datetime,
     picker: DatetimeTimePicker,
-    slider: VueSlider
+    slider: VueSlider,
   },
-  props: ["model", "deviceList"],
+  props: ["model", "deviceList", "programmingType"],
   data: function() {
     return {
       dateOn: "00:00",
@@ -148,15 +169,14 @@ export default {
       maxTemp: 25,
       minTemp: 10,
       intTemp: 0.5,
-      //tmpData: {},
-      tmpSaveData: {}
+      tmpSaveData: {},
     };
   },
   computed: {
     intervalStateInvalidFeedback() {
       console.log("Call intervalStateInvalidFeedback");
       return "Dato immesso non valido";
-    }
+    },
   },
   beforeMount: function() {
     console.log(">>>> DayProgramming : beforeMount : reset configuration..");
@@ -187,6 +207,7 @@ export default {
           rec.timeEnd = te;
           change =
             change ||
+            rec.minLight != recSave.minLight ||
             rec.minTemp != recSave.minTemp ||
             rec.timeStart != recSave.timeStart ||
             rec.timeEnd != recSave.timeEnd ||
@@ -202,6 +223,15 @@ export default {
     resetConfiguration() {
       console.log("DayProgramming : reset configuration");
       this.tmpSaveData = JSON.parse(JSON.stringify(this.model));
+      if (this.programmingType === 1) {
+        this.maxTemp = 25;
+        this.minTemp = 10;
+        this.intTemp = 0.5;
+      } else {
+        this.maxTemp = 100;
+        this.minTemp = 1;
+        this.intTemp = 1;
+      }
     },
     getNumFromData(dt) {
       let h = dt.getHours();
@@ -240,7 +270,7 @@ export default {
       for (let i = 0; i < this.model.prog.length; i++)
         this.model.prog[i].ix = i;
       this.checkField();
-    }
-  }
+    },
+  },
 };
 </script>
