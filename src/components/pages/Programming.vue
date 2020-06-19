@@ -430,7 +430,7 @@ export default {
         let rec = model.prog[ix];
         record.prog.push({
           minTemp: rec.minTemp,
-          minLigth: rec.minLight,
+          minLight: rec.minLight,
           timeStart: rec.timeStart,
           timeEnd: rec.timeEnd,
           priorityDisp: rec.priorityDisp,
