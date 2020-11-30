@@ -1,12 +1,7 @@
 import axios from "axios";
-import {
-  TypeAction,
-  getConfiguration,
-  TypeProgramming,
-  SecurityConfiguration,
-} from "@/services/config";
+import { TypeAction, getConfiguration, TypeProgramming, SecurityConfiguration } from "@/services/config";
 
-import router from "@/router/index";
+import router from "@/router";
 
 const GET_CONFIGURATION = "getConfiguration";
 const UPDATE_CONFIGURATION = "updateConfiguration";
@@ -28,12 +23,7 @@ const local = false;
 axios.interceptors.response.use(
   function(response) {
     if (typeof response.data.error != "undefined") {
-      console.log(
-        "Return code : " +
-          response.data.error.code +
-          " , Message : " +
-          response.data.error.message
-      );
+      console.log("Return code : " + response.data.error.code + " , Message : " + response.data.error.message);
     }
     return response;
   },
@@ -87,11 +77,8 @@ export default class HttpMonitor {
     if (queryParams && queryParams.length > 0) {
       outUrl += "?";
       for (var index = 0; index < queryParams.length; index++)
-        if (index == 0)
-          outUrl += queryParams[index].key + "=" + queryParams[index].value;
-        else
-          outUrl +=
-            "&" + queryParams[index].key + "=" + queryParams[index].value;
+        if (index == 0) outUrl += queryParams[index].key + "=" + queryParams[index].value;
+        else outUrl += "&" + queryParams[index].key + "=" + queryParams[index].value;
     }
     console.log("Call " + outUrl);
     return outUrl;
@@ -123,19 +110,10 @@ export default class HttpMonitor {
   }
 
   getStatistics(sType, type, interval) {
-    var queryParams = [
-      { key: "type", value: type },
-      { key: "interval", value: interval },
-    ];
-    return axios.get(
-      this.getUrl(
-        sType === "RELE" ? GET_R_STATISTICS : GET_S_STATISTICS,
-        queryParams
-      ),
-      {
-        headers: this.getSecurityHeader(),
-      }
-    );
+    var queryParams = [{ key: "type", value: type }, { key: "interval", value: interval }];
+    return axios.get(this.getUrl(sType === "RELE" ? GET_R_STATISTICS : GET_S_STATISTICS, queryParams), {
+      headers: this.getSecurityHeader(),
+    });
   }
 
   getProgramming(type) {
@@ -200,13 +178,9 @@ export default class HttpMonitor {
   }
   */
   addProgramming(type) {
-    return axios.post(
-      this.getUrl(ADD_PROGRAMMING),
-      "data=" + JSON.stringify({ type: type }),
-      {
-        headers: getPostSecurityHeader(),
-      }
-    );
+    return axios.post(this.getUrl(ADD_PROGRAMMING), "data=" + JSON.stringify({ type: type }), {
+      headers: getPostSecurityHeader(),
+    });
   }
 
   updateConfiguration(inputData) {

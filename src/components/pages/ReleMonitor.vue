@@ -113,14 +113,14 @@ import ModalConfiguration from "@/components/common/ModalConfiguration";
 import HttpServer from "@/services/httpMonitorRest";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getConfiguration, TypeStatus, checkSecurity } from "@/services/config";
-import router from "@/router/index";
+import router from "@/router";
 
 export default {
   name: "ReleMonitor",
   components: {
     ModalConfiguration,
   },
-  data: function() {
+  data: function () {
     return {
       timerId: null,
       datiServers: [],
@@ -136,24 +136,24 @@ export default {
       },
     };
   },
-  created: function() {
+  created: function () {
     let name = `${this.$options.name}`;
     console.log("Create component " + name + " .. TIMER : " + this.timerId);
     //this.tmpModalData.windowsOpen = true;
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     let name = `${this.$options.name}`;
     console.log("Destroy component " + name + " .. ");
     clearTimeout(this.timerId);
     this.timerId = null;
     this.tmpModalData.windowsOpen = false;
   },
-  beforeMount: function() {
+  beforeMount: function () {
     console.log("Load configuration..");
     this.configuration = getConfiguration();
     this.resetConfiguration();
   },
-  mounted: function() {
+  mounted: function () {
     this.getReleData();
   },
   methods: {

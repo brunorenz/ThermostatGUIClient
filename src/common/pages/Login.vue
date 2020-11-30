@@ -9,8 +9,7 @@
               <p class="text-muted">Effettua il login al tuo account</p>
               <b-input-group class="mb-3">
                 <b-input-group-prepend
-                  ><b-input-group-text
-                    ><i class="fa fa-user"></i></b-input-group-text
+                  ><b-input-group-text><i class="fa fa-user"></i></b-input-group-text
                 ></b-input-group-prepend>
                 <b-form-input
                   type="text"
@@ -24,8 +23,7 @@
               </b-input-group>
               <b-input-group class="mb-4">
                 <b-input-group-prepend
-                  ><b-input-group-text
-                    ><i class="fa fa-lock"></i></b-input-group-text
+                  ><b-input-group-text><i class="fa fa-lock"></i></b-input-group-text
                 ></b-input-group-prepend>
                 <b-form-input
                   type="password"
@@ -38,14 +36,10 @@
               </b-input-group>
               <b-row>
                 <b-col cols="6">
-                  <b-button variant="primary" class="px-4" @click="handleSubmit"
-                    >Login</b-button
-                  >
+                  <b-button variant="primary" class="px-4" @click="handleSubmit">Login</b-button>
                 </b-col>
                 <b-col cols="6" class="text-right">
-                  <b-button variant="link" class="px-0"
-                    >Password dimenticata?</b-button
-                  >
+                  <b-button variant="link" class="px-0">Password dimenticata?</b-button>
                 </b-col>
               </b-row>
             </b-form>
@@ -57,8 +51,11 @@
 </template>
 
 <script>
-import HttpServer from "@/services/httpMonitorRest";
 import router from "@/router";
+import HttpManager from "@/services/HttpManager";
+import { LOGIN, getServiceInfo } from "@/services/restServices";
+import { doLogon } from "@/services/security";
+import { showMsgErroreEsecuzione } from "@/services/utilities";
 export default {
   data() {
     return {
@@ -67,54 +64,54 @@ export default {
     };
   },
   methods: {
-    showMsgConfermaEsecuzione(message) {
-      this.$bvModal
-        .msgBoxOk(message, {
-          //          title: "Please Confirm",
-          //          okVariant: "danger"
-        })
-        .then((value) => {})
-        .catch((err) => {
-          // An error occurred
-        });
-    },
+    // showMsgConfermaEsecuzione(message) {
+    //   this.$bvModal
+    //     .msgBoxOk(message, {})
+    //     .then((value) => {})
+    //     .catch((err) => {
+    //       // An error occurred
+    //     });
+    // },
 
     handleSubmit(e) {
       e.preventDefault();
-      console.log("TITOLO " + process.env.VUE_APP_TITOLO);
-      console.log("URL " + process.env.VUE_APP_urlSecurity);
-      const httpService = new HttpServer();
+      const httpService = new HttpManager();
+      let info = getServiceInfo(LOGIN);
+      let hash = this.$crypto.MD5(this.password);
+      info.request = {
+        email: this.email,
+        password: this.password,
+        passwordMd5: hash.toString(this.$crypto.enc.Hex).toUpperCase(),
+        application: "MyBank",
+      };
+
+      //const httpService = new HttpServer();
       try {
         httpService
-          .login(this.email, this.password)
+          .callNodeServer(info)
           .then((response) => {
             let dati = response.data;
             if (dati.error.code === 0) {
-              window.sessionStorage.setItem("jwt", JSON.stringify(dati.data));
-              window.sessionStorage.setItem("jwttoken", dati.data.token);
+              doLogon(dati.data.uniqueId);
+              // this.$store.commit("updateKeyStorage", {
+              //   key: "uid",
+              //   value: dati.data.uniqueId,
+              // });
+              //this.$store.commit("logon", dati.data.uniqueId);
+              //this.$root.$emit("MyBankLogon", "logon");
               let r = router.history.current;
               let redirect = "/";
-              if (typeof r.query.redirect != "undefined")
-                redirect = r.query.redirect;
-              this.$root.$emit("ThermLogon", "logon");
+              if (typeof r.query.redirect != "undefined") redirect = r.query.redirect;
               router.push(redirect);
             } else {
-              //   console.log(
-              //     "Errore in fase di autenticazione! " + dati.error.message
-              //   );
-              this.showMsgConfermaEsecuzione(
-                "Errore in fase di logon : " + dati.error.message
-              );
+              showMsgErroreEsecuzione(this);
             }
           })
           .catch((error) => {
-            //            console.log("Error callig service 'getConfiguration' : " + error);
-            this.showMsgConfermaEsecuzione(
-              "Servizio non disponibile : " + error
-            );
+            showMsgErroreEsecuzione(this, error);
           });
       } catch (error) {
-        this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
+        showMsgErroreEsecuzione(this, error);
       }
     },
   },
