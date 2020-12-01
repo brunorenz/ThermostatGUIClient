@@ -8,14 +8,14 @@
           src="img/thermostat-14-803426.png"
           width="60"
           height="45"
-          alt="ThermGUI"
+          alt="MyDomoticGUI"
         />
         <img
           class="navbar-brand-minimized"
           src="img/thermostat-14-803426.png"
           width="30"
           height="20"
-          alt="ThermGUI"
+          alt="MyDomoticGUI"
         />
       </b-link>
       <SidebarToggler

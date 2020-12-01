@@ -1,4 +1,5 @@
-export const LOGIN = "login";
+export const GET_SENSORDATA = "getSensorData";
+export const GET_RELEDATA = "getReleData";
 
 const METHOD = { POST: 1, GET: 2 };
 import { getConfiguration } from "@/common/configuration";
@@ -23,14 +24,9 @@ let serviceDefinitionGET = function(url) {
   };
 };
 
-let login = function() {
-  let r = serviceDefinitionPOST(LOGIN);
-  r.baseUrl = getConfiguration().urlSecurity;
-  return r;
-};
-
 const serviceConfiguration = {
-  login,
+  getSensorData: () => serviceDefinition(GET_SENSORDATA, METHOD.GET),
+  getReleData: () => serviceDefinition(GET_RELEDATA, METHOD.GET),
 };
 
 export function getServiceInfo(serviceName) {

@@ -1,4 +1,4 @@
-const { default: store } = require("@/store");
+import store from "@/store";
 
 let showMsgEsitoEsecuzione = function(obj, message, warning) {
   let options = {
@@ -16,7 +16,8 @@ let showMsgEsitoEsecuzione = function(obj, message, warning) {
     });
 };
 
-exports.showMsgEsitoEsecuzione = showMsgEsitoEsecuzione;
+const _showMsgEsitoEsecuzione = showMsgEsitoEsecuzione;
+export { _showMsgEsitoEsecuzione as showMsgEsitoEsecuzione };
 
 let showMsgErroreEsecuzione = function(obj, esito, funzione) {
   let msg = "";
@@ -47,7 +48,8 @@ let showMsgErroreEsecuzione = function(obj, esito, funzione) {
     });
 };
 
-exports.showMsgErroreEsecuzione = showMsgErroreEsecuzione;
+const _showMsgErroreEsecuzione = showMsgErroreEsecuzione;
+export { _showMsgErroreEsecuzione as showMsgErroreEsecuzione };
 
 let showConfirmationMessage = function(obj, message, operation, operationParameter) {
   let options = {
@@ -70,4 +72,5 @@ let showConfirmationMessage = function(obj, message, operation, operationParamet
     });
 };
 
-exports.showConfirmationMessage = showConfirmationMessage;
+const _showConfirmationMessage = showConfirmationMessage;
+export { _showConfirmationMessage as showConfirmationMessage };

@@ -115,6 +115,9 @@ import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getConfiguration, TypeStatus, checkSecurity } from "@/services/config";
 import router from "@/router";
 
+import HttpManager from "@/common/services/HttpManager";
+import { GET_RELEDATA, getServiceInfo } from "@/services/restServices";
+
 export default {
   name: "ReleMonitor",
   components: {
@@ -267,6 +270,23 @@ export default {
         });
     },
     getReleData() {
+      const httpService = new HttpManager();
+      let info = getServiceInfo(GET_RELEDATA);
+      httpService
+        .callNodeServer(info)
+        .then((response) => {
+          let dati = response.data;
+          if (dati.error.code === 0) {
+            debugger;
+          } else {
+            showMsgErroreEsecuzione(this);
+          }
+        })
+        .catch((error) => {
+          showMsgErroreEsecuzione(this, error);
+        });
+    },
+    getReleDataOld() {
       const httpService = new HttpServer();
       try {
         httpService

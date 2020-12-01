@@ -1,6 +1,6 @@
-import { mainAxios } from "@/services/axiosInstance";
-import { getConfiguration } from "@/services/config";
-import { SecurityConfiguration } from "@/services/security";
+import { mainAxios } from "@/common/services/axiosInstance";
+import { getConfiguration } from "@/common/configuration";
+import { SecurityConfiguration } from "@/common/services/security";
 
 let validateRequest = function(serviceContext) {};
 

@@ -1,15 +1,13 @@
 import { CustomTooltips } from "@coreui/coreui-plugin-chartjs-custom-tooltips";
 
-const local = false;
+const local = true;
 const remoteNodeServer = true;
 const serverUrlP = "/therm/rest/";
 const serverUrlR = "http://srvwas1.bpbari.it:8099/rest/";
 const serverUrlRemote = remoteNodeServer
   ? "https://therm.65bruno.it/therm/rest/"
   : "http://192.168.0.101:8101/therm/rest/";
-const serverUrlD = local
-  ? "http://localhost:8101/therm/rest/"
-  : serverUrlRemote;
+const serverUrlD = local ? "http://localhost:8101/therm/rest/" : serverUrlRemote;
 
 const weatherUrl =
   "https://api.openweathermap.org/data/2.5/weather?lang=it&units=metric&APPID=2c5c4639e9d55c06402b4396433a5944";
@@ -91,8 +89,7 @@ export function getDefaultLineOptions() {
       callbacks: {
         labelColor: function(tooltipItem, chart) {
           return {
-            backgroundColor:
-              chart.data.datasets[tooltipItem.datasetIndex].borderColor,
+            backgroundColor: chart.data.datasets[tooltipItem.datasetIndex].borderColor,
           };
         },
       },
@@ -150,8 +147,7 @@ export function getDefaultBarOptions() {
       callbacks: {
         labelColor: function(tooltipItem, chart) {
           return {
-            backgroundColor:
-              chart.data.datasets[tooltipItem.datasetIndex].borderColor,
+            backgroundColor: chart.data.datasets[tooltipItem.datasetIndex].borderColor,
           };
         },
       },

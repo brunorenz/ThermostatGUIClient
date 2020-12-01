@@ -7,9 +7,8 @@ Vue.use(VueRouter);
 // Containers
 const MainContainer = () => import("@/components/DefaultContainer");
 
-let route = function(path, name, guest, componentPath) {
-  let p = componentPath === undefined ? name : componentPath;
-  let c = () => import("" + p);
+let route = function(path, name, componentPath, guest) {
+  let c = () => import("@/" + componentPath);
   return {
     path,
     name,
@@ -24,15 +23,14 @@ let router = new VueRouter({
   routes: [
     {
       path: "/",
-      redirect: "/dashboard",
       name: "Home",
       component: MainContainer,
       children: [
-        route("login", "Login", true, "@/common/pages/Login"),
-        route("logout", "Logout", false, "@/common/pages/Logout"),
-        route("dashboard", "Dashboard", false, "@/components/dashboard/Dashboard"),
-        route("gestione", "Gestione Dispositivi", false, "@/components/pages/Setup"),
-        route("statistiche", "Statistiche", false, "@/components/pages/Statistiche"),
+        route("login", "Login", "common/pages/Login", true),
+        route("logout", "Logout", "common/pages/Logout"),
+        route("dashboard", "Dashboard", "components/dashboard/Dashboard"),
+        route("gestione", "Gestione Dispositivi", "components/pages/Setup"),
+        route("statistiche", "Statistiche", "components/pages/Statistiche"),
         {
           path: "programmazione",
           name: "Programmazione",
@@ -42,8 +40,8 @@ let router = new VueRouter({
             },
           },
           children: [
-            route("termostato", "Termostato", false, "@/components/pages/TempProgramming"),
-            route("luce", "Luce", false, "@/components/pages/LightProgramming"),
+            route("termostato", "Termostato", "components/pages/TempProgramming"),
+            route("luce", "Luce", "components/pages/LightProgramming"),
           ],
         },
       ],

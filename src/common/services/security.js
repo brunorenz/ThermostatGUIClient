@@ -31,19 +31,10 @@ let updateUid = function(uid) {
 };
 export function doLogoff() {
   updateUid("");
-
-  // store.commit("updateKeyStorage", {
-  //   key: "uid",
-  //   value: "",
-  // });
 }
 
 export function doLogon(uid) {
   updateUid(uid);
-  // store.commit("updateKeyStorage", {
-  //   key: "uid",
-  //   value: uid,
-  // });
 }
 
 export function getXrfToken() {
