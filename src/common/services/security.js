@@ -1,6 +1,7 @@
 import store from "@/store";
+import router from "@/router";
 
-export function checkSecurity(router) {
+export function checkSecurity() {
   if (SecurityConfiguration.jwtRequired) {
     let token = window.sessionStorage.getItem("jwttoken");
     if (token == null) {

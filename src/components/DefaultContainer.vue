@@ -5,17 +5,17 @@
       <b-link class="navbar-brand" to="#">
         <img
           class="navbar-brand-full"
-          src="img/thermostat-14-803426.png"
-          width="60"
+          src="img/mydomotics.png"
+          width="45"
           height="45"
-          alt="MyDomoticGUI"
+          alt="MyDomoticsGUI"
         />
         <img
           class="navbar-brand-minimized"
-          src="img/thermostat-14-803426.png"
-          width="30"
-          height="20"
-          alt="MyDomoticGUI"
+          src="img/mydomotics.png"
+          width="45"
+          height="45"
+          alt="MyDomoticsGUI"
         />
       </b-link>
       <SidebarToggler

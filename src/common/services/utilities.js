@@ -54,6 +54,29 @@ export { _showMsgErroreEsecuzione as showMsgErroreEsecuzione };
 let showConfirmationMessage = function(obj, message, operation, operationParameter) {
   let options = {
     title: "Conferma Operazione",
+    footerClass: "p-2 border-top-0 m-0",
+    centered: false,
+    titleTag: "h3",
+    cancelTitleHtml: '<button type="button" class="btn rounded-button small-button m-0">Annulla</button>',
+    okTitleHtml: '<button type="button" class="btn rounded-button small-button m-0">Conferma</button>',
+    cancelVariant: "sm",
+    okVariant: "sm",
+  };
+  obj.$bvModal
+    .msgBoxConfirm(message, options)
+    .then((value) => {
+      if (value) {
+        if (operationParameter) operation(operationParameter);
+        else operation();
+      }
+    })
+    .catch((err) => {
+      console.error("Errore in display msgbox : " + err);
+    });
+};
+let showConfirmationMessageOld = function(obj, message, operation, operationParameter) {
+  let options = {
+    title: "Conferma Operazione",
     okVariant: "success",
     cancelVariant: "danger",
     footerClass: "p-2 border-top-0",
@@ -72,5 +95,5 @@ let showConfirmationMessage = function(obj, message, operation, operationParamet
     });
 };
 
-const _showConfirmationMessage = showConfirmationMessage;
-export { _showConfirmationMessage as showConfirmationMessage };
+//const _showConfirmationMessage = showConfirmationMessageNew;
+export { showConfirmationMessage };

@@ -1,5 +1,6 @@
 <template>
   <div v-if="tmpModalData.windowsOpen">
+    <ViewLoading v-if="viewLoading" />
     <b-row>
       <b-col sm="9">
         <h4 id="traffic" class="card-title mb-1">Relè</h4>
@@ -78,9 +79,29 @@
       v-model="tmpModalData.showUpdateModal"
       id="modalAggiornaStato"
       title="Aggiorna Stato Relè"
-      @ok="updateStatus"
+      no-close-on-backdrop
+      @ok="updateStatus(true)"
       :ok-disabled="tmpModalData.disable"
     >
+      <template v-slot:modal-footer="{ ok, cancel }">
+        <div class="modal-body text-center p-0">
+          <b-button
+            class="ml-3 mt-1 mb-0 rounded-button small-button"
+            data-dismiss="modal"
+            @click="cancel()"
+          >
+            Annulla
+          </b-button>
+          <b-button
+            class="ml-3 mt-1 mb-0 rounded-button small-button"
+            data-dismiss="modal"
+            @click="ok()"
+            :disabled="!anyChange"
+          >
+            Conferma
+          </b-button>
+        </div>
+      </template>
       <b-form-group label-cols-lg="6" label="Imposta tipo programma">
         <div sm="1">
           <b-form-radio-group
@@ -113,18 +134,29 @@ import ModalConfiguration from "@/components/common/ModalConfiguration";
 import HttpServer from "@/services/httpMonitorRest";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getConfiguration, TypeStatus, checkSecurity } from "@/services/config";
-import router from "@/router";
+//import router from "@/router";
 
+import ViewLoading from "@/common/pages/ViewLoading";
 import HttpManager from "@/common/services/HttpManager";
-import { GET_RELEDATA, getServiceInfo } from "@/services/restServices";
-
+import {
+  UPDATE_STATUS,
+  GET_RELEDATA,
+  getServiceInfo,
+} from "@/services/restServices";
+import {
+  showMsgEsitoEsecuzione,
+  showMsgErroreEsecuzione,
+  showConfirmationMessage,
+} from "@/common/services/utilities";
 export default {
   name: "ReleMonitor",
   components: {
     ModalConfiguration,
+    ViewLoading,
   },
   data: function () {
     return {
+      viewLoading: false,
       timerId: null,
       datiServers: [],
       tmpModalData: {
@@ -139,10 +171,16 @@ export default {
       },
     };
   },
+  computed: {
+    anyChange: function () {
+      let newStatus = this.tmpModalData.currentProg;
+      let oldStatus = this.tmpModalData.currentConfig.statusThermostat;
+      return newStatus != oldStatus;
+    },
+  },
   created: function () {
     let name = `${this.$options.name}`;
     console.log("Create component " + name + " .. TIMER : " + this.timerId);
-    //this.tmpModalData.windowsOpen = true;
   },
   beforeDestroy: function () {
     let name = `${this.$options.name}`;
@@ -160,43 +198,38 @@ export default {
     this.getReleData();
   },
   methods: {
-    updateStatus(model) {
-      let macAddress = this.tmpModalData.currentConfig.macAddress;
-      let newStatus = this.tmpModalData.currentProg;
-      let oldStatus = this.tmpModalData.currentConfig.statusThermostat;
-      if (newStatus != oldStatus) {
-        this.$bvModal
-          .msgBoxConfirm("Confermi l'aggiornamento ?")
-          .then((value) => {
-            if (value) {
-              const httpService = new HttpServer();
-              httpService
-                .updateStatus({
-                  macAddress: macAddress,
-                  statusThermostat: newStatus,
-                })
-                .then((response) => {
-                  let dati = response.data;
-                  if (dati.error.code === 0) {
-                    this.showMsgConfermaEsecuzione(
-                      "Aggiornamento effettuato con successo"
-                    );
-                    this.getReleData();
-                  } else {
-                    this.showMsgConfermaEsecuzione(
-                      "Errore in fase di aggiornamento : " + dati.error.message
-                    );
-                  }
-                })
-                .catch((error) => {
-                  this.showMsgConfermaEsecuzione(
-                    "Errore in fase di aggiornamento : " + error
-                  );
-                });
+    updateStatus(confirm) {
+      if (confirm) {
+        showConfirmationMessage(
+          this,
+          "Confermi l'aggiornamento ? ",
+          this.updateStatus
+        );
+      } else {
+        this.viewLoading = true;
+        let info = getServiceInfo(UPDATE_STATUS);
+        info.request = {
+          macAddress: this.tmpModalData.currentConfig.macAddress,
+          statusThermostat: this.tmpModalData.currentProg,
+        };
+        new HttpManager()
+          .callNodeServer(info)
+          .then((response) => {
+            let dati = response.data;
+            if (dati.error.code === 0) {
+              showMsgEsitoEsecuzione(
+                this,
+                "Aggiornamento effettuato con successo"
+              );
+              this.getReleData();
+            } else {
+              showMsgErroreEsecuzione(this);
             }
+            this.viewLoading = false;
           })
-          .catch((err) => {
-            // An error occurred
+          .catch((error) => {
+            showMsgErroreEsecuzione(this, error);
+            this.viewLoading = false;
           });
       }
     },
@@ -250,7 +283,7 @@ export default {
       setImmediate(this.getReleData());
     },
     programSwitch(config) {
-      checkSecurity(router);
+      //checkSecurity(router);
       this.tmpModalData.currentConfig = config;
       this.tmpModalData.currentProg =
         config.flagReleTemp === 1
@@ -258,29 +291,88 @@ export default {
           : config.statusLight;
       this.tmpModalData.showUpdateModal = true;
     },
-    showMsgConfermaEsecuzione(message) {
-      this.$bvModal
-        .msgBoxOk(message, {
-          //          title: "Please Confirm",
-          //          okVariant: "danger"
-        })
-        .then((value) => {})
-        .catch((err) => {
-          // An error occurred
-        });
-    },
+    // showMsgConfermaEsecuzione(message) {
+    //   this.$bvModal
+    //     .msgBoxOk(message, {
+    //       //          title: "Please Confirm",
+    //       //          okVariant: "danger"
+    //     })
+    //     .then((value) => {})
+    //     .catch((err) => {
+    //       // An error occurred
+    //     });
+    // },
     getReleData() {
       const httpService = new HttpManager();
       let info = getServiceInfo(GET_RELEDATA);
       httpService
         .callNodeServer(info)
         .then((response) => {
+          let sd = [];
           let dati = response.data;
           if (dati.error.code === 0) {
-            debugger;
+            var data = dati.data;
+            for (let ix = 0; ix < data.length; ix++) {
+              let out = {};
+              let d = data[ix].configuration;
+              d.shellyId = d.shellyMqttId;
+              d.status = data[ix].shelly.status;
+              d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
+              if (d.flagReleTemp === 1) {
+                // OFF: 0, ON: 1, MANUAL: 2, AUTO: 3
+                let t = data[ix].temperature;
+                d.temperature = t.temperature.toFixed(2) + "°";
+                d.temperatureRif = "N/A";
+                switch (d.statusThermostat) {
+                  case TypeStatus.OFF:
+                    d.progType = "SPENTO";
+                    break;
+                  case TypeStatus.ON:
+                    d.progType = "ACCESO";
+                    break;
+                  case TypeStatus.MANUAL:
+                    d.progType = "MANUALE";
+                    d.temperatureRif = t.minTempManual.toFixed(2) + "°";
+                    break;
+                  case TypeStatus.AUTO:
+                    d.progType = "AUTOMATICO";
+                    d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
+                    break;
+                }
+                sd.push(d);
+              } else if (d.flagReleLight === 1) {
+                let t = data[ix].light;
+                d.currentLight = t.currentLight.toFixed(2) + "%";
+                d.currentLightRif = t.minLightAuto.toFixed(2) + "%";
+                switch (d.statusLight) {
+                  case TypeStatus.OFF:
+                    d.progType = "SPENTO";
+                    break;
+                  case TypeStatus.ON:
+                    d.progType = "ACCESO";
+                    break;
+                  case TypeStatus.MANUAL:
+                    d.progType = "MANUALE";
+                    break;
+                  case TypeStatus.AUTO:
+                    d.progType = "AUTOMATICO";
+                    break;
+                }
+
+                sd.push(d);
+              }
+            }
           } else {
-            showMsgErroreEsecuzione(this);
+            console.log("Nessun dato da visualizzare");
           }
+          this.datiServers = sd;
+          this.timerId = setTimeout(
+            this.getReleData,
+            this.tmpModalData.timeout
+          );
+          this.tmpModalData.currentConfig = sd[0];
+          this.tmpModalData.currentProg = sd[0].statusThermostat;
+          this.tmpModalData.windowsOpen = true;
         })
         .catch((error) => {
           showMsgErroreEsecuzione(this, error);

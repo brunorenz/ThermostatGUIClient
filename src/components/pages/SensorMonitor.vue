@@ -43,7 +43,7 @@
               :max="40"
               :gauge-color="[
                 { offset: 0, color: '#0000FF' },
-                { offset: 40, color: '#FF0000' }
+                { offset: 40, color: '#FF0000' },
               ]"
               :scale-interval="1"
             />
@@ -64,7 +64,7 @@
               :max="100"
               :gauge-color="[
                 { offset: 0, color: '#FFFFFF' },
-                { offset: 100, color: '#FFFF00' }
+                { offset: 100, color: '#FFFF00' },
               ]"
               :scale-interval="2"
             />
@@ -79,48 +79,48 @@
 import { VueSvgGauge } from "vue-svg-gauge";
 import moment from "moment";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
-import HttpServer from "@/services/httpMonitorRest";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
-import {
-  getConfiguration,
-  getInitialHTTPGraphConfiguration
-} from "@/services/config";
+import { getConfiguration } from "@/services/config";
+
+import HttpManager from "@/common/services/HttpManager";
+import { GET_SENSORDATA, getServiceInfo } from "@/services/restServices";
+import { showMsgErroreEsecuzione } from "@/common/services/utilities";
 
 export default {
   name: "SensorMonitor",
   components: {
     ModalConfiguration,
-    VueSvgGauge
+    VueSvgGauge,
   },
-  data: function() {
+  data: function () {
     return {
       timerId: null,
       datiServers: [],
       tmpModalData: { disable: false, windowsOpen: true },
       model: {
         title: "Configurazione Grafici Sensori",
-        fields: []
-      }
+        fields: [],
+      },
     };
   },
-  created: function() {
+  created: function () {
     let name = `${this.$options.name}`;
     console.log("Create component " + name + " .. TIMER : " + this.timerId);
     this.tmpModalData.windowsOpen = true;
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     let name = `${this.$options.name}`;
     console.log("Destroy component " + name + " .. ");
     clearTimeout(this.timerId);
     this.timerId = null;
     this.tmpModalData.windowsOpen = false;
   },
-  beforeMount: function() {
+  beforeMount: function () {
     console.log("Load configuration..");
     this.configuration = getConfiguration();
     this.resetConfiguration();
   },
-  mounted: function() {
+  mounted: function () {
     this.getSensorData();
   },
   methods: {
@@ -158,8 +158,8 @@ export default {
         {
           label: "Timeout in millisecondi",
           type: "number",
-          min: 2000
-        }
+          min: 2000,
+        },
       ];
       this.refreshConfiguration();
     },
@@ -190,23 +190,42 @@ export default {
     flag(value) {
       return "flag-icon flag-icon-" + value;
     },
-    showMsgConfermaEsecuzione(message) {
-      this.$bvModal
-        .msgBoxOk(message, {
-          //          title: "Please Confirm",
-          //          okVariant: "danger"
+    getSensorData() {
+      let info = getServiceInfo(GET_SENSORDATA);
+      new HttpManager()
+        .callNodeServer(info)
+        .then((response) => {
+          let sd = [];
+          let dati = response.data;
+          if (dati.error.code === 0) {
+            var data = dati.data;
+            for (let ix = 0; ix < data.length; ix++) {
+              let d = data[ix];
+              d.temperatureS = d.temperature.toFixed(2);
+              d.lightS = d.light.toFixed(2);
+              sd.push(d);
+              d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
+            }
+          } else {
+            console.log("Nessun dato da visualizzare");
+          }
+          this.datiServers = sd;
+          this.timerId = setTimeout(
+            this.getSensorData,
+            this.tmpModalData.timeout
+          );
         })
-        .then(value => {})
-        .catch(err => {
-          // An error occurred
+        .catch((error) => {
+          showMsgErroreEsecuzione(this, "Servizio non disponibile : " + error);
         });
     },
-    getSensorData() {
+
+    getSensorDataOld() {
       const httpService = new HttpServer();
       try {
         httpService
           .getSensorData()
-          .then(response => {
+          .then((response) => {
             let sd = [];
             let dati = response.data;
             if (dati.error.code === 0) {
@@ -232,7 +251,7 @@ export default {
               this.tmpModalData.timeout
             );
           })
-          .catch(error => {
+          .catch((error) => {
             this.showMsgConfermaEsecuzione(
               "Servizio non disponibile : " + error
             );
@@ -240,7 +259,7 @@ export default {
       } catch (error) {
         this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
       }
-    }
-  }
+    },
+  },
 };
 </script>

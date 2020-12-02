@@ -1,5 +1,6 @@
 export const GET_SENSORDATA = "getSensorData";
 export const GET_RELEDATA = "getReleData";
+export const UPDATE_STATUS = "updateStatus";
 
 const METHOD = { POST: 1, GET: 2 };
 import { getConfiguration } from "@/common/configuration";
@@ -27,6 +28,7 @@ let serviceDefinitionGET = function(url) {
 const serviceConfiguration = {
   getSensorData: () => serviceDefinition(GET_SENSORDATA, METHOD.GET),
   getReleData: () => serviceDefinition(GET_RELEDATA, METHOD.GET),
+  updateStatus: () => serviceDefinition(UPDATE_STATUS, METHOD.POST),
 };
 
 export function getServiceInfo(serviceName) {

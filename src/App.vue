@@ -18,4 +18,10 @@ $fa-font-path: "~font-awesome/fonts/";
 @import "assets/scss/style";
 /* Custom Style */
 @import "assets/css/style2";
+// Import BPB css styles
+@import "assets/css/style";
+.waitImg {
+  background: url(../public/img/loader.gif) center no-repeat;
+  margin-top: 20%;
+}
 </style>
