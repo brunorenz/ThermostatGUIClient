@@ -5,10 +5,10 @@ import router from "@/router";
 
 const GET_CONFIGURATION = "getConfiguration";
 const UPDATE_CONFIGURATION = "updateConfiguration";
-const UPDATE_STATUS = "updateStatus";
+//const UPDATE_STATUS = "updateStatus";
 
-const GET_SENSORDATA = "getSensorData";
-const GET_RELEDATA = "getReleData";
+//const GET_SENSORDATA = "getSensorData";
+//const GET_RELEDATA = "getReleData";
 const GET_PROGRAMMING = "getProgramming";
 const ADD_PROGRAMMING = "addProgramming";
 const GET_R_STATISTICS = "getReleStatistics";
@@ -110,7 +110,10 @@ export default class HttpMonitor {
   }
 
   getStatistics(sType, type, interval) {
-    var queryParams = [{ key: "type", value: type }, { key: "interval", value: interval }];
+    var queryParams = [
+      { key: "type", value: type },
+      { key: "interval", value: interval },
+    ];
     return axios.get(this.getUrl(sType === "RELE" ? GET_R_STATISTICS : GET_S_STATISTICS, queryParams), {
       headers: this.getSecurityHeader(),
     });

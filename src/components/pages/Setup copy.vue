@@ -1,13 +1,14 @@
 <template>
   <div class="animated fadeIn">
-    <ViewLoading v-if="viewLoading" />
     <h2>Gestione Dispositivi</h2>
     <p>Seleziona il dispositivo da configurare.</p>
 
     <p>
       E' possibile:
-      <br />1) Aggiornare il nome del dispositivo <br />2) Impostare modalità di
-      funzionamento del dispositivo <br />3) Impostare modalità di relevazione
+      <br />1) Aggiornare il nome del dispositivo
+      <br />2) Impostare modalità di
+      funzionamento del dispositivo
+      <br />3) Impostare modalità di relevazione
       temperatura
     </p>
 
@@ -34,7 +35,9 @@
           </b-col>
           <b-col sm="4">
             <label>
-              {{ elencoDispositivi[dispositivoSelezionato].deviceTypeName }}
+              {{
+              elencoDispositivi[dispositivoSelezionato].deviceTypeName
+              }}
             </label>
           </b-col>
         </b-row>
@@ -44,7 +47,9 @@
           </b-col>
           <b-col sm="4">
             <label>
-              {{ elencoDispositivi[dispositivoSelezionato].macAddress }}
+              {{
+              elencoDispositivi[dispositivoSelezionato].macAddress
+              }}
             </label>
           </b-col>
           <b-col sm="2">
@@ -52,15 +57,13 @@
           </b-col>
           <b-col sm="4">
             <label>
-              {{ elencoDispositivi[dispositivoSelezionato].ipAddress }}
+              {{
+              elencoDispositivi[dispositivoSelezionato].ipAddress
+              }}
             </label>
           </b-col>
         </b-row>
-        <b-form-group
-          label-cols-sm="2"
-          label="Posizione"
-          label-class="font-weight-bold"
-        >
+        <b-form-group label-cols-sm="2" label="Posizione" label-class="font-weight-bold">
           <b-form-input
             type="text"
             id="location"
@@ -92,7 +95,9 @@
           </b-col>
           <b-col sm="4">
             <label>
-              {{ elencoDispositivi[dispositivoSelezionato].lastAccessD }}
+              {{
+              elencoDispositivi[dispositivoSelezionato].lastAccessD
+              }}
             </label>
           </b-col>
           <b-col sm="2">
@@ -100,7 +105,9 @@
           </b-col>
           <b-col sm="4">
             <label>
-              {{ elencoDispositivi[dispositivoSelezionato].lastCheckD }}
+              {{
+              elencoDispositivi[dispositivoSelezionato].lastCheckD
+              }}
             </label>
           </b-col>
         </b-row>
@@ -115,7 +122,9 @@
             </b-col>
             <b-col sm="4">
               <label>
-                {{ elencoDispositivi[dispositivoSelezionato].shellyMqttId }}
+                {{
+                elencoDispositivi[dispositivoSelezionato].shellyMqttId
+                }}
               </label>
             </b-col>
           </b-row>
@@ -128,18 +137,14 @@
       >
         <h3>Dati Controlli</h3>
         <b-card>
-          <b-form-group
-            label-cols-sm="2"
-            label="Utilizzo"
-            label-class="font-weight-bold"
-          >
+          <b-form-group label-cols-sm="2" label="Utilizzo" label-class="font-weight-bold">
             <b-form-select
               id="selReleType"
               v-model="elencoDispositivi[dispositivoSelezionato].tipoRele"
               :options="{
                 '0': 'Non definito',
                 '1': 'Contollo accensione termosifone',
-                '2': 'Contollo accensione luce',
+                '2': 'Contollo accensione luce'
               }"
               @change="checkUpdateField"
             ></b-form-select>
@@ -157,7 +162,7 @@
                 v-bind:class="{
                   grayscale:
                     elencoDispositivi[dispositivoSelezionato].flagReleLight ===
-                    0,
+                    0
                 }"
               />
             </b-col>
@@ -169,8 +174,7 @@
                 title="Contollo accensione termosifone"
                 v-bind:class="{
                   grayscale:
-                    elencoDispositivi[dispositivoSelezionato].flagReleTemp ===
-                    0,
+                    elencoDispositivi[dispositivoSelezionato].flagReleTemp === 0
                 }"
               />
             </b-col>
@@ -197,7 +201,7 @@
                 v-bind:class="{
                   grayscale:
                     elencoDispositivi[dispositivoSelezionato]
-                      .flagLightSensor === 0,
+                      .flagLightSensor === 0
                 }"
               />
             </b-col>
@@ -210,7 +214,7 @@
                 v-bind:class="{
                   grayscale:
                     elencoDispositivi[dispositivoSelezionato]
-                      .flagTemperatureSensor === 0,
+                      .flagTemperatureSensor === 0
                 }"
               />
             </b-col>
@@ -223,7 +227,7 @@
                 v-bind:class="{
                   grayscale:
                     elencoDispositivi[dispositivoSelezionato]
-                      .flagPressureSensor === 0,
+                      .flagPressureSensor === 0
                 }"
               />
             </b-col>
@@ -236,7 +240,7 @@
                 v-bind:class="{
                   grayscale:
                     elencoDispositivi[dispositivoSelezionato]
-                      .flagHumiditySensor === 0,
+                      .flagHumiditySensor === 0
                 }"
               />
             </b-col>
@@ -249,16 +253,14 @@
                 v-bind:class="{
                   grayscale:
                     elencoDispositivi[dispositivoSelezionato]
-                      .flagMotionSensor === 0,
+                      .flagMotionSensor === 0
                 }"
               />
             </b-col>
           </b-row>
 
           <b-form-group
-            v-if="
-              elencoDispositivi[dispositivoSelezionato].flagTemperatureSensor
-            "
+            v-if="elencoDispositivi[dispositivoSelezionato].flagTemperatureSensor"
             label-cols-sm="2"
             label="Correzione Temperatura"
             label-class="font-weight-bold"
@@ -267,9 +269,7 @@
               type="number"
               id="location"
               @input.native="checkUpdateField"
-              v-model="
-                elencoDispositivi[dispositivoSelezionato].temperatureError
-              "
+              v-model="elencoDispositivi[dispositivoSelezionato].temperatureError"
               required
               trim
             ></b-form-input>
@@ -282,11 +282,7 @@
         <b-card>
           <b-row>
             <b-col sm="6">
-              <b-form-group
-                label-cols-sm="2"
-                label="Modalità"
-                label-class="font-weight-bold"
-              >
+              <b-form-group label-cols-sm="2" label="Modalità" label-class="font-weight-bold">
                 <b-form-select
                   id="selStatus"
                   v-model="
@@ -296,7 +292,7 @@
                     '0': 'SPENTO',
                     '1': 'ACCESO',
                     '2': 'MANUALE',
-                    '3': 'AUTOMATICO',
+                    '3': 'AUTOMATICO'
                   }"
                   @change="checkUpdateField"
                 ></b-form-select>
@@ -316,7 +312,7 @@
                   :options="{
                     '1': 'LOCALE',
                     '2': 'MEDIA',
-                    '3': 'CON PRIORITA\'',
+                    '3': 'CON PRIORITA\''
                   }"
                   @change="checkUpdateField"
                 ></b-form-select>
@@ -328,9 +324,7 @@
       <b-row class="justify-content-md-center">
         <b-col sm="3"></b-col>
         <b-col class="text-center">
-          <b-button class="px-4" variant="primary" v-on:click="getConfiguration"
-            >Ricarica</b-button
-          >
+          <b-button class="px-4" variant="primary" v-on:click="getConfiguration">Ricarica</b-button>
         </b-col>
         <b-col class="text-center">
           <b-button
@@ -339,8 +333,7 @@
             variant="primary"
             :disabled="disableAggiorna"
             v-on:click="updateConfiguration"
-            >Aggiorna</b-button
-          >
+          >Aggiorna</b-button>
         </b-col>
         <b-col sm="3"></b-col>
       </b-row>
@@ -350,24 +343,14 @@
 <script>
 import moment from "moment";
 import HttpServer from "@/services/httpMonitorRest";
-//import ModalConfiguration from "@/components/common/ModalConfiguration";
+import ModalConfiguration from "@/components/common/ModalConfiguration";
 import { TypeDeviceType } from "@/services/config";
-
-import ViewLoading from "@/common/pages/ViewLoading";
-import HttpManager from "@/common/services/HttpManager";
-import { GET_CONFIGURATION, getServiceInfo } from "@/services/restServices";
-import {
-  showMsgEsitoEsecuzione,
-  showMsgErroreEsecuzione,
-  showConfirmationMessage,
-} from "@/common/services/utilities";
 
 export default {
   name: "Setup",
-  components: { ViewLoading },
-  data: function () {
+  components: {},
+  data: function() {
     return {
-      viewLoading: false,
       showListDispositivi: false,
       showDispositivo: false,
       elencoDispositivi: [],
@@ -377,10 +360,10 @@ export default {
       sensoreSelezionato: null,
       dispositivoSelezionato: null,
       disableAggiorna: true,
-      type: TypeDeviceType,
+      type: TypeDeviceType
     };
   },
-  mounted: function () {
+  mounted: function() {
     this.getConfiguration();
   },
   computed: {},
@@ -427,10 +410,8 @@ export default {
           this.elencoDispositiviOrig[this.dispositivoSelezionato].location;
       if (!changed)
         changed =
-          this.elencoDispositivi[this.dispositivoSelezionato]
-            .temperatureError !=
-          this.elencoDispositiviOrig[this.dispositivoSelezionato]
-            .temperatureError;
+          this.elencoDispositivi[this.dispositivoSelezionato].temperatureError !=
+          this.elencoDispositiviOrig[this.dispositivoSelezionato].temperatureError;          
       console.log("Changed = " + changed);
       this.disableAggiorna = !changed; // === 1;
     },
@@ -443,17 +424,28 @@ export default {
         this.dispositivoSelezionato = ix;
       } else this.showDispositivo = false;
     },
+    showMsgConfermaEsecuzione(message) {
+      this.$bvModal
+        .msgBoxOk(message, {
+          //          title: "Please Confirm",
+          //          okVariant: "danger"
+        })
+        .then(value => {})
+        .catch(err => {
+          // An error occurred
+        });
+    },
     updateConfiguration() {
       this.$bvModal
         .msgBoxConfirm("Confermi l'aggiornamento ?")
-        .then((value) => {
+        .then(value => {
           if (value) {
             const httpService = new HttpServer();
             httpService
               .updateConfiguration(
                 this.elencoDispositivi[this.dispositivoSelezionato]
               )
-              .then((response) => {
+              .then(response => {
                 let dati = response.data;
                 if (dati.error.code === 0) {
                   this.showMsgConfermaEsecuzione(
@@ -468,23 +460,23 @@ export default {
                   );
                 }
               })
-              .catch((error) => {
+              .catch(error => {
                 this.showMsgConfermaEsecuzione(
                   "Errore in fase di aggiornamento : " + error
                 );
               });
           }
         })
-        .catch((err) => {
+        .catch(err => {
           // An error occurred
         });
     },
-    getConfigurationOLD() {
+    getConfiguration() {
       const httpService = new HttpServer();
       try {
         httpService
           .getConfiguration()
-          .then((response) => {
+          .then(response => {
             let dati = response.data;
             if (dati.error.code === 0) {
               this.elencoDispositiviOrig = dati.data;
@@ -495,11 +487,11 @@ export default {
               let ed = [];
               ed.push({
                 value: null,
-                text: "Seleziona un dispositivo",
+                text: "Seleziona un dispositivo"
               });
               es.push({
                 value: "",
-                text: "Seleziona un sensore",
+                text: "Seleziona un sensore"
               });
               let iy = 0;
               for (let ix = 0; ix < data.length; ix++) {
@@ -507,7 +499,7 @@ export default {
                   value: ix,
                   text:
                     data[ix].location +
-                    (data[ix].deviceType === 1 ? " (SENSORE)" : " (RELE')"),
+                    (data[ix].deviceType === 1 ? " (SENSORE)" : " (RELE')")
                 });
                 let deviceName = "NON DEFINITO";
                 switch (data[ix].deviceType) {
@@ -515,7 +507,7 @@ export default {
                     deviceName = "ARDUINO";
                     es.push({
                       value: data[ix].macAddress,
-                      text: data[ix].location,
+                      text: data[ix].location
                     });
                     if (typeof data[ix].temperatureError === "undefined")
                       data[ix].temperatureError = 0.0;
@@ -573,7 +565,7 @@ export default {
             }
             this.disableAggiorna = true;
           })
-          .catch((error) => {
+          .catch(error => {
             console.log("Error callig service 'getConfiguration' : " + error);
             this.showMsgConfermaEsecuzione(
               "Servizio non disponibile : " + error
@@ -582,108 +574,7 @@ export default {
       } catch (error) {
         this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
       }
-    },
-    getConfiguration() {
-      let info = getServiceInfo(GET_CONFIGURATION);
-      this.viewLoading = true;
-      new HttpManager()
-        .callNodeServer(info)
-        .then((response) => {
-          let dati = response.data;
-          if (dati.error.code === 0) {
-            this.elencoDispositiviOrig = dati.data;
-            let elencoDispositivi = JSON.parse(JSON.stringify(dati.data));
-            var data = dati.data;
-            let es = [];
-
-            let ed = [];
-            ed.push({
-              value: null,
-              text: "Seleziona un dispositivo",
-            });
-            es.push({
-              value: "",
-              text: "Seleziona un sensore",
-            });
-            let iy = 0;
-            for (let ix = 0; ix < data.length; ix++) {
-              ed.push({
-                value: ix,
-                text:
-                  data[ix].location +
-                  (data[ix].deviceType === 1 ? " (SENSORE)" : " (RELE')"),
-              });
-              let deviceName = "NON DEFINITO";
-              switch (data[ix].deviceType) {
-                case 1:
-                  deviceName = "ARDUINO";
-                  es.push({
-                    value: data[ix].macAddress,
-                    text: data[ix].location,
-                  });
-                  if (typeof data[ix].temperatureError === "undefined")
-                    data[ix].temperatureError = 0.0;
-                  break;
-                case 2:
-                  deviceName = "SHELLY";
-                  if (elencoDispositivi[ix].flagReleTemp === 1)
-                    elencoDispositivi[ix].tipoRele = "1";
-                  else if (elencoDispositivi[ix].flagReleLight === 1)
-                    elencoDispositivi[ix].tipoRele = "2";
-                  else elencoDispositivi[ix].tipoRele = "0";
-                  //
-                  if (
-                    typeof elencoDispositivi[ix].primarySensor ===
-                      "undefined" ||
-                    elencoDispositivi[ix].primarySensor === ""
-                  ) {
-                    this.sensoreSelezionato = "";
-                    // dato aggiunto
-                    elencoDispositivi[ix].primarySensor = "";
-                    this.elencoDispositiviOrig[ix].primarySensor = "";
-                  } else
-                    this.sensoreSelezionato =
-                      elencoDispositivi[ix].primarySensor;
-                  break;
-              }
-              // propago in copia
-              this.elencoDispositiviOrig[ix].tipoRele =
-                elencoDispositivi[ix].tipoRele;
-              elencoDispositivi[ix].deviceTypeName = deviceName;
-              elencoDispositivi[ix].lastAccessD = moment(
-                data[ix].lastAccess
-              ).format("DD/MM/YYYY HH:mm");
-              elencoDispositivi[ix].lastUpdateD = moment(
-                data[ix].lastUpdate
-              ).format("DD/MM/YYYY HH:mm");
-              elencoDispositivi[ix].lastCheckD = moment(
-                data[ix].lastCheck
-              ).format("DD/MM/YYYY HH:mm");
-            }
-            this.elencoDispositivi = elencoDispositivi;
-            this.optionsElencoSensori = es;
-            if (data.length === 1) {
-              this.showListDispositivi = false;
-              this.showDispositivo = true;
-              this.showDettaglioDispositivo(0);
-            } else {
-              this.optionsElencoDispositivi = ed;
-              this.showListDispositivi = true;
-              this.showDispositivo = false;
-              //this.optionsElencoSensori = es;
-            }
-          } else {
-            console.log("Nessun dato da visualizzare");
-            showMsgErroreEsecuzione(this);
-          }
-          this.disableAggiorna = true;
-          this.viewLoading = false;
-        })
-        .catch((error) => {
-          this.viewLoading = false;
-          showMsgErroreEsecuzione(this, "Servizio non disponibile : " + error);
-        });
-    },
-  },
+    }
+  }
 };
 </script>
