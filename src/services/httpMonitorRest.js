@@ -9,13 +9,13 @@ const UPDATE_CONFIGURATION = "updateConfiguration";
 
 //const GET_SENSORDATA = "getSensorData";
 //const GET_RELEDATA = "getReleData";
-const GET_PROGRAMMING = "getProgramming";
-const ADD_PROGRAMMING = "addProgramming";
+//const GET_PROGRAMMING = "getProgramming";
+//&const ADD_PROGRAMMING = "addProgramming";
+//const DELETE_PROGRAMMING = "deleteProgramming";
+//const UPDATE_PROGRAMMING = "updateProgramming";
+const LOGIN = "login";
 const GET_R_STATISTICS = "getReleStatistics";
 const GET_S_STATISTICS = "getSensorStatistics";
-const DELETE_PROGRAMMING = "deleteProgramming";
-const UPDATE_PROGRAMMING = "updateProgramming";
-const LOGIN = "login";
 
 const local = false;
 

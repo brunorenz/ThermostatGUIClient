@@ -1,5 +1,6 @@
 <template>
   <div class="animated fadeIn">
+    <ViewLoading v-if="viewLoading" />
     <h2>{{ titolo }}</h2>
     <p>Seleziona il dispositivo da programmare.</p>
 
@@ -41,7 +42,7 @@
                 variant="primary"
                 v-on:click="addProgramming"
                 class="mx-1"
-                style="width: 90px;"
+                style="width: 90px"
                 >Aggiungi</b-button
               >
               <b-button
@@ -49,7 +50,7 @@
                 v-on:click="deleteProgramming"
                 :disabled="disableElimina"
                 class="mx-1"
-                style="width: 90px;"
+                style="width: 90px"
                 >Elimina</b-button
               >
               <b-button
@@ -57,7 +58,7 @@
                 v-on:click="attivaProgramming"
                 :disabled="disableAttiva"
                 class="mx-1"
-                style="width: 90px;"
+                style="width: 90px"
                 >Attiva</b-button
               >
             </b-col>
@@ -251,13 +252,13 @@
                 variant="primary"
                 v-on:click="copyProgramming"
                 class="mx-1"
-                style="width: 90px;"
+                style="width: 90px"
                 >Copia</b-button
               >
               <b-button
                 variant="primary"
                 class="mx-1"
-                style="width: 90px;"
+                style="width: 90px"
                 v-on:click="getProgramming"
                 :disabled="disableAggiorna"
                 >Ricarica</b-button
@@ -265,7 +266,7 @@
               <b-button
                 variant="primary"
                 class="mx-1"
-                style="width: 90px;"
+                style="width: 90px"
                 v-on:click="updateProgramming"
                 :disabled="disableAggiorna"
                 >Salva</b-button
@@ -308,20 +309,39 @@ import { TypeAction, TypeDeviceType, TypeProgramming } from "@/services/config";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
 import DayProgramming from "@/components/common/DayProgramming";
+
+import ViewLoading from "@/common/pages/ViewLoading";
+import HttpManager from "@/common/services/HttpManager";
+import {
+  GET_CONFIGURATION,
+  GET_PROGRAMMING,
+  ADD_PROGRAMMING,
+  DELETE_PROGRAMMING,
+  UPDATE_PROGRAMMING,
+  getServiceInfo,
+} from "@/services/restServices";
+import {
+  showMsgEsitoEsecuzione,
+  showMsgErroreEsecuzione,
+  showConfirmationMessage,
+} from "@/common/services/utilities";
+
 export default {
   name: "Programming",
   components: {
     slider: VueSlider,
     dayProgramming: DayProgramming,
+    ViewLoading,
   },
   props: ["programmingType"],
-  data: function() {
+  data: function () {
     return {
       copyModel: {
         title:
           "Seleziona i giorni un cui copiare la programmazione selezionata",
         fields: [],
       },
+      viewLoading: false,
       showCopyModal: false,
       listaSensori: [],
       programmazioneCompleta: null,
@@ -341,7 +361,7 @@ export default {
       disableAttiva: false,
     };
   },
-  beforeMount: function() {
+  beforeMount: function () {
     this.recuperaElencoSensori();
     this.getProgramming();
     this.copyModel.fields.push({
@@ -457,6 +477,53 @@ export default {
       this.manageProgramming(TypeAction.DELETE);
     },
     manageProgramming(action) {
+      let info = {};
+      let msg = null;
+      switch (action) {
+        case TypeAction.ADD:
+          msg = "l'inserimento di un nuovo programma";
+          info = getServiceInfo(ADD_PROGRAMMING);
+          break;
+        case TypeAction.UPDATE:
+          msg = "l'aggiornamento del programma selezionato";
+          info = getServiceInfo(UPDATE_PROGRAMMING);
+          info.request.program = this.programmazioneCompleta;
+          break;
+        case TypeAction.DELETE:
+          msg = "la cancellazione del programma selezionato";
+          info = getServiceInfo(DELETE_PROGRAMMING);
+          info.request.id = this.dettaglioProgramma.idProg;
+          break;
+      }
+      if (msg != null) {
+        info.request.type = this.programmingType;
+        info.request.action = action;
+        showConfirmationMessage(this, msg, this.executeManageProgramming, info);
+      }
+    },
+    executeManageProgramming(info) {
+      this.viewLoading = true;
+      new HttpManager()
+        .callNodeServer(info)
+        .then((response) => {
+          let dati = response.data;
+          if (dati.error.code === 0) {
+            showMsgEsitoEsecuzione(
+              this,
+              "Aggiornamento effettuato con successo"
+            );
+            this.getProgramming();
+          } else {
+            showMsgErroreEsecuzione(this);
+          }
+          this.viewLoading = false;
+        })
+        .catch((error) => {
+          showMsgErroreEsecuzione(this, "Servizio non disponibile : " + error);
+          this.viewLoading = false;
+        });
+    },
+    manageProgrammingOLD(action) {
       const httpService = new HttpServer();
       let msg;
       let inputData = { type: TypeProgramming.LIGHT, action: action };
@@ -466,7 +533,7 @@ export default {
           break;
         case TypeAction.UPDATE:
           msg = "l'aggiornamento del programma selezionato";
-          inputData.programm = this.programmazioneCompleta;
+          inputData.program = this.programmazioneCompleta;
           break;
         case TypeAction.DELETE:
           msg = "la cancellazione del programma selezionato";
@@ -585,7 +652,6 @@ export default {
         rec.idOraOn = "on_" + model.idDay + "_" + ix;
         rec.idOraOff = "off_" + model.idDay + "_" + ix;
         rec.ix = ix;
-        //console.log("Record : " + JSON.stringify(rec));
       }
     },
     getDataFromNum(num) {
@@ -600,9 +666,10 @@ export default {
       return moment(now).format();
     },
     recuperaElencoSensori() {
-      const httpService = new HttpServer();
-      httpService
-        .getConfiguration()
+      let info = getServiceInfo(GET_CONFIGURATION);
+      this.viewLoading = true;
+      new HttpManager()
+        .callNodeServer(info)
         .then((response) => {
           let dati = response.data;
           let es = [];
@@ -612,7 +679,6 @@ export default {
           });
           if (dati.error.code === 0) {
             let data = dati.data;
-
             for (let ix = 0; ix < data.length; ix++) {
               if (data[ix].deviceType === 1) {
                 es.push({
@@ -622,25 +688,21 @@ export default {
               }
             }
           } else {
-            console.log("Nessun dato da visualizzare");
-            this.showMsgConfermaEsecuzione("Nessun Sensore definito!");
+            showMsgErroreEsecuzione(this);
           }
           this.listaSensori = es;
+          this.viewLoading = false;
         })
         .catch((error) => {
-          console.log("Error callig service 'getConfiguration' : " + error);
-          this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
+          this.viewLoading = false;
+          showMsgErroreEsecuzione(this, "Servizio non disponibile : " + error);
         });
     },
     /**
      * Leggi record programmazione
      */
     getProgramming() {
-      const httpService = new HttpServer();
-      // this.titolo =
-      //   this.programmingType === TypeProgramming.LIGHT
-      //     ? "Programmazione Accensione Luce"
-      //     : "Programmazione Termostato";
+      this.viewLoading = true;
       if (this.programmingType === TypeProgramming.TEMP) {
         this.titolo = "Programmazione Termostato";
         this.maxTemp = 25;
@@ -652,8 +714,10 @@ export default {
         this.intTemp = 1;
         this.titolo = "Programmazione Accensione Luce";
       }
-      httpService
-        .getProgramming(this.programmingType)
+      let info = getServiceInfo(GET_PROGRAMMING);
+      info.query.type = this.programmingType;
+      new HttpManager()
+        .callNodeServer(info)
         .then((response) => {
           let dati = response.data;
           if (dati.error.code === 0) {
@@ -661,12 +725,14 @@ export default {
             this.updateProgrammingView(dati.data, dati.data.activeProg);
           } else {
             console.log("Nessun dato da visualizzare");
-            this.showMsgConfermaEsecuzione("Nessun data da visualizzare!");
+            showMsgEsitoEsecuzione(this, "Nessun data da visualizzare!");
           }
+          this.viewLoading = false;
         })
         .catch((error) => {
           console.log("Error callig service 'getProgramming' : " + error);
-          this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
+          showMsgErroreEsecuzione(this, "Servizio non disponibile : " + error);
+          this.viewLoading = false;
         });
     },
   },
