@@ -131,7 +131,6 @@
 <script>
 import moment from "moment";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
-import HttpServer from "@/services/httpMonitorRest";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getConfiguration, TypeStatus, checkSecurity } from "@/services/config";
 //import router from "@/router";
@@ -377,87 +376,6 @@ export default {
         .catch((error) => {
           showMsgErroreEsecuzione(this, error);
         });
-    },
-    getReleDataOld() {
-      const httpService = new HttpServer();
-      try {
-        httpService
-          .getReleData()
-          .then((response) => {
-            let sd = [];
-            let dati = response.data;
-            if (dati.error.code === 0) {
-              var data = dati.data;
-              for (let ix = 0; ix < data.length; ix++) {
-                let out = {};
-                let d = data[ix].configuration;
-                d.shellyId = d.shellyMqttId;
-                d.status = data[ix].shelly.status;
-                d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
-                if (d.flagReleTemp === 1) {
-                  // OFF: 0, ON: 1, MANUAL: 2, AUTO: 3
-                  let t = data[ix].temperature;
-                  d.temperature = t.temperature.toFixed(2) + "°";
-                  d.temperatureRif = "N/A";
-                  switch (d.statusThermostat) {
-                    case TypeStatus.OFF:
-                      d.progType = "SPENTO";
-                      break;
-                    case TypeStatus.ON:
-                      d.progType = "ACCESO";
-                      break;
-                    case TypeStatus.MANUAL:
-                      d.progType = "MANUALE";
-                      d.temperatureRif = t.minTempManual.toFixed(2) + "°";
-                      break;
-                    case TypeStatus.AUTO:
-                      d.progType = "AUTOMATICO";
-                      d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
-                      break;
-                  }
-                  sd.push(d);
-                } else if (d.flagReleLight === 1) {
-                  let t = data[ix].light;
-                  d.currentLight = t.currentLight.toFixed(2) + "%";
-                  d.currentLightRif = t.minLightAuto.toFixed(2) + "%";
-                  switch (d.statusLight) {
-                    case TypeStatus.OFF:
-                      d.progType = "SPENTO";
-                      break;
-                    case TypeStatus.ON:
-                      d.progType = "ACCESO";
-                      break;
-                    case TypeStatus.MANUAL:
-                      d.progType = "MANUALE";
-                      break;
-                    case TypeStatus.AUTO:
-                      d.progType = "AUTOMATICO";
-                      break;
-                  }
-
-                  sd.push(d);
-                }
-              }
-            } else {
-              console.log("Nessun dato da visualizzare");
-            }
-            this.datiServers = sd;
-            this.timerId = setTimeout(
-              this.getReleData,
-              this.tmpModalData.timeout
-            );
-            this.tmpModalData.currentConfig = sd[0];
-            this.tmpModalData.currentProg = sd[0].statusThermostat;
-            this.tmpModalData.windowsOpen = true;
-          })
-          .catch((error) => {
-            this.showMsgConfermaEsecuzione(
-              "Servizio non disponibile : " + error
-            );
-          });
-      } catch (error) {
-        this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
-      }
     },
   },
 };

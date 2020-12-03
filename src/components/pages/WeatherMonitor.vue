@@ -8,7 +8,7 @@
         </h1>
       </b-col>
       <b-col sm="1">
-        <img style="width: 48px;" src="img/temperature.png" />
+        <img style="width: 48px" src="img/temperature.png" />
       </b-col>
       <b-col sm="2">
         <h1>
@@ -17,7 +17,7 @@
       </b-col>
       <b-col sm="1">
         <img
-          style="width: 48px;"
+          style="width: 48px"
           :src="'img/openweather/' + dati.weather[0].icon + '@2x.png'"
         />
       </b-col>
@@ -31,13 +31,13 @@
 </template>
 
 <script>
-import HttpServer from "@/services/httpMonitorRest";
+import LocalHttpManager from "@/services/LocalHttpManager";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getConfiguration } from "@/services/config";
 
 export default {
   name: "WeatherMonitor",
-  data: function() {
+  data: function () {
     return {
       timerId: null,
       tmpModalData: {
@@ -46,24 +46,22 @@ export default {
       dati: {},
     };
   },
-  created: function() {
+  created: function () {
     let name = `${this.$options.name}`;
     console.log("Create component " + name + " .. TIMER : " + this.timerId);
-    this.tmpModalData.windowsOpen = true;
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     let name = `${this.$options.name}`;
     console.log("Destroy component " + name + " .. ");
     clearTimeout(this.timerId);
     this.timerId = null;
-    this.tmpModalData.windowsOpen = false;
   },
-  beforeMount: function() {
+  beforeMount: function () {
     console.log("Load configuration..");
     this.configuration = getConfiguration();
     this.resetConfiguration();
   },
-  mounted: function() {
+  mounted: function () {
     this.getWeatherData();
   },
   methods: {
@@ -71,13 +69,6 @@ export default {
       console.log("reset configuration");
       this.tmpModalData.timeout = this.configuration.weatherMonitor.timeout;
     },
-    showMsgConfermaEsecuzione(message) {
-      this.$bvModal
-        .msgBoxOk(message, {})
-        .then((value) => {})
-        .catch((err) => {});
-    },
-
     restartTimer() {
       console.log("Clear Timer ID = " + this.timerId);
       clearTimeout(this.timerId);
@@ -85,26 +76,21 @@ export default {
       setImmediate(this.getWeatherData());
     },
     getWeatherData() {
-      const httpService = new HttpServer();
+      const httpService = new LocalHttpManager();
       try {
         httpService
           .getWeatherInfo()
           .then((response) => {
             this.dati = response.data;
-            //let d = this.dati;
             this.tmpModalData.windowsOpen = true;
             this.timerId = setTimeout(
               this.getWeatherData,
               this.tmpModalData.timeout
             );
           })
-          .catch((error) => {
-            // this.showMsgConfermaEsecuzione(
-            //   "Servizio non disponibile : " + error
-            // );
-          });
+          .catch((error) => {});
       } catch (error) {
-        //this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
+        console.log("Error calling getWeatherData : " + error);
       }
     },
   },

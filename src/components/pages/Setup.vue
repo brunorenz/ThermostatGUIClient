@@ -349,7 +349,6 @@
 </template>
 <script>
 import moment from "moment";
-import HttpServer from "@/services/httpMonitorRest";
 import { TypeDeviceType } from "@/services/config";
 import ViewLoading from "@/common/pages/ViewLoading";
 import HttpManager from "@/common/services/HttpManager";
@@ -481,42 +480,6 @@ export default {
             this.viewLoading = false;
           });
       }
-    },
-    updateConfigurationOLD() {
-      this.$bvModal
-        .msgBoxConfirm("Confermi l'aggiornamento ?")
-        .then((value) => {
-          if (value) {
-            const httpService = new HttpServer();
-            httpService
-              .updateConfiguration(
-                this.elencoDispositivi[this.dispositivoSelezionato]
-              )
-              .then((response) => {
-                let dati = response.data;
-                if (dati.error.code === 0) {
-                  this.showMsgConfermaEsecuzione(
-                    "Aggiornamento effettuato con successo"
-                  );
-                  this.dispositivoSelezionato = null;
-                  this.optionsElencoDispositivi = [];
-                  this.getConfiguration();
-                } else {
-                  this.showMsgConfermaEsecuzione(
-                    "Errore in fase di aggiornamento : " + dati.error.message
-                  );
-                }
-              })
-              .catch((error) => {
-                this.showMsgConfermaEsecuzione(
-                  "Errore in fase di aggiornamento : " + error
-                );
-              });
-          }
-        })
-        .catch((err) => {
-          // An error occurred
-        });
     },
     getConfiguration() {
       let info = getServiceInfo(GET_CONFIGURATION);

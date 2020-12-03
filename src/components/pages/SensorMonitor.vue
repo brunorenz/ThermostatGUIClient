@@ -219,47 +219,6 @@ export default {
           showMsgErroreEsecuzione(this, "Servizio non disponibile : " + error);
         });
     },
-
-    getSensorDataOld() {
-      const httpService = new HttpServer();
-      try {
-        httpService
-          .getSensorData()
-          .then((response) => {
-            let sd = [];
-            let dati = response.data;
-            if (dati.error.code === 0) {
-              var data = dati.data;
-              for (let ix = 0; ix < data.length; ix++) {
-                let d = data[ix];
-                //d.temperature = Math.floor(d.temperature * 100) / 100;
-                //d.light = Math.floor(d.light * 100) / 100;
-                //d.temperature = d.temperature.toFixed(2);
-                //d.light = d.light.toFixed(2);
-                d.temperatureS = d.temperature.toFixed(2);
-                d.lightS = d.light.toFixed(2);
-                //
-                sd.push(d);
-                d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
-              }
-            } else {
-              console.log("Nessun dato da visualizzare");
-            }
-            this.datiServers = sd;
-            this.timerId = setTimeout(
-              this.getSensorData,
-              this.tmpModalData.timeout
-            );
-          })
-          .catch((error) => {
-            this.showMsgConfermaEsecuzione(
-              "Servizio non disponibile : " + error
-            );
-          });
-      } catch (error) {
-        this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
-      }
-    },
   },
 };
 </script>

@@ -304,7 +304,6 @@
 </template>
 <script>
 import moment from "moment";
-import HttpServer from "@/services/httpMonitorRest";
 import { TypeAction, TypeDeviceType, TypeProgramming } from "@/services/config";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
@@ -521,55 +520,6 @@ export default {
         .catch((error) => {
           showMsgErroreEsecuzione(this, "Servizio non disponibile : " + error);
           this.viewLoading = false;
-        });
-    },
-    manageProgrammingOLD(action) {
-      const httpService = new HttpServer();
-      let msg;
-      let inputData = { type: TypeProgramming.LIGHT, action: action };
-      switch (action) {
-        case TypeAction.ADD:
-          msg = "l'inserimento di un nuovo programma";
-          break;
-        case TypeAction.UPDATE:
-          msg = "l'aggiornamento del programma selezionato";
-          inputData.program = this.programmazioneCompleta;
-          break;
-        case TypeAction.DELETE:
-          msg = "la cancellazione del programma selezionato";
-          inputData.id = this.dettaglioProgramma.idProg;
-          break;
-      }
-      this.$bvModal
-        .msgBoxConfirm("Confermi " + msg + " ?")
-        .then((value) => {
-          if (value) {
-            const httpService = new HttpServer();
-            httpService
-              .manageProgramming(inputData)
-              .then((response) => {
-                let dati = response.data;
-                if (dati.error.code === 0) {
-                  this.showMsgConfermaEsecuzione(
-                    "Operazione effettuata con successo!"
-                  );
-                  this.getProgramming();
-                } else {
-                  this.showMsgConfermaEsecuzione(
-                    "Operazione terminata in errore  : " + dati.error.message
-                  );
-                }
-              })
-              .catch((error) => {
-                this.showMsgConfermaEsecuzione(
-                  "Operazione terminata in errore  : " + error
-                );
-              });
-          }
-        })
-        .catch((error) => {
-          console.log("Error generico : " + error);
-          this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
         });
     },
     getProgramIndex(progRecord, index) {

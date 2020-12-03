@@ -40,7 +40,6 @@
 import moment from "moment";
 
 import LineCharts from "@/components/charts/LineCharts";
-//import HttpMonitor from "@/services/httpMonitorRest";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getStyle, hexToRgba } from "@coreui/coreui/dist/js/coreui-utilities";

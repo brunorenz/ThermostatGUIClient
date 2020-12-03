@@ -9,6 +9,14 @@ export default class HttpManager {
     this.configuration = getConfiguration();
   }
 
+  getConfiguration() {
+    return this.configuration;
+  }
+
+  getMainAxios() {
+    return mainAxios;
+  }
+
   getPostJsonSecurityHeader(auth) {
     let headers = {
       "Content-Type": "application/json; charset=utf-8",
