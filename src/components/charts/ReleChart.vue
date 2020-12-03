@@ -6,14 +6,18 @@
         <h6 class="card-subtitle mb-0 text-muted">{{ intervallo }}</h6>
       </b-col>
       <b-col sm="5" class="d-none d-md-block">
-        <ModalConfiguration :model="model" v-on:updateConfiguration="updateConfiguration"></ModalConfiguration>
+        <ModalConfiguration
+          :model="model"
+          v-on:updateConfiguration="updateConfiguration"
+        ></ModalConfiguration>
       </b-col>
     </b-row>
-    <!--   v-for="dataCollection in dataCollections" :key="dataCollection.ix">-->
     <b-card v-for="dataCollection in dataCollections" :key="dataCollection.ix">
       <b-row>
         <b-col>
-          <h6 class="card-title mb-1">{{ dataCollection.datasets[0].label }}</h6>
+          <h6 class="card-title mb-1">
+            {{ dataCollection.datasets[0].label }}
+          </h6>
         </b-col>
       </b-row>
       <b-row>
@@ -21,7 +25,7 @@
           <LineCharts
             chartId="main-chart-01"
             class="chart-wrapper"
-            style="height:250px;margin-top:20px;"
+            style="height: 250px; margin-top: 20px"
             height="200"
             :chart-data="dataCollection"
             :options="options"
@@ -36,20 +40,28 @@
 import moment from "moment";
 
 import LineCharts from "@/components/charts/LineCharts";
-import HttpMonitor from "@/services/httpMonitorRest";
+//import HttpMonitor from "@/services/httpMonitorRest";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getStyle, hexToRgba } from "@coreui/coreui/dist/js/coreui-utilities";
 import { createSingleGraphStructure } from "@/services/monitorGraph";
 import { getConfiguration, getDefaultLineOptions } from "@/services/config";
 
+import HttpManager from "@/common/services/HttpManager";
+import { GET_R_STATISTICS, getServiceInfo } from "@/services/restServices";
+import {
+  showMsgEsitoEsecuzione,
+  showMsgErroreEsecuzione,
+  showConfirmationMessage,
+} from "@/common/services/utilities";
+
 export default {
   name: "ReleChart",
   components: {
     LineCharts,
-    ModalConfiguration
+    ModalConfiguration,
   },
-  data: function() {
+  data: function () {
     return {
       selected: "hour",
       intervallo: "",
@@ -57,36 +69,34 @@ export default {
       tmpModalData: { disable: false, windowsOpen: true },
       model: {
         title: "Configurazione Grafici Andamento Accensione Rele",
-        fields: []
+        fields: [],
       },
       configuration: {},
       tipoDispositivo: "",
       timerId: null,
       dataCollections: {},
       options: {},
-
-      //datiServers: [],
-      changeCfgState: {}
+      changeCfgState: {},
     };
   },
-  created: function() {
+  created: function () {
     let name = `${this.$options.name}`;
     console.log("Create component " + name + " .. TIMER : " + this.timerId);
     this.tmpModalData.windowsOpen = true;
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     let name = `${this.$options.name}`;
     console.log("Destroy component " + name + " .. ");
     clearTimeout(this.timerId);
     this.timerId = null;
     this.tmpModalData.windowsOpen = false;
   },
-  beforeMount: function() {
+  beforeMount: function () {
     console.log("Load configuration..");
     this.configuration = getConfiguration();
     this.resetConfiguration();
   },
-  mounted: function() {
+  mounted: function () {
     this.getStatistics();
   },
   methods: {
@@ -137,27 +147,27 @@ export default {
           label: "Intervallo grafico Giorno in minuti",
           type: "number",
           min: 10,
-          max: 120
+          max: 120,
         },
         {
           label: "Intervallo grafico Ora in minuti",
           type: "number",
           min: 1,
-          max: 30
+          max: 30,
         },
         {
           label: "Timeout in millisecondi",
           type: "number",
-          min: 10000
+          min: 10000,
         },
         {
           label: "Andamento",
           type: "radio",
           options: [
             { text: "Ultima ora", value: "hour" },
-            { text: "Giornalieri", value: "day" }
-          ]
-        }
+            { text: "Giornalieri", value: "day" },
+          ],
+        },
       ];
       this.refreshConfiguration();
     },
@@ -174,20 +184,19 @@ export default {
     },
     getStatistics() {
       console.log("Refresh statistics for " + this.tmpModalData.param.type);
-      //this.radiosBtnDisable = true;
-      const httpService = new HttpMonitor();
+      let info = getServiceInfo(GET_R_STATISTICS);
       var interval =
         this.tmpModalData.param.type === "hour"
           ? this.tmpModalData.param.hourInterval
           : this.tmpModalData.param.dayInterval;
-      httpService
-        .getStatistics("RELE", this.tmpModalData.param.type, interval)
-        .then(response => {
+      info.query.interval = interval;
+      info.query.type = this.tmpModalData.param.type;
+      new HttpManager()
+        .callNodeServer(info)
+        .then((response) => {
           var data = response.data;
-
           if (data.data) {
             var dati = data.data;
-            //var graphDataset = [];
             var datiServers = [];
             // create dataset empty record
             let dataCollections = [];
@@ -195,17 +204,16 @@ export default {
               let rele = dati[i];
               var label = [];
               let graphDataset = {
-                //label: "Andamento Accensione  " + rele.location,
                 label: rele.location,
                 backgroundColor: "transparent",
                 borderColor: "#24d654",
                 pointHoverBackgroundColor: "#fff",
-                borderWidth: 2
+                borderWidth: 2,
               };
               let graphParams = {
                 initialDate: new Date(rele.startTime),
                 finalDate: new Date(rele.endTime),
-                interval: interval
+                interval: interval,
               };
               var graph = createSingleGraphStructure(graphParams, true);
               for (let ix = 0; ix < graph.label.length; ix++) {
@@ -234,23 +242,14 @@ export default {
                 }
               graphDataset.data = graph.dati;
               dataCollections.push({
-                ix : i,
+                ix: i,
                 labels: label,
-                datasets: [graphDataset]
+                datasets: [graphDataset],
               });
             }
-            // let dataCollection = {
-            //   labels: label,
-            //   datasets: [graphDataset]
-            // };
             this.dataCollections = dataCollections;
             this.options = getDefaultLineOptions();
             this.intervallo = "Gruppi di " + interval + " minuti";
-            // if (conf.supDate)
-            //   this.intervallo =
-            //     this.intervallo +
-            //     " " +
-            //     moment(conf.supDate).format("DD/MM/YYYY HH:mm:ss");
             this.options.title.text = this.intervallo;
             this.showGraph = true;
             if (this.tmpModalData.windowsOpen)
@@ -258,20 +257,18 @@ export default {
                 this.getStatistics,
                 this.tmpModalData.param.timeout
               );
-            //this.radiosBtnDisable = false;
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.log("Error callig service 'getStatistics' : " + error);
           if (this.tmpModalData.windowsOpen)
             this.timerId = setTimeout(
               this.getHTTPStatistics,
               this.tmpModalData.timeout
             );
-          //this.radiosBtnDisable = false;
         });
-    }
-  }
+    },
+  },
 };
 </script>
 

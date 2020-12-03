@@ -14,8 +14,8 @@ const UPDATE_CONFIGURATION = "updateConfiguration";
 //const DELETE_PROGRAMMING = "deleteProgramming";
 //const UPDATE_PROGRAMMING = "updateProgramming";
 const LOGIN = "login";
-const GET_R_STATISTICS = "getReleStatistics";
-const GET_S_STATISTICS = "getSensorStatistics";
+// const GET_R_STATISTICS = "getReleStatistics";
+// const GET_S_STATISTICS = "getSensorStatistics";
 
 const local = false;
 
@@ -102,71 +102,71 @@ export default class HttpMonitor {
     return axios.get(url, {});
   }
 
-  getConfiguration() {
-    var queryParams = [];
-    return axios.get(this.getUrl(GET_CONFIGURATION, queryParams), {
-      headers: this.getSecurityHeader(),
-    });
-  }
+  // getConfiguration() {
+  //   var queryParams = [];
+  //   return axios.get(this.getUrl(GET_CONFIGURATION, queryParams), {
+  //     headers: this.getSecurityHeader(),
+  //   });
+  // }
 
-  getStatistics(sType, type, interval) {
-    var queryParams = [
-      { key: "type", value: type },
-      { key: "interval", value: interval },
-    ];
-    return axios.get(this.getUrl(sType === "RELE" ? GET_R_STATISTICS : GET_S_STATISTICS, queryParams), {
-      headers: this.getSecurityHeader(),
-    });
-  }
+  // getStatistics(sType, type, interval) {
+  //   var queryParams = [
+  //     { key: "type", value: type },
+  //     { key: "interval", value: interval },
+  //   ];
+  //   return axios.get(this.getUrl(sType === "RELE" ? GET_R_STATISTICS : GET_S_STATISTICS, queryParams), {
+  //     headers: this.getSecurityHeader(),
+  //   });
+  // }
 
-  getProgramming(type) {
-    let qType = "temp";
-    if (type) qType = type === TypeProgramming.THEMP ? "temp" : "light";
-    var queryParams = [{ key: "type", value: qType }];
-    return axios.get(this.getUrl(GET_PROGRAMMING, queryParams), {
-      headers: this.getSecurityHeader(),
-    });
-  }
+  // getProgramming(type) {
+  //   let qType = "temp";
+  //   if (type) qType = type === TypeProgramming.THEMP ? "temp" : "light";
+  //   var queryParams = [{ key: "type", value: qType }];
+  //   return axios.get(this.getUrl(GET_PROGRAMMING, queryParams), {
+  //     headers: this.getSecurityHeader(),
+  //   });
+  // }
 
-  getSensorData() {
-    return axios.get(this.getUrl(GET_SENSORDATA), {
-      headers: this.getSecurityHeader(),
-    });
-  }
+  // getSensorData() {
+  //   return axios.get(this.getUrl(GET_SENSORDATA), {
+  //     headers: this.getSecurityHeader(),
+  //   });
+  // }
 
-  getReleData() {
-    return axios.get(this.getUrl(GET_RELEDATA), {
-      headers: this.getSecurityHeader(),
-    });
-  }
+  // getReleData() {
+  //   return axios.get(this.getUrl(GET_RELEDATA), {
+  //     headers: this.getSecurityHeader(),
+  //   });
+  // }
 
-  manageProgramming(inputData) {
-    let url = "";
-    let usePost = true;
-    switch (inputData.action) {
-      case TypeAction.READ:
-        return getProgramming(inputData.type);
-        break;
-      case TypeAction.ADD:
-        url = this.getUrl(ADD_PROGRAMMING);
-        break;
-      case TypeAction.UPDATE:
-        url = this.getUrl(UPDATE_PROGRAMMING);
-        break;
-      case TypeAction.DELETE:
-        url = this.getUrl(DELETE_PROGRAMMING);
-        break;
-    }
+  // manageProgramming(inputData) {
+  //   let url = "";
+  //   let usePost = true;
+  //   switch (inputData.action) {
+  //     case TypeAction.READ:
+  //       return getProgramming(inputData.type);
+  //       break;
+  //     case TypeAction.ADD:
+  //       url = this.getUrl(ADD_PROGRAMMING);
+  //       break;
+  //     case TypeAction.UPDATE:
+  //       url = this.getUrl(UPDATE_PROGRAMMING);
+  //       break;
+  //     case TypeAction.DELETE:
+  //       url = this.getUrl(DELETE_PROGRAMMING);
+  //       break;
+  //   }
 
-    if (usePost)
-      return axios.post(url, "data=" + JSON.stringify(inputData), {
-        headers: this.getPostSecurityHeader(),
-      });
-    else
-      return axios.get(url, {
-        headers: this.getSecurityHeader(),
-      });
-  }
+  //   if (usePost)
+  //     return axios.post(url, "data=" + JSON.stringify(inputData), {
+  //       headers: this.getPostSecurityHeader(),
+  //     });
+  //   else
+  //     return axios.get(url, {
+  //       headers: this.getSecurityHeader(),
+  //     });
+  // }
   /*
   removeProgramming(inputData) {
     return axios.post(

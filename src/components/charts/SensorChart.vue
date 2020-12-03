@@ -24,7 +24,7 @@
           <LineCharts
             chartId="main-chart-01"
             class="chart-wrapper"
-            style="height:250px;margin-top:20px;"
+            style="height: 250px; margin-top: 20px"
             height="200"
             :chart-data="dataCollectionT"
             :options="options"
@@ -34,7 +34,7 @@
           <LineCharts
             chartId="main-chart-01"
             class="chart-wrapper"
-            style="height:250px;margin-top:20px;"
+            style="height: 250px; margin-top: 20px"
             height="200"
             :chart-data="dataCollectionL"
             :options="options"
@@ -55,7 +55,7 @@
           <LineCharts
             chartId="main-chart-01"
             class="chart-wrapper"
-            style="height:250px;margin-top:20px;"
+            style="height: 250px; margin-top: 20px"
             height="200"
             :chart-data="dataCollectionU"
             :options="options"
@@ -65,7 +65,7 @@
           <LineCharts
             chartId="main-chart-01"
             class="chart-wrapper"
-            style="height:250px;margin-top:20px;"
+            style="height: 250px; margin-top: 20px"
             height="200"
             :chart-data="dataCollectionP"
             :options="options"
@@ -80,12 +80,14 @@
 import moment from "moment";
 
 import LineCharts from "@/components/charts/LineCharts";
-import HttpMonitor from "@/services/httpMonitorRest";
 import ModalConfiguration from "@/components/common/ModalConfiguration";
 import { setTimeout, clearTimeout, setImmediate } from "timers";
 import { getStyle, hexToRgba } from "@coreui/coreui/dist/js/coreui-utilities";
 import { createSingleGraphStructure } from "@/services/monitorGraph";
 import { getConfiguration, getDefaultLineOptions } from "@/services/config";
+
+import HttpManager from "@/common/services/HttpManager";
+import { GET_S_STATISTICS, getServiceInfo } from "@/services/restServices";
 
 export default {
   name: "SensorChart",
@@ -99,7 +101,7 @@ export default {
       default: false,
     },
   },
-  data: function() {
+  data: function () {
     return {
       selected: "hour",
       intervallo: "",
@@ -121,19 +123,19 @@ export default {
       dataCollectionP: {},
     };
   },
-  created: function() {
+  created: function () {
     let name = `${this.$options.name}`;
     console.log("Create component " + name + " .. TIMER : " + this.timerId);
     this.tmpModalData.windowsOpen = true;
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     let name = `${this.$options.name}`;
     console.log("Destroy component " + name + " .. ");
     clearTimeout(this.timerId);
     this.timerId = null;
     this.tmpModalData.windowsOpen = false;
   },
-  beforeMount: function() {
+  beforeMount: function () {
     console.log("Load configuration.." + screen.width);
     this.configuration = getConfiguration();
     if (this.full) {
@@ -146,7 +148,7 @@ export default {
     }
     this.resetConfiguration();
   },
-  mounted: function() {
+  mounted: function () {
     this.getStatistics();
   },
   methods: {
@@ -246,13 +248,15 @@ export default {
     },
     getStatistics() {
       console.log("Refresh statistics for " + this.tmpModalData.param.type);
-      const httpService = new HttpMonitor();
       var interval =
         this.tmpModalData.param.type === "hour"
           ? this.tmpModalData.param.hourInterval
           : this.tmpModalData.param.dayInterval;
-      httpService
-        .getStatistics("SENSOR", this.tmpModalData.param.type, interval)
+      let info = getServiceInfo(GET_S_STATISTICS);
+      info.query.interval = interval;
+      info.query.type = this.tmpModalData.param.type;
+      new HttpManager()
+        .callNodeServer(info)
         .then((response) => {
           var data = response.data;
           function rgbToHex(n) {

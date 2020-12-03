@@ -338,7 +338,7 @@
             id="btnAggiorna"
             variant="primary"
             :disabled="disableAggiorna"
-            v-on:click="updateConfiguration"
+            v-on:click="updateConfiguration(true)"
             >Aggiorna</b-button
           >
         </b-col>
@@ -350,12 +350,14 @@
 <script>
 import moment from "moment";
 import HttpServer from "@/services/httpMonitorRest";
-//import ModalConfiguration from "@/components/common/ModalConfiguration";
 import { TypeDeviceType } from "@/services/config";
-
 import ViewLoading from "@/common/pages/ViewLoading";
 import HttpManager from "@/common/services/HttpManager";
-import { GET_CONFIGURATION, getServiceInfo } from "@/services/restServices";
+import {
+  UPDATE_CONFIGURATION,
+  GET_CONFIGURATION,
+  getServiceInfo,
+} from "@/services/restServices";
 import {
   showMsgEsitoEsecuzione,
   showMsgErroreEsecuzione,
@@ -443,7 +445,44 @@ export default {
         this.dispositivoSelezionato = ix;
       } else this.showDispositivo = false;
     },
-    updateConfiguration() {
+    updateConfiguration(confirm) {
+      if (confirm) {
+        showConfirmationMessage(
+          this,
+          "Confermi l'aggiornamento ? ",
+          this.updateConfiguration
+        );
+      } else {
+        this.viewLoading = true;
+        let info = getServiceInfo(UPDATE_CONFIGURATION);
+        info.request.dati = this.elencoDispositivi[this.dispositivoSelezionato];
+        new HttpManager()
+          .callNodeServer(info)
+          .then((response) => {
+            let dati = response.data;
+            if (dati.error.code === 0) {
+              showMsgEsitoEsecuzione(
+                this,
+                "Aggiornamento effettuato con successo"
+              );
+              this.dispositivoSelezionato = null;
+              this.optionsElencoDispositivi = [];
+              this.getConfiguration();
+            } else {
+              showMsgErroreEsecuzione(this);
+            }
+            this.viewLoading = false;
+          })
+          .catch((error) => {
+            showMsgErroreEsecuzione(
+              this,
+              "Errore in fase di aggiornamento : " + error
+            );
+            this.viewLoading = false;
+          });
+      }
+    },
+    updateConfigurationOLD() {
       this.$bvModal
         .msgBoxConfirm("Confermi l'aggiornamento ?")
         .then((value) => {
@@ -478,110 +517,6 @@ export default {
         .catch((err) => {
           // An error occurred
         });
-    },
-    getConfigurationOLD() {
-      const httpService = new HttpServer();
-      try {
-        httpService
-          .getConfiguration()
-          .then((response) => {
-            let dati = response.data;
-            if (dati.error.code === 0) {
-              this.elencoDispositiviOrig = dati.data;
-              let elencoDispositivi = JSON.parse(JSON.stringify(dati.data));
-              var data = dati.data;
-              let es = [];
-
-              let ed = [];
-              ed.push({
-                value: null,
-                text: "Seleziona un dispositivo",
-              });
-              es.push({
-                value: "",
-                text: "Seleziona un sensore",
-              });
-              let iy = 0;
-              for (let ix = 0; ix < data.length; ix++) {
-                ed.push({
-                  value: ix,
-                  text:
-                    data[ix].location +
-                    (data[ix].deviceType === 1 ? " (SENSORE)" : " (RELE')"),
-                });
-                let deviceName = "NON DEFINITO";
-                switch (data[ix].deviceType) {
-                  case 1:
-                    deviceName = "ARDUINO";
-                    es.push({
-                      value: data[ix].macAddress,
-                      text: data[ix].location,
-                    });
-                    if (typeof data[ix].temperatureError === "undefined")
-                      data[ix].temperatureError = 0.0;
-                    break;
-                  case 2:
-                    deviceName = "SHELLY";
-                    if (elencoDispositivi[ix].flagReleTemp === 1)
-                      elencoDispositivi[ix].tipoRele = "1";
-                    else if (elencoDispositivi[ix].flagReleLight === 1)
-                      elencoDispositivi[ix].tipoRele = "2";
-                    else elencoDispositivi[ix].tipoRele = "0";
-                    //
-                    if (
-                      typeof elencoDispositivi[ix].primarySensor ===
-                        "undefined" ||
-                      elencoDispositivi[ix].primarySensor === ""
-                    ) {
-                      this.sensoreSelezionato = "";
-                      // dato aggiunto
-                      elencoDispositivi[ix].primarySensor = "";
-                      this.elencoDispositiviOrig[ix].primarySensor = "";
-                    } else
-                      this.sensoreSelezionato =
-                        elencoDispositivi[ix].primarySensor;
-                    break;
-                }
-                // propago in copia
-                this.elencoDispositiviOrig[ix].tipoRele =
-                  elencoDispositivi[ix].tipoRele;
-                elencoDispositivi[ix].deviceTypeName = deviceName;
-                elencoDispositivi[ix].lastAccessD = moment(
-                  data[ix].lastAccess
-                ).format("DD/MM/YYYY HH:mm");
-                elencoDispositivi[ix].lastUpdateD = moment(
-                  data[ix].lastUpdate
-                ).format("DD/MM/YYYY HH:mm");
-                elencoDispositivi[ix].lastCheckD = moment(
-                  data[ix].lastCheck
-                ).format("DD/MM/YYYY HH:mm");
-              }
-              this.elencoDispositivi = elencoDispositivi;
-              this.optionsElencoSensori = es;
-              if (data.length === 1) {
-                this.showListDispositivi = false;
-                this.showDispositivo = true;
-                this.showDettaglioDispositivo(0);
-              } else {
-                this.optionsElencoDispositivi = ed;
-                this.showListDispositivi = true;
-                this.showDispositivo = false;
-                //this.optionsElencoSensori = es;
-              }
-            } else {
-              console.log("Nessun dato da visualizzare");
-            }
-            this.disableAggiorna = true;
-          })
-          .catch((error) => {
-            console.log("Error callig service 'getConfiguration' : " + error);
-            this.showMsgConfermaEsecuzione(
-              "Servizio non disponibile : " + error
-            );
-          });
-      } catch (error) {
-        this.showMsgConfermaEsecuzione("Servizio non disponibile : " + error);
-      }
     },
     getConfiguration() {
       let info = getServiceInfo(GET_CONFIGURATION);
