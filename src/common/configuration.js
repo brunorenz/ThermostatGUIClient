@@ -1,5 +1,5 @@
 const local = true;
-const remoteNodeServer = true;
+const remoteNodeServer = false;
 const urlApp = process.env.VUE_APP_URL_MAIN;
 const urlSecurity = process.env.VUE_APP_URL_SECURITY;
 const serverUrlP = "/";

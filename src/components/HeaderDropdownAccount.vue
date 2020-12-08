@@ -40,7 +40,6 @@ export default {
   computed: {
     isUserLogged() {
       let uid = this.$store.getters.uid;
-
       let logged = uid != "";
       console.log("React UID = " + uid + " - Logged " + logged);
       return logged;
@@ -48,15 +47,9 @@ export default {
   },
   mounted: function () {},
   methods: {
-    // checkLogonStatus() {
-    //   let logoff = !isUserLogged();
-    //   console.log("Logon status : " + logoff);
-    //   this.logoff = logoff;
-    // },
     doLogoff() {
       console.log("Do logoff!");
-      doLogoff();
-      this.$router.push("/login");
+      this.$router.push("/logout");
     },
   },
 };

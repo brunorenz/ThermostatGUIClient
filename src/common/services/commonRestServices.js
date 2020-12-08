@@ -1,4 +1,5 @@
 export const LOGIN = "login";
+export const LOGOUT = "logout";
 
 const METHOD = { POST: 1, GET: 2 };
 import { getConfiguration } from "@/common/configuration";
@@ -29,8 +30,15 @@ let login = function() {
   return r;
 };
 
+let logout = function() {
+  let r = serviceDefinitionPOST(LOGOUT);
+  r.baseUrl = getConfiguration().urlSecurity;
+  return r;
+};
+
 const serviceConfiguration = {
   login,
+  logout,
 };
 
 export function getServiceInfo(serviceName) {

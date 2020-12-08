@@ -52,7 +52,7 @@ mainAxios.interceptors.response.use(
     if (
       typeof error.response != "undefined" &&
       typeof error.response.status != "undefined" &&
-      error.response.status === 403
+      (error.response.status === 403 || error.response.status === 401)
     ) {
       doLogoff();
       router.push("/login");

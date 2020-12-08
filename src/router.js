@@ -56,12 +56,13 @@ let router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.meta.guest === false) {
-    if (!isUserLogged()) {
-      next({
-        path: "/login",
-        query: { redirect: to.fullPath },
-      });
-    } else next();
+    next();
+    // if (!isUserLogged()) {
+    //   next({
+    //     path: "/login",
+    //     query: { redirect: to.fullPath },
+    //   });
+    // } else next();
   } else {
     next();
   }

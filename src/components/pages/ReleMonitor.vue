@@ -47,30 +47,34 @@
                 <strong>{{ datiServer.progType }}</strong>
               </b-col>
             </b-row>
-            <b-row v-if="datiServer.flagReleTemp === 1">
-              <b-col sm="8" class="text-left">Temperatura Misurata</b-col>
-              <b-col class="text-right">
-                <strong>{{ datiServer.temperature }}</strong>
-              </b-col>
-            </b-row>
-            <b-row v-if="datiServer.flagReleTemp === 1">
-              <b-col sm="8" class="text-left">Temperatura Programmata</b-col>
-              <b-col class="text-right">
-                <strong>{{ datiServer.temperatureRif }}</strong>
-              </b-col>
-            </b-row>
-            <b-row v-if="datiServer.flagReleLight === 1">
-              <b-col sm="8" class="text-left">Luce Misurata</b-col>
-              <b-col class="text-right">
-                <strong>{{ datiServer.currentLight }}</strong>
-              </b-col>
-            </b-row>
-            <b-row v-if="datiServer.flagReleLight === 1">
-              <b-col sm="8" class="text-left">Luce Minima Programmata</b-col>
-              <b-col class="text-right">
-                <strong>{{ datiServer.currentLightRif }}</strong>
-              </b-col>
-            </b-row>
+            <div v-if="datiServer.flagReleTemp === 1">
+              <b-row>
+                <b-col sm="8" class="text-left">Temperatura Misurata</b-col>
+                <b-col class="text-right">
+                  <strong>{{ datiServer.temperature }}</strong>
+                </b-col>
+              </b-row>
+              <b-row>
+                <b-col sm="8" class="text-left">Temperatura Programmata</b-col>
+                <b-col class="text-right">
+                  <strong>{{ datiServer.temperatureRif }}</strong>
+                </b-col>
+              </b-row>
+            </div>
+            <div v-if="datiServer.flagReleLight === 1">
+              <b-row>
+                <b-col sm="8" class="text-left">Luce Misurata</b-col>
+                <b-col class="text-right">
+                  <strong>{{ datiServer.currentLight }}</strong>
+                </b-col>
+              </b-row>
+              <b-row>
+                <b-col sm="8" class="text-left">Luce Minima Programmata</b-col>
+                <b-col class="text-right">
+                  <strong>{{ datiServer.currentLightRif }}</strong>
+                </b-col>
+              </b-row>
+            </div>
           </b-col>
         </b-row>
       </b-col>
@@ -115,10 +119,10 @@
             <b-row>
               <b-form-radio class="mx-2" value="1">ACCESO</b-form-radio>
             </b-row>
-            <b-row v-if="tmpModalData.currentConfig.flagReleTemp === 1">
+            <b-row>
               <b-form-radio class="mx-2" value="2">MANUALE</b-form-radio>
             </b-row>
-            <b-row v-if="tmpModalData.currentConfig.flagReleTemp === 1">
+            <b-row>
               <b-form-radio class="mx-2" value="3">AUTOMATICO</b-form-radio>
             </b-row>
           </b-form-radio-group>
@@ -155,6 +159,7 @@ export default {
   },
   data: function () {
     return {
+      statusLabel: undefined,
       viewLoading: false,
       timerId: null,
       datiServers: [],
@@ -173,13 +178,19 @@ export default {
   computed: {
     anyChange: function () {
       let newStatus = this.tmpModalData.currentProg;
-      let oldStatus = this.tmpModalData.currentConfig.statusThermostat;
+      let themp = this.tmpModalData.currentConfig.flagReleLight === 0;
+      let oldStatus = themp ? this.tmpModalData.currentConfig.statusThermostat : this.tmpModalData.currentConfig.statusLight;
       return newStatus != oldStatus;
     },
   },
   created: function () {
     let name = `${this.$options.name}`;
     console.log("Create component " + name + " .. TIMER : " + this.timerId);
+    this.statusLabel = {};
+    this.statusLabel[TypeStatus.OFF] = "SPENTO";
+    this.statusLabel[TypeStatus.ON] = "ACCESO";
+    this.statusLabel[TypeStatus.MANUAL] = "MANUALE";
+    this.statusLabel[TypeStatus.AUTO] = "AUTOMATICO";
   },
   beforeDestroy: function () {
     let name = `${this.$options.name}`;
@@ -209,8 +220,11 @@ export default {
         let info = getServiceInfo(UPDATE_STATUS);
         info.request = {
           macAddress: this.tmpModalData.currentConfig.macAddress,
-          statusThermostat: this.tmpModalData.currentProg,
+          
         };
+        let themp = this.tmpModalData.currentConfig.flagReleLight === 0;
+        if (themp) info.request.statusThermostat = this.tmpModalData.currentProg;
+        else info.request.statusLight = this.tmpModalData.currentProg;
         new HttpManager()
           .callNodeServer(info)
           .then((response) => {
@@ -282,7 +296,6 @@ export default {
       setImmediate(this.getReleData());
     },
     programSwitch(config) {
-      //checkSecurity(router);
       this.tmpModalData.currentConfig = config;
       this.tmpModalData.currentProg =
         config.flagReleTemp === 1
@@ -290,17 +303,6 @@ export default {
           : config.statusLight;
       this.tmpModalData.showUpdateModal = true;
     },
-    // showMsgConfermaEsecuzione(message) {
-    //   this.$bvModal
-    //     .msgBoxOk(message, {
-    //       //          title: "Please Confirm",
-    //       //          okVariant: "danger"
-    //     })
-    //     .then((value) => {})
-    //     .catch((err) => {
-    //       // An error occurred
-    //     });
-    // },
     getReleData() {
       const httpService = new HttpManager();
       let info = getServiceInfo(GET_RELEDATA);
@@ -317,47 +319,25 @@ export default {
               d.shellyId = d.shellyMqttId;
               d.status = data[ix].shelly.status;
               d.lastAccessD = moment(d.time).format("DD/MM/YYYY HH:mm");
+
               if (d.flagReleTemp === 1) {
                 // OFF: 0, ON: 1, MANUAL: 2, AUTO: 3
+                d.progType = this.statusLabel[d.statusThermostat];
                 let t = data[ix].temperature;
                 d.temperature = t.temperature.toFixed(2) + "°";
                 d.temperatureRif = "N/A";
-                switch (d.statusThermostat) {
-                  case TypeStatus.OFF:
-                    d.progType = "SPENTO";
-                    break;
-                  case TypeStatus.ON:
-                    d.progType = "ACCESO";
-                    break;
-                  case TypeStatus.MANUAL:
-                    d.progType = "MANUALE";
-                    d.temperatureRif = t.minTempManual.toFixed(2) + "°";
-                    break;
-                  case TypeStatus.AUTO:
-                    d.progType = "AUTOMATICO";
-                    d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
-                    break;
-                }
+                if (d.statusThermostat === TypeStatus.MANUAL)
+                  d.temperatureRif = t.minTempManual.toFixed(2) + "°";
+                else if (d.statusThermostat === TypeStatus.AUTO)
+                  d.temperatureRif = t.minTempAuto.toFixed(2) + "°";
                 sd.push(d);
               } else if (d.flagReleLight === 1) {
                 let t = data[ix].light;
+                d.progType = this.statusLabel[d.statusLight];
                 d.currentLight = t.currentLight.toFixed(2) + "%";
-                d.currentLightRif = t.minLightAuto.toFixed(2) + "%";
-                switch (d.statusLight) {
-                  case TypeStatus.OFF:
-                    d.progType = "SPENTO";
-                    break;
-                  case TypeStatus.ON:
-                    d.progType = "ACCESO";
-                    break;
-                  case TypeStatus.MANUAL:
-                    d.progType = "MANUALE";
-                    break;
-                  case TypeStatus.AUTO:
-                    d.progType = "AUTOMATICO";
-                    break;
-                }
-
+                d.currentLightRif = "N/A";
+                if (d.statusLight === TypeStatus.AUTO)
+                  d.currentLightRif = t.minLightAuto.toFixed(2) + "%";
                 sd.push(d);
               }
             }
@@ -369,8 +349,8 @@ export default {
             this.getReleData,
             this.tmpModalData.timeout
           );
-          this.tmpModalData.currentConfig = sd[0];
-          this.tmpModalData.currentProg = sd[0].statusThermostat;
+          //this.tmpModalData.currentConfig = sd[0];
+          //this.tmpModalData.currentProg = sd[0].statusThermostat;
           this.tmpModalData.windowsOpen = true;
         })
         .catch((error) => {
