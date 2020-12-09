@@ -104,7 +104,7 @@
                     v-model="dettaglioProgramma.minLight"
                     :min="minTemp"
                     :max="maxTemp"
-                    :interval="intTemp"
+                    :interval="intervalTemp"
                     @change="checkUpdateField"
                   ></slider>
                 </b-col>
@@ -136,7 +136,7 @@
                     v-model="dettaglioProgramma.minTemp"
                     :min="minTemp"
                     :max="maxTemp"
-                    :interval="intTemp"
+                    :interval="intervalTemp"
                     @change="checkUpdateField"
                   ></slider>
                 </b-col>
@@ -166,7 +166,7 @@
                     v-model="dettaglioProgramma.minTempManual"
                     :min="minTemp"
                     :max="maxTemp"
-                    :interval="intTemp"
+                    :interval="intervalTemp"
                     @change="checkUpdateField"
                   ></slider>
                 </b-col>
@@ -354,7 +354,7 @@ export default {
       // valori default
       maxTemp: 25,
       minTemp: 10,
-      intTemp: 0.5,
+      intervalTemp: 0.5,
       disableAggiorna: true,
       disableElimina: false,
       disableAttiva: false,
@@ -610,10 +610,10 @@ export default {
       let now = new Date();
       now.setHours(h);
       now.setMinutes(m);
-      now.setSeconds(0);
-      now.setMilliseconds(0);
-      now.getHours;
-      return moment(now).format();
+      // now.setSeconds(0);
+      // now.setMilliseconds(0);
+      // now.getHours;
+      return moment(now).format("HH:mm:00");
     },
     recuperaElencoSensori() {
       let info = getServiceInfo(GET_CONFIGURATION);
@@ -657,11 +657,11 @@ export default {
         this.titolo = "Programmazione Termostato";
         this.maxTemp = 25;
         this.minTemp = 10;
-        this.intTemp = 0.5;
+        this.intervalTemp = 0.5;
       } else {
         this.maxTemp = 100;
-        this.minTemp = 1;
-        this.intTemp = 1;
+        this.minTemp = 0;
+        this.intervalTemp = 1;
         this.titolo = "Programmazione Accensione Luce";
       }
       let info = getServiceInfo(GET_PROGRAMMING);

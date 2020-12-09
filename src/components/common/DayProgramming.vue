@@ -13,6 +13,7 @@
           <b-button
             class="my-1"
             variant="primary"
+            :disabled="model.prog.length < 2"
             @click="manageButton('deleteB', entry.ix)"
           >
             <b-icon icon="trash"></b-icon>
@@ -42,13 +43,13 @@
             <label class="font-weight-bold">Temperatura Minima</label>
           </b-col>
         </b-row>
-        <b-row>
+        <b-row  class="mt-2">
           <b-col sm="9">
             <slider
               v-model="entry.minTemp"
               :min="minTemp"
               :max="maxTemp"
-              :interval="intTemp"
+              :interval="intervalTemp"
               @change="checkField"
             ></slider>
           </b-col>
@@ -64,12 +65,12 @@
           </b-col>
         </b-row>
         <b-row>
-          <b-col sm="9">
+          <b-col sm="9" >
             <slider
               v-model="entry.minLight"
               :min="minTemp"
               :max="maxTemp"
-              :interval="intTemp"
+              :interval="intervalTemp"
               @change="checkField"
             ></slider>
           </b-col>
@@ -87,17 +88,16 @@
         </b-row>
         <b-row>
           <b-col>
-            <datetime
-              :input-id="entry.idOraOn"
-              input-style="width: 60px;text-align:center;"
+            <b-form-timepicker
+              :id="entry.idOraOn"
               v-model="entry.oraOn"
-              type="time"
-              :minute-step="10"
-              :hour-step="1"
-              title="Imposta Ora Accensione"
-              zone="Europe/Rome"
-              :phrases="{ ok: 'Continua', cancel: 'Esci' }"
-              @close="checkField"
+              @hidden="checkField"
+              :hour12 = "false"
+              label-no-time-selected = "Imposta ora"
+              label-hours ="Ore"
+              label-minutes = "Minuti"
+              :minutes-step = "10"
+              :hide-header="true"
             />
           </b-col>
         </b-row>
@@ -110,18 +110,16 @@
         </b-row>
         <b-row>
           <b-col>
-            <datetime
-              :input-id="entry.idOraOff"
-              input-style="width: 60px;text-align:center;"
+            <b-form-timepicker
+              :id="entry.idOraOff"
               v-model="entry.oraOff"
-              type="time"
-              :minute-step="10"
-              :hour-step="1"
-              title="Imposta Ora Spegnimento"
-              :min-datetime="dateOn"
-              :phrases="{ ok: 'Continua', cancel: 'Esci' }"
-              zone="Europe/Rome"
-              @close="checkField"
+              @hidden="checkField"
+              :hour12 = "false"
+              label-no-time-selected = "Imposta ora"
+              label-hours ="Ore"
+              label-minutes = "Minuti"
+              :minutes-step = "10"
+              :hide-header="true"
             />
           </b-col>
         </b-row>
@@ -147,18 +145,13 @@
   </div>
 </template>
 <script>
-import { Datetime, DatetimeTimePicker } from "vue-datetime";
-import "vue-datetime/dist/vue-datetime.css";
 import VueSlider from "vue-slider-component";
 import "vue-slider-component/theme/default.css";
 import moment from "moment";
-//import { BIcon } from "bootstrap-vue";
 
 export default {
   name: "DayProgramming",
   components: {
-    datetime: Datetime,
-    picker: DatetimeTimePicker,
     slider: VueSlider,
   },
   props: ["model", "deviceList", "programmingType"],
@@ -168,41 +161,31 @@ export default {
       dateOff: "23:50",
       maxTemp: 25,
       minTemp: 10,
-      intTemp: 0.5,
+      intervalTemp: 0.5,
       tmpSaveData: {},
     };
   },
   computed: {
-    intervalStateInvalidFeedback() {
-      console.log("Call intervalStateInvalidFeedback");
-      return "Dato immesso non valido";
-    },
   },
   beforeMount: function() {
-    console.log(">>>> DayProgramming : beforeMount : reset configuration..");
     this.updateButton();
     this.resetConfiguration();
   },
   mounted: function() {
-    console.log(">>>> DayProgramming : mounted");
   },
   beforeUpdate: function() {
-    console.log(">>>> DayProgramming : beforeUpdate..");
     this.updateButton();
   },
-  // updated: function() {
-  //   console.log(">>>> DayProgramming : Update..");
-  // },
   methods: {
     checkField(event) {
       let change = false;
       if (this.model.prog.length != this.tmpSaveData.prog.length) change = true;
       else {
-        for (let ix = 0; ix < this.model.prog.length; ix++) {
+        for (let ix = 0; ix < this.model.prog.length; ix++) {          
           let rec = this.model.prog[ix];
           let recSave = this.tmpSaveData.prog[ix];
-          let ts = this.getNumFromData(new Date(rec.oraOn));
-          let te = this.getNumFromData(new Date(rec.oraOff));
+          let ts = this.getNumFromString(rec.oraOn);
+          let te = this.getNumFromString(rec.oraOff);
           rec.timeStart = ts;
           rec.timeEnd = te;
           change =
@@ -226,12 +209,17 @@ export default {
       if (this.programmingType === 1) {
         this.maxTemp = 25;
         this.minTemp = 10;
-        this.intTemp = 0.5;
+        this.intervalTemp = 0.5;
       } else {
         this.maxTemp = 100;
-        this.minTemp = 1;
-        this.intTemp = 1;
+        this.minTemp = 0;
+        this.intervalTemp = 1;
       }
+    },
+    getNumFromString(dt) {
+      let h = parseInt(dt.substring(0,2));
+      let m =  parseInt(dt.substring(3,5));
+      return h * 60 + m;
     },
     getNumFromData(dt) {
       let h = dt.getHours();
@@ -239,6 +227,7 @@ export default {
       return h * 60 + m;
     },
     updateButton() {
+      // manage delete button
       for (let ix = 0; ix < this.model.prog.length; ix++) {
         let rec = this.model.prog[ix];
         rec.up = ix === 0;
