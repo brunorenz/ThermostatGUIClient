@@ -38,7 +38,7 @@
     "bootstrap": "^4.5.3",
     "bootstrap-vue": "^2.19.0",
     "chart.js": "^2.9.4",
-    "luxon": "1.25.0",
+    "luxon": "2.5.2",
     "weekstart": "1.0.1",
     "vue-slider-component": "3.2.11"
   },
